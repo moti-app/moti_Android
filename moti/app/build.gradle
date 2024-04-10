@@ -2,7 +2,14 @@ plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
 }
-
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withInputStream { stream ->
+        localProperties.load(stream)
+    }
+}
+def googleMapsApiKey = localProperties.getProperty('GoogleMapsAPIKey')
 android {
     namespace 'com.example.moti'
     compileSdk 34
@@ -15,7 +22,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"${GoogleMapsAPIKey}\"")
+        buildConfigField("String", "GOOGLE_MAPS_API_KEY", "\"${googleMapsApiKey}\"")
     }
 
     viewBinding {
@@ -34,6 +41,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildToolsVersion '33.0.1'
+    buildFeatures {
+        buildConfig true
     }
 }
 
