@@ -15,6 +15,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
     private var _binding: FragmentAddMemoBinding? = null
     private val binding get() = _binding!!
 
+    var onDismissListener: (() -> Unit)? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -25,7 +27,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        // Setup your UI and logic here
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -34,6 +36,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
         _binding = null
     }
 }

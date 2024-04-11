@@ -24,7 +24,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private lateinit var googleMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val locationRequestCode = 1000
-    private val defaultMapZoomLevel = 15f;
+    private val defaultMapZoomLevel = 15f
+    private var bottomSheetVisible = false
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
@@ -52,15 +54,22 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
         enableMyLocationIfPermitted()
-        // 지도 클릭 리스너 설정
         googleMap.setOnMapClickListener { latLng ->
-            // 지도의 아무 위치를 클릭하면 AddMemoBottomSheet 표시
             showAddMemoBottomSheet()
         }
     }
+
     private fun showAddMemoBottomSheet() {
         val addMemoBottomSheet = AddLocationMemoFragment()
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
+        addMemoBottomSheet.onDismissListener = {
+            bottomSheetVisible = false
+            googleMap.setPadding(0, 0, 0, 0)
+            moveToMyLocation()
+        }
+        bottomSheetVisible = true
+        googleMap.setPadding(0, 0, 0, 1260)
+        moveToMyLocation()
     }
 
     private fun enableMyLocationIfPermitted() {

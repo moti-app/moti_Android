@@ -89,4 +89,10 @@
     <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
         <item name="android:backgroundDimEnabled">false</item>
     </style>
+    <style name="CustomSeekBarStyle" parent="Widget.AppCompat.SeekBar">
+        <item name="colorControlNormal">@color/mt_gray2</item>
+        <item name="colorControlActivated">@color/mt_main</item>
+        <item name="colorControlHighlight">@color/black</item>
+        <!-- 여기에 더 많은 스타일 속성 추가 가능 -->
+    </style>
 </resources>
