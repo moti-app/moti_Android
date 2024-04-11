@@ -52,6 +52,15 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
         enableMyLocationIfPermitted()
+        // 지도 클릭 리스너 설정
+        googleMap.setOnMapClickListener { latLng ->
+            // 지도의 아무 위치를 클릭하면 AddMemoBottomSheet 표시
+            showAddMemoBottomSheet()
+        }
+    }
+    private fun showAddMemoBottomSheet() {
+        val addMemoBottomSheet = AddLocationMemoFragment()
+        addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
     }
 
     private fun enableMyLocationIfPermitted() {
