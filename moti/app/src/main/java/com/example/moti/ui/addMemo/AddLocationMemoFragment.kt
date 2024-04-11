@@ -1,10 +1,13 @@
 package com.example.moti.ui.map
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.moti.R
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class AddLocationMemoFragment : BottomSheetDialogFragment() {
@@ -23,6 +26,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        return BottomSheetDialog(requireContext(), R.style.CustomBottomSheetDialog)
     }
 
     override fun onDestroyView() {

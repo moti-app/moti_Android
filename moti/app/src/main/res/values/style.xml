@@ -86,4 +86,7 @@
         <item name="colorAccent">@color/mt_main</item>
         <item name="colorControlNormal">@color/black</item>
     </style>
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
 </resources>
