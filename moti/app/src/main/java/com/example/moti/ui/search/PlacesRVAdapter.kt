@@ -11,8 +11,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
 
-class PlacesRVAdapter (private val places : ArrayList<PlaceItem>) : RecyclerView.Adapter<PlacesRVAdapter.PlaceViewHolder>(), Filterable {
-    private var files: ArrayList<PlaceItem>? = places
+class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView.Adapter<PlacesRVAdapter.PlaceViewHolder>(), Filterable {
+    private var files: MutableList<PlaceItem> = places
     inner class PlaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title: TextView = itemView.findViewById(R.id.tv_item_place_title)
         val contents: TextView = itemView.findViewById(R.id.tv_item_place_contents)
@@ -57,7 +57,7 @@ class PlacesRVAdapter (private val places : ArrayList<PlaceItem>) : RecyclerView
             @SuppressLint("NotifyDataSetChanged")
             override fun publishResults(p0: CharSequence?, p1: FilterResults?) {
                 p1?.let {
-                    files = it.values as? ArrayList<PlaceItem>
+                    files = (it.values as? MutableList<PlaceItem>)!!
                 }
                 notifyDataSetChanged()
             }
