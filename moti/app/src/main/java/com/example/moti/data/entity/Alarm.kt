@@ -6,6 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "Alarm")
 data class Alarm (
+    @PrimaryKey(autoGenerate = true)
+    var alarmId : Long,
     var title : String,
     var context : String,
     @Embedded
@@ -16,6 +18,13 @@ data class Alarm (
     var repeatDay : Week,
     var hasBanner : Boolean
 ){
-    @PrimaryKey(autoGenerate = true)
-    var alarmId : Long = 0
+  constructor(title : String,
+              context : String,
+              location : Location,
+              whenArrival : Boolean,
+              radius : Double,
+              isRepeat : Boolean,
+              repeatDay : Week,
+              hasBanner : Boolean)
+          : this(0, title, context, location, whenArrival, radius, isRepeat, repeatDay, hasBanner)
 }

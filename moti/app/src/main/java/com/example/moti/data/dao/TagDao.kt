@@ -12,7 +12,7 @@ import com.example.moti.data.entity.Tag
 @Dao
 interface TagDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE) //primarykey 겹칠때 기존 데이터 삭제하고 새로운 데이터로 대체
-    fun insert(tag: Tag)
+    fun insert(tag: Tag):Long
 
     @Update
     fun update(tag: Tag)
@@ -21,5 +21,5 @@ interface TagDao {
     fun delete(tag: Tag)
 
     @Query("select * from Tag")
-    fun findAllTags(): Tag
+    fun findAllTags(): List<Tag>
 }

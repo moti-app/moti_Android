@@ -21,5 +21,5 @@ interface RecentLocationDao {
     fun delete(recentLocation: RecentLocation)
 
     @Query("select * from RecentLocation")
-    fun findAllRecentLocations(): RecentLocation
+    fun findAllRecentLocations(): List<RecentLocation>
 }

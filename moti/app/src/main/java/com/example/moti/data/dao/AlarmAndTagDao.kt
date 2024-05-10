@@ -20,6 +20,12 @@ interface AlarmAndTagDao {
     @Delete
     fun delete(alarmAndTag:AlarmAndTag)
 
+    @Delete
+    fun delete(alarmAndTag: List<AlarmAndTag>)
+
     @Query("select * from AlarmAndTag")
-    fun findAllAlarms():AlarmAndTag
+    fun findAllAlarmAndTags():List<AlarmAndTag>
+
+    @Query("select * from AlarmAndTag where alarmId = :id")
+    fun findAllByAlarmId(id:Long):List<AlarmAndTag>
 }
