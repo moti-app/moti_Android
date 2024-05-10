@@ -1,5 +1,6 @@
 package com.example.moti.data.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,6 +8,7 @@ import androidx.room.PrimaryKey
 data class Alarm (
     var title : String,
     var context : String,
+    @Embedded
     var location : Location,
     var whenArrival : Boolean,
     var radius : Double,
@@ -15,5 +17,5 @@ data class Alarm (
     var hasBanner : Boolean
 ){
     @PrimaryKey(autoGenerate = true)
-    val alarmId : Long = 0
+    var alarmId : Long = 0
 }

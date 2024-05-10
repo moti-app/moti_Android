@@ -8,5 +8,5 @@ data class Tag (
     var tagTitle : String
 ){
     @PrimaryKey(autoGenerate = true)
-    val tagId : Long = 0
+    var tagId : Long = 0
 }
