@@ -31,7 +31,7 @@ class AlarmRepository(private val alarmDao: AlarmDao,
         return alarmDao.findAllAlarms()
     }
 
-    /**알람 상세 조회*/
+    /**알람(+태그) 상세 조회*/
     @WorkerThread
     fun findAlarm(alarmId : Long): AlarmDetail{
         var tags = tagDao.findTagsByAlarmId(alarmId)

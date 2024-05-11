@@ -23,6 +23,6 @@ interface TagDao {
     @Query("select * from Tag")
     fun findAllTags(): List<Tag>
 
-    @Query("select * from Tag left join AlarmAndTag where alarmId = :alarmId")
+    @Query("select * from Tag natural join AlarmAndTag where alarmId = :alarmId")
     fun findTagsByAlarmId(alarmId:Long):List<Tag>
 }
