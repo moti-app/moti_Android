@@ -15,8 +15,7 @@ class AlarmRepository(private val alarmDao: AlarmDao,
                       private val tagDao: TagDao,
                       private val alarmAndTagDao: AlarmAndTagDao
 ) {
-
-    /**테스트 필요*/
+    
     /**알람 생성*/
     @WorkerThread
     fun createAlarmAndTag(alarm : Alarm, tagIds: List<Long>){
