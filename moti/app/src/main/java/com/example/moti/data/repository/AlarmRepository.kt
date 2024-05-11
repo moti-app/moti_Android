@@ -8,6 +8,7 @@ import com.example.moti.data.dao.TagDao
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.AlarmAndTag
 import com.example.moti.data.entity.Tag
+import com.example.moti.data.repository.dto.AlarmDetail
 import kotlin.streams.toList
 
 class AlarmRepository(private val alarmDao: AlarmDao,
@@ -15,6 +16,7 @@ class AlarmRepository(private val alarmDao: AlarmDao,
                       private val alarmAndTagDao: AlarmAndTagDao
 ) {
 
+    /**테스트 필요*/
     /**알람 생성*/
     @WorkerThread
     fun createAlarmAndTag(alarm : Alarm, tagIds: List<Long>){
@@ -31,8 +33,10 @@ class AlarmRepository(private val alarmDao: AlarmDao,
 
     /**알람 상세 조회*/
     @WorkerThread
-    fun findAlarm(alarmId : Long): Alarm{
-        return alarmDao.findAlarmById(alarmId)
+    fun findAlarm(alarmId : Long): AlarmDetail{
+        var tags = tagDao.findTagsByAlarmId(alarmId)
+        var alarm = alarmDao.findAlarmById(alarmId)
+        return AlarmDetail(alarm, tags)
     }
 
     /**알람 수정*/
