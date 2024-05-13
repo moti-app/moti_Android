@@ -9,19 +9,34 @@ import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moti.R
+import com.example.moti.databinding.ItemPlaceBinding
 
 class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView.Adapter<PlacesRVAdapter.PlaceViewHolder>(), Filterable {
     private var files: MutableList<PlaceItem> = places
-    inner class PlaceViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val title: TextView = itemView.findViewById(R.id.tv_item_place_title)
-        val contents: TextView = itemView.findViewById(R.id.tv_item_place_contents)
-        val img: ImageView = itemView.findViewById(R.id.iv_item_place)
+    inner class PlaceViewHolder(private val binding: ItemPlaceBinding) : RecyclerView.ViewHolder(binding.root) {
+        val title: TextView = binding.tvItemPlaceTitle
+        val contents: TextView = binding.tvItemPlaceContents
+        val img: ImageView = binding.ivItemPlace
+        private lateinit var item: PlaceItem
+
+        init {
+            if(SearchDefaultFragment.getInstance()!=null) {
+                binding.imageButton.visibility = View.VISIBLE
+                binding.imageButton.isEnabled = true
+                binding.imageButton.setOnClickListener() {
+
+                    SearchDefaultFragment.getInstance()?.deleteRecentItem(item)
+                }
+            }
+        }
+        fun setData(item: PlaceItem){
+            this.item = item
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaceViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_place, parent, false)
-        return PlaceViewHolder(view)
+        val binding = ItemPlaceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return PlaceViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -32,6 +47,8 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
         holder.title.text = places[position].title
         holder.contents.text = places[position].contents
         holder.img.setImageResource(places[position].img)
+        val item = files[position]
+        holder.setData(item)
     }
 
     override fun getFilter(): Filter {

@@ -14,7 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="10dp"
-        app:srcCompat="@drawable/ic_launcher_background"/>
+        app:srcCompat="@drawable/ic_baseline_place_24"/>
 
     <Space
         android:id="@+id/spacer"
@@ -56,6 +56,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:padding="10dp"
-        app:srcCompat="@drawable/baseline_arrow_outward_24"
-        android:background="#00000000"/>
+        app:srcCompat="@drawable/ic_baseline_clear_24"
+        android:background="#00000000"
+        android:visibility="invisible"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

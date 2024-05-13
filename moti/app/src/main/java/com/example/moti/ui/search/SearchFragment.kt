@@ -4,10 +4,12 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
 import com.example.moti.databinding.FragmentSearchBinding
 import com.google.gson.annotations.SerializedName
@@ -86,6 +88,20 @@ class SearchFragment : Fragment() {
     }
     @SuppressLint("NotifyDataSetChanged")
     private fun setupPlacesRV() {
+        binding.rvSearch.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
+            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
+                val child = rv.findChildViewUnder(e.x, e.y)
+                val position = rv.getChildAdapterPosition(child!!)
+                searchPlaces(autocompleteList[position].contents)
+                return false
+            }
+
+            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
+
+            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+
+            }
+        })
         binding.rvSearch.adapter = adapter
         adapter.notifyDataSetChanged()
         binding.rvSearch.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
@@ -184,7 +200,7 @@ class SearchFragment : Fragment() {
                         val description = prediction.description
                         val main = prediction.structuredFormatting.mainText
                         val second = prediction.structuredFormatting.secondaryText
-                        autocompleteList.add(PlaceItem(main, second, R.drawable.ic_launcher_background))
+                        autocompleteList.add(PlaceItem(main, second, R.drawable.ic_baseline_place_24))
                     }
                     adapter.notifyDataSetChanged()
                 } else {
