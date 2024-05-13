@@ -46,7 +46,6 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
     override fun onBindViewHolder(holder: PlaceViewHolder, position: Int) {
         holder.title.text = places[position].title
         holder.contents.text = places[position].contents
-        holder.img.setImageResource(places[position].img)
         val item = files[position]
         holder.setData(item)
     }
@@ -82,4 +81,4 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
         }
     }
 }
-data class PlaceItem(val title: String, val contents: String, val img: Int)
+data class PlaceItem(val title: String, val contents: String)

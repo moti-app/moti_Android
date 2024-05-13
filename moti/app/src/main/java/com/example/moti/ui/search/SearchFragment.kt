@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moti.R
 import com.example.moti.databinding.FragmentSearchBinding
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
@@ -200,7 +199,7 @@ class SearchFragment : Fragment() {
                         val description = prediction.description
                         val main = prediction.structuredFormatting.mainText
                         val second = prediction.structuredFormatting.secondaryText
-                        autocompleteList.add(PlaceItem(main, second, R.drawable.ic_baseline_place_24))
+                        autocompleteList.add(PlaceItem(main, second))
                     }
                     adapter.notifyDataSetChanged()
                 } else {

@@ -68,9 +68,9 @@ class SearchDefaultFragment : Fragment() {
     }
     @SuppressLint("NotifyDataSetChanged")
     private fun setupPlacesRV() {
-        itemList2.add(PlaceItem("학교", "A", R.drawable.ic_baseline_place_24))
-        itemList2.add(PlaceItem("학교", "B", R.drawable.ic_baseline_place_24))
-        itemList2.add(PlaceItem("학교", "C", R.drawable.ic_baseline_place_24))
+        itemList2.add(PlaceItem("학교", "A"))
+        itemList2.add(PlaceItem("학교", "B"))
+        itemList2.add(PlaceItem("학교", "C"))
 
         binding.rvRecent.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
