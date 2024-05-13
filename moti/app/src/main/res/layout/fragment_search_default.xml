@@ -12,20 +12,23 @@
         android:id="@+id/rv_favorites"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/item_favorite"/>
+        tools:listitem="@layout/item_favorite"
+        android:background="@color/white"/>
     <Space
         android:layout_width="wrap_content"
         android:layout_height="10dp"/>
     <TextView
         android:layout_width="75dp"
-        android:layout_height="15dp"
+        android:layout_height="wrap_content"
         android:paddingHorizontal="10dp"
         android:textSize="12sp"
-        android:text="@string/recent_search" />
+        android:text="@string/recent_search"
+        android:layout_marginBottom="10dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_recent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/item_place"/>
+        tools:listitem="@layout/item_place"
+        android:background="@color/mt_gray1"/>
 </LinearLayout>

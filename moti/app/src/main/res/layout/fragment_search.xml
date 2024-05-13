@@ -3,7 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.search.SearchFragment">
+    tools:context=".ui.search.SearchFragment"
+    android:background="@color/mt_gray1">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -13,5 +14,5 @@
         android:id="@+id/rv_search"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:listitem="@layout/item_place"/>
+        tools:listitem="@layout/item_place" />
 </FrameLayout>

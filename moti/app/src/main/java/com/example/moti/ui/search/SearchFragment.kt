@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.databinding.FragmentSearchBinding
@@ -87,6 +88,8 @@ class SearchFragment : Fragment() {
     }
     @SuppressLint("NotifyDataSetChanged")
     private fun setupPlacesRV() {
+        val decoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
+        binding.rvSearch.addItemDecoration(decoration)
         binding.rvSearch.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 val child = rv.findChildViewUnder(e.x, e.y)

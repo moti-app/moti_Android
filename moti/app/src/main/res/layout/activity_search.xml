@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.search.SearchActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/mt_white">
 
     <FrameLayout
         android:id="@+id/search_fl"
@@ -27,7 +28,8 @@
     <FrameLayout
         android:id="@+id/fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:background="@color/mt_gray1"/>
 
 
 </LinearLayout>

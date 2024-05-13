@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
@@ -71,6 +72,9 @@ class SearchDefaultFragment : Fragment() {
         itemList2.add(PlaceItem("학교", "A"))
         itemList2.add(PlaceItem("학교", "B"))
         itemList2.add(PlaceItem("학교", "C"))
+
+        val decoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
+        binding.rvRecent.addItemDecoration(decoration)
 
         binding.rvRecent.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
