@@ -123,14 +123,15 @@ class SearchFragment : Fragment() {
         call.enqueue(object : Callback<PlaceSearchResponse> {
             override fun onResponse(call: Call<PlaceSearchResponse>, response: Response<PlaceSearchResponse>) {
                 if (response.isSuccessful) {
-                    val name = response.body()?.results?.get(0)?.name
+                    val address = response.body()?.results?.get(0)?.formattedAddress
                     val lat = response.body()?.results?.get(0)?.geometry?.location?.lat
                     val lng = response.body()?.results?.get(0)?.geometry?.location?.lng
                     val intent = Intent(activity, MainActivity::class.java)
 
                     intent.putExtra("name",place)
-                    intent.putExtra("lat",lat)
-                    intent.putExtra("lng",lng)
+                    intent.putExtra("address",address)
+                    intent.putExtra("lat",lat.toString())
+                    intent.putExtra("lng",lng.toString())
                     activity!!.setResult(RESULT_OK, intent)
                     activity!!.finish()
                 }

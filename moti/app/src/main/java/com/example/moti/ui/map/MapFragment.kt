@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -64,8 +65,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 val name = myData?.getStringExtra("name")
                 val lat = result.data?.getStringExtra("lat")
                 val lng = myData?.getStringExtra("lng")
+                val address = myData?.getStringExtra("address")
 
-                showAddMemoBottomSheet()
+
+                showAddMemoBottomSheet2(name!!,lat!!.toDouble(),lng!!.toDouble(),address!!)
+//                showAddMemoBottomSheet()
 
             }
         }
@@ -85,6 +89,18 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private fun showAddMemoBottomSheet() {
         val addMemoBottomSheet = AddLocationMemoFragment()
+        addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
+        addMemoBottomSheet.onDismissListener = {
+            bottomSheetVisible = false
+            googleMap.setPadding(0, 0, 0, 0)
+            moveToMyLocation()
+        }
+        bottomSheetVisible = true
+        googleMap.setPadding(0, 0, 0, 1260)
+        moveToMyLocation()
+    }
+    private fun showAddMemoBottomSheet2(name:String,lat:Double,lng:Double,address:String) {
+        val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name,lat,lng,address)
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
         addMemoBottomSheet.onDismissListener = {
             bottomSheetVisible = false
