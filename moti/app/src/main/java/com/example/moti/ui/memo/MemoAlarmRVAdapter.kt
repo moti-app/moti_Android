@@ -56,6 +56,11 @@ class MemoAlarmRVAdapter(private val context: Context): RecyclerView.Adapter<Mem
             layoutParams.marginStart = newMarginStart
             holder.binding.itemMemoInfoTv.layoutParams = layoutParams
 
+            val newMarginEnd = -100
+            val layoutParams2 = holder.binding.itemMemoWeekDayLl.layoutParams as ViewGroup.MarginLayoutParams
+            layoutParams2.marginEnd = newMarginEnd
+            holder.binding.itemMemoWeekDayLl.layoutParams = layoutParams2
+
             true
         }
 
