@@ -1,6 +1,8 @@
 package com.example.moti.ui.map
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -8,9 +10,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.moti.R
+import com.example.moti.databinding.FragmentMapBinding
+import com.example.moti.ui.search.SearchActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -18,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+
 
 class MapFragment : Fragment(), OnMapReadyCallback {
 
@@ -27,8 +33,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val defaultMapZoomLevel = 15f
     private var bottomSheetVisible = false
 
+    private lateinit var binding:FragmentMapBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_map, container, false)
+        binding = FragmentMapBinding.inflate(layoutInflater)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,6 +57,21 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             } else {
                 moveToMyLocation()
             }
+        }
+        val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val myData: Intent? = result.data
+                val name = myData?.getStringExtra("name")
+                val lat = result.data?.getStringExtra("lat")
+                val lng = myData?.getStringExtra("lng")
+
+                showAddMemoBottomSheet()
+
+            }
+        }
+        binding.btnSearch.setOnClickListener() {
+            val intent = Intent(activity, SearchActivity::class.java)
+            resultLauncher.launch(intent)
         }
     }
 

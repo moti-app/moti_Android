@@ -1,6 +1,8 @@
 package com.example.moti.ui.search
 
 import android.annotation.SuppressLint
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.BuildConfig
 import com.example.moti.databinding.FragmentSearchBinding
+import com.example.moti.ui.main.MainActivity
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -22,6 +25,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+
 
 private const val ARG_PARAM1 = "param1"
 class SearchFragment : Fragment() {
@@ -97,7 +101,7 @@ class SearchFragment : Fragment() {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 val child = rv.findChildViewUnder(e.x, e.y)
                 val position = rv.getChildAdapterPosition(child!!)
-                searchPlaces(autocompleteList[position].contents)
+                searchPlaces(autocompleteList[position].contents,autocompleteList[position].title)
                 return false
             }
 
@@ -112,7 +116,7 @@ class SearchFragment : Fragment() {
         binding.rvSearch.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
     }
 
-    fun searchPlaces(query: String) {
+    fun searchPlaces(query: String,place:String) {
         val service = retrofit.create(PlaceSearchService::class.java)
         val call = service.getPlaceSearch(query, COUNTRY_CODE,"ko", API_KEY)
 
@@ -122,10 +126,13 @@ class SearchFragment : Fragment() {
                     val name = response.body()?.results?.get(0)?.name
                     val lat = response.body()?.results?.get(0)?.geometry?.location?.lat
                     val lng = response.body()?.results?.get(0)?.geometry?.location?.lng
-                    Log.d("lat","$lat")
-                    Log.d("lng","$lng")
-                } else {
-                    Log.e(TAG, "Error: ${response.code()}")
+                    val intent = Intent(activity, MainActivity::class.java)
+
+                    intent.putExtra("name",place)
+                    intent.putExtra("lat",lat)
+                    intent.putExtra("lng",lng)
+                    activity!!.setResult(RESULT_OK, intent)
+                    activity!!.finish()
                 }
             }
 

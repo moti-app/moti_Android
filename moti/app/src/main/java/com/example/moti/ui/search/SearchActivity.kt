@@ -28,7 +28,7 @@ class SearchActivity : AppCompatActivity() {
         binding.searchSv.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (query != null) {
-                    searchFragment?.searchPlaces(query)
+                    //searchFragment?.searchPlaces(query)
                     Log.d("submit","$query")
                     return true
                 }
