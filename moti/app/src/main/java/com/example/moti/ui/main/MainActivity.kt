@@ -19,6 +19,9 @@ class MainActivity : AppCompatActivity() {
         initBottomNavigation()
 
         setContentView(binding.root)
+
+        val serviceIntent = Intent(this, LocationService::class.java)
+        startService(serviceIntent)
     }
 
     private fun initBottomNavigation() {
