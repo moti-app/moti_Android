@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.moti.BuildConfig
 import com.example.moti.databinding.FragmentSearchBinding
 import com.google.gson.annotations.SerializedName
 import okhttp3.OkHttpClient
@@ -25,9 +26,11 @@ import retrofit2.http.Query
 private const val ARG_PARAM1 = "param1"
 class SearchFragment : Fragment() {
 
+    private val api = BuildConfig.PLACE_API_KEY
+
     private val TAG = "placeApi"
     private val BASE_URL = "https://maps.googleapis.com"
-    private val API_KEY = "APIKEY"
+    private val API_KEY = api
     private val COUNTRY_CODE = "country:kr"
 
 
