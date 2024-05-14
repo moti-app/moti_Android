@@ -4,10 +4,12 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.moti.R
@@ -26,6 +28,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val locationRequestCode = 1000
     private val defaultMapZoomLevel = 15f
     private var bottomSheetVisible = false
+    private var clickedLocation: LatLng? = null // 클릭한 좌표를 저장할 변수 추가
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_map, container, false)
@@ -55,6 +58,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         this.googleMap = googleMap
         enableMyLocationIfPermitted()
         googleMap.setOnMapClickListener { latLng ->
+            clickedLocation = latLng // 클릭한 좌표를 변수에 저장
+            val currentLatLng = LatLng(latLng.latitude, latLng.longitude)
+            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, defaultMapZoomLevel))
             showAddMemoBottomSheet()
         }
     }
@@ -64,12 +70,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
         addMemoBottomSheet.onDismissListener = {
             bottomSheetVisible = false
-            googleMap.setPadding(0, 0, 0, 0)
-            moveToMyLocation()
+            //googleMap.setPadding(0, 0, 0, 0)
+            //moveToMyLocation()
         }
         bottomSheetVisible = true
         googleMap.setPadding(0, 0, 0, 1260)
-        moveToMyLocation()
+        //moveToMyLocation()
     }
 
     private fun enableMyLocationIfPermitted() {
