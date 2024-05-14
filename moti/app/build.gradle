@@ -4,7 +4,9 @@ plugins {
     id 'com.google.devtools.ksp' version '1.8.0-1.0.8'
 
 }
-
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def googleMapApiKey = properties.getProperty('google_maps_key')
 android {
     namespace 'com.example.moti'
     compileSdk 34
@@ -17,6 +19,7 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [googleMapApiKey: googleMapApiKey]
     }
 
     viewBinding {
@@ -36,6 +39,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildToolsVersion '33.0.1'
+    buildFeatures {
+        buildConfig true
+    }
 }
 
 dependencies {
@@ -51,4 +58,6 @@ dependencies {
     implementation "androidx.room:room-runtime:$roomVersion"
     ksp ("androidx.room:room-compiler:$roomVersion")
     implementation "androidx.room:room-ktx:$roomVersion"
+    implementation 'com.google.android.gms:play-services-maps:18.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.2.0'
 }
