@@ -20,6 +20,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [googleMapApiKey: googleMapApiKey]
+        buildConfigField "String", "PLACE_API_KEY",("\""+googleMapApiKey+"\"")
     }
 
     viewBinding {
