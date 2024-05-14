@@ -78,6 +78,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         //moveToMyLocation()
     }
 
+
     private fun enableMyLocationIfPermitted() {
         if (ActivityCompat.checkSelfPermission(requireContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
