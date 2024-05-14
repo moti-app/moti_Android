@@ -1,9 +1,13 @@
 package com.example.moti.data.entity
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.Date
 
 @Entity
 data class RecentLocation(
@@ -15,9 +19,8 @@ data class RecentLocation(
     @Embedded
     var location : Location
 ){
-    constructor( isSaved : Boolean,
-                 createdAt : LocalDateTime,
-                 updatedAt : LocalDateTime,
-                 location : Location)
-    :this(0, isSaved, createdAt, updatedAt, location)
+    @RequiresApi(Build.VERSION_CODES.O)
+    constructor(isSaved : Boolean,
+                location : Location)
+    :this(0, false, LocalDateTime.now(), LocalDateTime.now(), location)
 }
