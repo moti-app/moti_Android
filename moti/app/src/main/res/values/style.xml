@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Header Styles with Bold Text -->
+    <style name="h0">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="h1">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="h2">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="h3">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="h4">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="h5">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <!-- Body Styles with Regular Text -->
+    <style name="b0">
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="b1">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="b2">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="b3">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="b4">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">@font/noto_sans_kr</item>
+    </style>
+
+    <style name="b5">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="RadioButtonStyle" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@color/mt_main</item>
+        <item name="colorControlNormal">@color/black</item>
+    </style>
+    <style name="CustomBottomSheetDialog" parent="Theme.Design.Light.BottomSheetDialog">
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+    <style name="CustomSeekBarStyle" parent="Widget.AppCompat.SeekBar">
+        <item name="colorControlNormal">@color/mt_gray2</item>
+        <item name="colorControlActivated">@color/mt_main</item>
+        <item name="colorControlHighlight">@color/black</item>
+        <!-- 여기에 더 많은 스타일 속성 추가 가능 -->
+    </style>
+</resources>
