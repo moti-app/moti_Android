@@ -59,9 +59,9 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         enableMyLocationIfPermitted()
         googleMap.setOnMapClickListener { latLng ->
             clickedLocation = latLng // 클릭한 좌표를 변수에 저장
+            showAddMemoBottomSheet()
             val currentLatLng = LatLng(latLng.latitude, latLng.longitude)
             googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, defaultMapZoomLevel))
-            showAddMemoBottomSheet()
         }
     }
 
