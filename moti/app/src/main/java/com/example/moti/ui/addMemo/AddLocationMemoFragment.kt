@@ -123,6 +123,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             location = Location(
                 lat,lng,address,name
             )
+            name = binding.locationTitleEditText.text.toString()
             context = binding.memoEditText.text.toString()
             val alarm = Alarm(
                 title = name,
