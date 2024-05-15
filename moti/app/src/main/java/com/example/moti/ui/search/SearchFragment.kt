@@ -211,8 +211,8 @@ class SearchFragment : Fragment() {
                         Log.e(TAG, "AAA: 1, ${prediction.description}")
                         val placeId = prediction.placeId
                         val description = prediction.description
-                        val main = prediction.structuredFormatting.mainText
-                        val second = prediction.structuredFormatting.secondaryText
+                        val main = prediction.structuredFormatting.mainText ?: ""
+                        val second = prediction.structuredFormatting.secondaryText ?: ""
                         autocompleteList.add(PlaceItem(main, second))
                     }
                     adapter.notifyDataSetChanged()
