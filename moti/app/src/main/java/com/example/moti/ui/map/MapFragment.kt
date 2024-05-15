@@ -35,7 +35,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class MapFragment : Fragment(), OnMapReadyCallback {
+class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var googleMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -89,7 +89,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 val address = myData.getStringExtra("address")
 
 
-                showAddMemoBottomSheet(name!!,lat,lng,address!!)
+                showAddMemoBottomSheet(name!!,lat,lng,address!!,null)
 
             }
         }
@@ -105,18 +105,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         googleMap.setOnMapClickListener { latLng ->
             lat = latLng.latitude
             lng = latLng.longitude
-            showAddMemoBottomSheet("Enter title",lat,lng,"address")
+            showAddMemoBottomSheet("Enter title",lat,lng,"address",null)
         }
         getAlarm()
+        googleMap.setOnMarkerClickListener(this)
     }
 
-    private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,address:String) {
-        val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name,lat,lng,address)
+    private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,address:String,id:Long?) {
+        val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name,lat,lng,id)
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
         addMemoBottomSheet.onDismissListener = {
             bottomSheetVisible = false
             googleMap.setPadding(0, 0, 0, 0)
             touchMarker.remove()
+            googleMap.clear()
             getAlarm()
         }
         bottomSheetVisible = true
@@ -176,6 +178,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 MarkerOptions()
                     .title(place.title)
                     .position(LatLng(place.location.x,place.location.y))
+                    .snippet(place.alarmId.toString())
             )
         }
     }
@@ -189,5 +192,10 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 addMarkers(googleMap)
             }
         }
+    }
+
+    override fun onMarkerClick(p0: Marker): Boolean {
+        showAddMemoBottomSheet(p0.title.toString(),p0.position.latitude,p0.position.longitude,"address", p0.snippet?.toLong())
+        return true
     }
 }

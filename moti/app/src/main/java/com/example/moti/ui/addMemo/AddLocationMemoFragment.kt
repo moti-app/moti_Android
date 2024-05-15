@@ -1,23 +1,28 @@
 package com.example.moti.ui.map
 
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
+import com.example.moti.data.repository.dto.AlarmDetail
 import com.example.moti.databinding.FragmentAddMemoBinding
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener {
@@ -36,21 +41,25 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var repeatDay : Week = Week.MON
     private var hasBanner : Boolean = true
 
+    private var alarmId: Long? = null
+
     private lateinit var db:MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
     companion object {
         private const val ARG_NAME = "name"
         private const val ARG_LAT = "lat"
         private const val ARG_LNG = "lng"
-        private const val ARG_addr = "addr"
+        private const val ARG_id = "id"
 
-        fun newInstance(name: String, lat: Double, lng: Double, address: String): AddLocationMemoFragment {
+        fun newInstance(name: String, lat: Double, lng: Double,id:Long?): AddLocationMemoFragment {
             val fragment = AddLocationMemoFragment()
             val args = Bundle().apply {
                 putString(ARG_NAME, name)
                 putDouble(ARG_LAT, lat)
                 putDouble(ARG_LNG, lng)
-                putString(ARG_addr, address)
+                if (id != null) {
+                    putLong(ARG_id,id)
+                }
             }
             fragment.arguments = args
             return fragment
@@ -70,13 +79,16 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             name = it.getString(ARG_NAME) ?: "noname"
             lat = it.getDouble(ARG_LAT, 0.0)
             lng = it.getDouble(ARG_LNG, 0.0)
-            address = it.getString(ARG_addr) ?: "noname"
+            alarmId= it.getLong(ARG_id) ?: null
         }
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
-        if (address == "address"||address=="") {
+        if (alarmId?.toInt() ==0) {
             this.address = "$lat,$lng"
             reverseGeocoding.reverseGeocode("$lat,$lng")
+        }
+        else {
+            getAlarm()
         }
 
     }
@@ -89,9 +101,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.saveCancelBtn.setOnClickListener() {
+            if (alarmId?.toInt() !=0) {
+                delete()
+            }
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
         binding.locationTitleEditText.setText(name)
@@ -135,6 +151,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 repeatDay = repeatDay,
                 hasBanner = hasBanner
             )
+            if (alarmId != null) {
+                alarm.alarmId = alarmId as Long
+            }
             val list: List<Long> = listOf() // TODO: 태그 구현
 
             CoroutineScope(Dispatchers.IO).launch {
@@ -162,5 +181,48 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onReverseGeocodeFailure(errorMessage: String) {
         this.address = "$lat,$lng"
     }
+    fun getAlarm() {
+        alarmId?.let { id ->
+            CoroutineScope(Dispatchers.IO).launch {
+                var alarm: AlarmDetail? = null
+                val deferred = async {
+                    alarmRepository.findAlarm(id)
+                }
+                alarm = deferred.await()
+                alarm?.let { fetchedAlarm ->
+                    withContext(Dispatchers.Main) {
+                        binding.saveCancelBtn.text = "delete"
+                        binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
+                        binding.memoEditText.setText(fetchedAlarm.alarm.context)
+                        if (!fetchedAlarm.alarm.whenArrival) {
+                            binding.inRadioBtn.isChecked = false
+                            binding.outRadioBtn.isChecked = true
+                            whenArrival = false
+                        }
+                        if (!fetchedAlarm.alarm.isRepeat) {
+                            isRepeat = false
+                            binding.repeatSwitch.isChecked = false
+                        }
+                        if (!fetchedAlarm.alarm.hasBanner) {
+                            hasBanner = false
+                            binding.alarmTypeDetailTextView.text = "배너"
+                        }
+                        // TODO: 태그
+                    }
+                }
+            }
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun delete() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val alams: List<Long>? = alarmId?.let { listOf(it.toLong()) }
+            if (alams != null) {
+                alarmRepository.deleteAlarms(alams)
+            }
+        }
+
+    }
+
 }
 
