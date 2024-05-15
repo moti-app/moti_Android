@@ -1,4 +1,4 @@
-package com.example.moti.ui.map
+package com.example.moti.ui.addMemo
 
 import android.app.Dialog
 import android.os.Build
@@ -79,7 +79,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             name = it.getString(ARG_NAME) ?: "noname"
             lat = it.getDouble(ARG_LAT, 0.0)
             lng = it.getDouble(ARG_LNG, 0.0)
-            alarmId= it.getLong(ARG_id) ?: null
+            alarmId= it.getLong(ARG_id)
         }
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
@@ -184,14 +184,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     fun getAlarm() {
         alarmId?.let { id ->
             CoroutineScope(Dispatchers.IO).launch {
-                var alarm: AlarmDetail? = null
+                val alarm: AlarmDetail?
                 val deferred = async {
                     alarmRepository.findAlarm(id)
                 }
                 alarm = deferred.await()
-                alarm?.let { fetchedAlarm ->
+                alarm.let { fetchedAlarm ->
                     withContext(Dispatchers.Main) {
-                        binding.saveCancelBtn.text = "delete"
+                        binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
                         binding.memoEditText.setText(fetchedAlarm.alarm.context)
                         if (!fetchedAlarm.alarm.whenArrival) {
@@ -216,7 +216,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun delete() {
         CoroutineScope(Dispatchers.IO).launch {
-            val alams: List<Long>? = alarmId?.let { listOf(it.toLong()) }
+            val alams: List<Long>? = alarmId?.let { listOf(it) }
             if (alams != null) {
                 alarmRepository.deleteAlarms(alams)
             }

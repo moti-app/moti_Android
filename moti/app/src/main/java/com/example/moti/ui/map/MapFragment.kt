@@ -18,6 +18,7 @@ import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.FragmentMapBinding
+import com.example.moti.ui.addMemo.AddLocationMemoFragment
 import com.example.moti.ui.search.SearchActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -55,7 +56,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     private lateinit var binding:FragmentMapBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         binding = FragmentMapBinding.inflate(layoutInflater)
@@ -86,10 +87,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 val name = myData?.getStringExtra("name")
                 lat = result.data?.getStringExtra("lat")!!.toDouble()
                 lng = myData?.getStringExtra("lng")!!.toDouble()
-                val address = myData.getStringExtra("address")
 
 
-                showAddMemoBottomSheet(name!!,lat,lng,address!!,null)
+                showAddMemoBottomSheet(name!!,lat,lng,null)
 
             }
         }
@@ -105,13 +105,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         googleMap.setOnMapClickListener { latLng ->
             lat = latLng.latitude
             lng = latLng.longitude
-            showAddMemoBottomSheet("Enter title",lat,lng,"address",null)
+            showAddMemoBottomSheet("Enter title",lat,lng,null)
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
     }
 
-    private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,address:String,id:Long?) {
+    private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,id:Long?) {
         val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name,lat,lng,id)
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
         addMemoBottomSheet.onDismissListener = {
@@ -195,7 +195,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     override fun onMarkerClick(p0: Marker): Boolean {
-        showAddMemoBottomSheet(p0.title.toString(),p0.position.latitude,p0.position.longitude,"address", p0.snippet?.toLong())
+        lat = p0.position.latitude
+        lng = p0.position.longitude
+        showAddMemoBottomSheet(p0.title.toString(),lat,lng, p0.snippet?.toLong())
         return true
     }
 }
