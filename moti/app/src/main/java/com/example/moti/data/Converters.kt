@@ -18,7 +18,7 @@ class LocalDateTimeConverter {
     @RequiresApi(Build.VERSION_CODES.O)
     @TypeConverter
     fun stringToLocalDateTime(value: String): LocalDateTime {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSS")
         return LocalDateTime.parse(value, formatter)
     }
 }

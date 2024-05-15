@@ -8,8 +8,14 @@ import java.time.LocalDateTime
 
 class RecentLocationRepository(private val recentLocationDao: RecentLocationDao) {
     /**검색 기록 추가*/
+    @RequiresApi(Build.VERSION_CODES.O)
     fun createRecentLocation(recentLocation: RecentLocation){
-        recentLocationDao.insert(recentLocation);
+        if (recentLocationDao.findByAddress(recentLocation.location.address)== null) {
+            recentLocationDao.insert(recentLocation);
+        }else {
+            recentLocation.updatedAt = LocalDateTime.now();
+            recentLocationDao.update(recentLocation);
+        }
     }
 
     /**검색 기록 업데이트(같은 장소 다시 검색 시)*/
@@ -20,7 +26,8 @@ class RecentLocationRepository(private val recentLocationDao: RecentLocationDao)
     }
 
     /**검색 기록 삭제*/
-    fun deleteRecentLocation(recentLocation: RecentLocation){
+    fun deleteRecentLocation(recentLocationId: Long){
+        var recentLocation = recentLocationDao.findRecentLocationById(recentLocationId);
         recentLocationDao.delete(recentLocation);
     }
 

@@ -20,7 +20,6 @@ data class RecentLocation(
     var location : Location
 ){
     @RequiresApi(Build.VERSION_CODES.O)
-    constructor(isSaved : Boolean,
-                location : Location)
+    constructor(location : Location)
     :this(0, false, LocalDateTime.now(), LocalDateTime.now(), location)
 }

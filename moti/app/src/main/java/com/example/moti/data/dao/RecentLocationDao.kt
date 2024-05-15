@@ -31,4 +31,7 @@ interface RecentLocationDao {
 
     @Query("select * from RecentLocation where isSaved = :isSaved")
     fun findSavedLocation(isSaved : Boolean):List<RecentLocation>
+
+    @Query("select * from RecentLocation where address = :address")
+    fun findByAddress(address : String):RecentLocation?
 }
