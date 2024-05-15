@@ -12,17 +12,19 @@ import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class AddLocationMemoFragment : BottomSheetDialogFragment() {
+class AddLocationMemoFragment : BottomSheetDialogFragment(),
+    ReverseGeocoding.ReverseGeocodingListener {
     private var name: String = "noname"
     private var lat: Double = 0.0
     private var lng: Double = 0.0
-    private var address: String = "noname"
+    private var address: String = "address"
     private var whenArrival: Boolean = true
 
     private var context : String = "안녕"
@@ -60,6 +62,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
 
     var onDismissListener: (() -> Unit)? = null
 
+    private val reverseGeocoding = ReverseGeocoding(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -70,8 +74,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
         }
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
-
-
+        if (address == "address"||address=="") {
+            this.address = "$lat,$lng"
+            reverseGeocoding.reverseGeocode("$lat,$lng")
+        }
 
     }
 
@@ -146,4 +152,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment() {
         onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
         _binding = null
     }
+
+    override fun onReverseGeocodeSuccess(address: String) {
+        this.address = address
+        binding.locationDetailTextView.text = address
+    }
+
+    override fun onReverseGeocodeFailure(errorMessage: String) {
+        this.address = "$lat,$lng"
+    }
 }
+

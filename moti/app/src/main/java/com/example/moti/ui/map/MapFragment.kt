@@ -10,7 +10,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
@@ -24,6 +23,8 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -33,6 +34,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     private val locationRequestCode = 1000
     private val defaultMapZoomLevel = 15f
     private var bottomSheetVisible = false
+
+    private var lat:Double = 0.0
+    private var lng:Double = 0.0
+
+    private lateinit var touchMarker:Marker
 
     private lateinit var binding:FragmentMapBinding
 
@@ -63,13 +69,12 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             if (result.resultCode == Activity.RESULT_OK) {
                 val myData: Intent? = result.data
                 val name = myData?.getStringExtra("name")
-                val lat = result.data?.getStringExtra("lat")
-                val lng = myData?.getStringExtra("lng")
-                val address = myData?.getStringExtra("address")
+                lat = result.data?.getStringExtra("lat")!!.toDouble()
+                lng = myData?.getStringExtra("lng")!!.toDouble()
+                val address = myData.getStringExtra("address")
 
 
-                showAddMemoBottomSheet2(name!!,lat!!.toDouble(),lng!!.toDouble(),address!!)
-//                showAddMemoBottomSheet()
+                showAddMemoBottomSheet(name!!,lat,lng,address!!)
 
             }
         }
@@ -83,33 +88,24 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         this.googleMap = googleMap
         enableMyLocationIfPermitted()
         googleMap.setOnMapClickListener { latLng ->
-            showAddMemoBottomSheet()
+            lat = latLng.latitude
+            lng = latLng.longitude
+            showAddMemoBottomSheet("Enter title",lat,lng,"address")
         }
     }
 
-    private fun showAddMemoBottomSheet() {
-        val addMemoBottomSheet = AddLocationMemoFragment()
-        addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
-        addMemoBottomSheet.onDismissListener = {
-            bottomSheetVisible = false
-            googleMap.setPadding(0, 0, 0, 0)
-            moveToMyLocation()
-        }
-        bottomSheetVisible = true
-        googleMap.setPadding(0, 0, 0, 1260)
-        moveToMyLocation()
-    }
-    private fun showAddMemoBottomSheet2(name:String,lat:Double,lng:Double,address:String) {
+    private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,address:String) {
         val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name,lat,lng,address)
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
         addMemoBottomSheet.onDismissListener = {
             bottomSheetVisible = false
             googleMap.setPadding(0, 0, 0, 0)
-            moveToMyLocation()
+            touchMarker.remove()
         }
         bottomSheetVisible = true
         googleMap.setPadding(0, 0, 0, 1260)
-        moveToMyLocation()
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat,lng), defaultMapZoomLevel))
+        addTouchMarker(googleMap)
     }
 
     private fun enableMyLocationIfPermitted() {
@@ -136,6 +132,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             fusedLocationProviderClient.lastLocation.addOnSuccessListener(requireActivity()) { location: Location? ->
                 location?.let {
                     val currentLatLng = LatLng(location.latitude, location.longitude)
+                    lat = currentLatLng.latitude
+                    lng = currentLatLng.longitude
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, defaultMapZoomLevel))
                 }
             }
@@ -148,5 +146,11 @@ class MapFragment : Fragment(), OnMapReadyCallback {
                 enableMyLocationIfPermitted()
             }
         }
+    }
+    private fun addTouchMarker(googleMap: GoogleMap) {
+        touchMarker = googleMap.addMarker(
+            MarkerOptions()
+                .position(LatLng(lat,lng))
+        )!!
     }
 }
