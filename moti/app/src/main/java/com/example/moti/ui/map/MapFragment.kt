@@ -14,6 +14,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import com.example.moti.R
+import com.example.moti.data.MotiDatabase
+import com.example.moti.data.entity.Alarm
+import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.FragmentMapBinding
 import com.example.moti.ui.search.SearchActivity
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -25,6 +28,11 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MapFragment : Fragment(), OnMapReadyCallback {
@@ -40,9 +48,16 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var touchMarker:Marker
 
+    private lateinit var db: MotiDatabase
+    private lateinit var alarmRepository: AlarmRepository
+
+    private lateinit var places:List<Alarm>
+
     private lateinit var binding:FragmentMapBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
+        alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         binding = FragmentMapBinding.inflate(layoutInflater)
         return binding.root
     }
@@ -92,6 +107,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             lng = latLng.longitude
             showAddMemoBottomSheet("Enter title",lat,lng,"address")
         }
+        getAlarm()
     }
 
     private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,address:String) {
@@ -101,6 +117,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             bottomSheetVisible = false
             googleMap.setPadding(0, 0, 0, 0)
             touchMarker.remove()
+            getAlarm()
         }
         bottomSheetVisible = true
         googleMap.setPadding(0, 0, 0, 1260)
@@ -152,5 +169,25 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             MarkerOptions()
                 .position(LatLng(lat,lng))
         )!!
+    }
+    private fun addMarkers(googleMap: GoogleMap) {
+        places.forEach { place ->
+            val marker = googleMap.addMarker(
+                MarkerOptions()
+                    .title(place.title)
+                    .position(LatLng(place.location.x,place.location.y))
+            )
+        }
+    }
+    private fun getAlarm() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val deferred = async {
+                alarmRepository.findAllAlarms()
+            }
+            places = deferred.await()
+            withContext(Dispatchers.Main) {
+                addMarkers(googleMap)
+            }
+        }
     }
 }
