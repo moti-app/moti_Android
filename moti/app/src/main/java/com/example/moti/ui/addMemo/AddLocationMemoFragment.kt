@@ -193,6 +193,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     withContext(Dispatchers.Main) {
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
+                        address = fetchedAlarm.alarm.location.address
                         binding.memoEditText.setText(fetchedAlarm.alarm.context)
                         if (!fetchedAlarm.alarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
