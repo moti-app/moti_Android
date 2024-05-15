@@ -27,14 +27,15 @@
                 android:paddingRight="24dp"
                 android:paddingBottom="10dp">
 
-                <TextView
-                    android:id="@+id/locationTitleTextView"
+                <EditText
+                    android:id="@+id/locationTitleEditText"
                     style="@style/b3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="TextView"
                     android:textColor="@color/black"
-                    android:textStyle="normal" />
+                    android:textStyle="normal"
+                    android:background="@null"/>
 
                 <TextView
                     android:id="@+id/locationDetailTextView"
@@ -207,6 +208,7 @@
                 android:background="@color/mt_gray3" />
 
             <LinearLayout
+                android:id="@+id/alarmTypeLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -256,6 +258,7 @@
                 android:background="@color/mt_gray3" />
 
             <LinearLayout
+                android:id="@+id/tagLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
