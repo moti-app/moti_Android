@@ -121,9 +121,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         binding.repeatSwitch.setOnCheckedChangeListener { compoundButton, b ->
             if (b) {
                 isRepeat = true
+                binding.addMemoRepeatDayLl.visibility = View.VISIBLE
+                binding.repeatDetailTextView.visibility = View.VISIBLE
             }
             else {
                 isRepeat = false
+                binding.addMemoRepeatDayLl.visibility = View.GONE
+                binding.repeatDetailTextView.visibility = View.GONE
             }
         }
         binding.alarmTypeLinearLayout.setOnClickListener() {
