@@ -183,7 +183,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
@@ -192,7 +192,6 @@
                             style="@style/b3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="반복"
                             android:textColor="@color/black" />
 
@@ -201,19 +200,19 @@
                             style="@style/b5"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:text="매주 화, 수"
                             android:textAllCaps="false"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@color/mt_main"
-                            android:textStyle="normal" />
+                            android:textStyle="normal"
+                            android:visibility="gone"/>
                     </LinearLayout>
 
                     <Switch
                         android:id="@+id/repeatSwitch"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="true"
+                        android:checked="false"
                         android:padding="10dp"
                         android:splitTrack="false"
                         android:trackTint="#001FBC" />
@@ -221,11 +220,13 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/add_memo_repeat_day_ll"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_marginTop="8dp"
                     android:weightSum="7"
+                    android:visibility="gone"
                     app:layout_constraintTop_toTopOf="@id/item_memo_cl"
                     app:layout_constraintBottom_toBottomOf="@id/item_memo_cl"
                     app:layout_constraintEnd_toStartOf="@id/item_memo_toggle_sc">
