@@ -5,7 +5,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
@@ -62,22 +61,14 @@ class SearchDefaultFragment : Fragment() {
         itemList.add(FavoriteItem("학교", "B", R.drawable.ic_baseline_place_24))
         itemList.add(FavoriteItem("학교", "C", R.drawable.ic_baseline_place_24))
 
-        binding.rvFavorites.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                val child = rv.findChildViewUnder(e.x, e.y)
-                val position = rv.getChildAdapterPosition(child!!)
-                // !!!
-                return false
-            }
-
-            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
-
-            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-
-            }
-        })
 
         val favoriteAdapter = FavoritesRVAdapter(itemList)
+        favoriteAdapter.setItemClickListener(object : FavoritesRVAdapter.OnItemClickListener{
+            override fun onClick(v: View, position: Int) {
+                //TODO
+            }
+
+        })
         binding.rvFavorites.adapter = favoriteAdapter
         favoriteAdapter.notifyDataSetChanged()
         binding.rvFavorites.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
