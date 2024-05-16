@@ -32,10 +32,9 @@
                     style="@style/b3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
+                    android:hint="장소 이름"
                     android:textColor="@color/black"
-                    android:textStyle="normal"
-                    android:background="@null"/>
+                    android:textStyle="normal" />
 
                 <TextView
                     android:id="@+id/locationDetailTextView"
@@ -131,18 +130,27 @@
                 android:layout_weight="0"
                 android:background="@color/mt_gray3" />
 
-            <EditText
-                android:id="@+id/memoEditText"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
-                android:hint="메모 추가하기"
-                android:inputType="text"
-                android:paddingLeft="24dp"
-                android:paddingTop="10dp"
-                android:paddingRight="24dp"
-                android:paddingBottom="10dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-                />
+                <EditText
+                    android:id="@+id/memoEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="메모 추가하기"
+                    android:inputType="text"
+                    style="@style/b3"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
             <View
                 android:layout_width="match_parent"

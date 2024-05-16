@@ -110,7 +110,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
-        binding.locationTitleEditText.setText(name)
         binding.locationDetailTextView.text = address
         binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
             when(i) {
