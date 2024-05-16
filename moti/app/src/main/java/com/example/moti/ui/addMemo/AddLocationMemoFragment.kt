@@ -36,7 +36,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var location : Location = Location(lat,lng,address,name)
 
-    private var radius : Double = 0.0
+    private var radius : Double = 1000.0
     private var isRepeat : Boolean = true
     private var repeatDay : Week = Week.MON
     private var hasBanner : Boolean = true

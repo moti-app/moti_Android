@@ -1,11 +1,17 @@
 package com.example.moti.ui.main
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.moti.ui.map.MapFragment
 import com.example.moti.ui.memo.MemoFragment
 import com.example.moti.R
+import com.example.moti.alarm.LocationService
 import com.example.moti.databinding.ActivityMainBinding
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,11 +25,31 @@ class MainActivity : AppCompatActivity() {
         initBottomNavigation()
 
         setContentView(binding.root)
+        scheduleLocationCheck()
+        checkPermissions()
+    }
+    private fun checkPermissions() {
+        val permissions = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.POST_NOTIFICATIONS
+        )
 
+        val permissionsToRequest = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }.toTypedArray()
+
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest, 132)
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        scheduleLocationCheck()
+    }
+    private fun scheduleLocationCheck() {
         val serviceIntent = Intent(this, LocationService::class.java)
         startService(serviceIntent)
     }
-
     private fun initBottomNavigation() {
 
         supportFragmentManager.beginTransaction()
