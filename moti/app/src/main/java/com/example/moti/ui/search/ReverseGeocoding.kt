@@ -32,9 +32,9 @@ class ReverseGeocoding(private val listener: ReverseGeocodingListener) {
         OkHttpClient.Builder().build()
     }
 
-    fun reverseGeocode(latlng: String) {
+    fun reverseGeocode(latlng: String, language: String) {
         val service = retrofit.create(GeocodingService::class.java)
-        val call = service.reverseGeocode(latlng, API_KEY,"ko")
+        val call = service.reverseGeocode(latlng, API_KEY,language)
 
         call.enqueue(object : Callback<GeocodingResponse> {
             override fun onResponse(call: Call<GeocodingResponse>, response: Response<GeocodingResponse>) {
