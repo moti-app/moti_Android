@@ -43,6 +43,7 @@
             android:name=".alarm.LocationService"
             android:enabled="true"
             android:exported="false" />
+        <receiver android:name=".alarm.AlarmReceiver" />
     </application>
 
 </manifest>

@@ -88,7 +88,12 @@ class LocationService : Service(), LocationListener {
         }
 
     override fun onLocationChanged(location: Location) {
+        //위치가 변경된 경우 - n초 간격마다 수행되는 함수
         Log.d(TAG, "Location: ${location.latitude}, ${location.longitude}")
+
+        //AlarmShooter을 사용해서 알림을 보낼지 말지 정하고 배너 알림을 보낸다.
+        val alarmShooter = AlarmShooter(this)
+        alarmShooter.checkLocation(location)
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
