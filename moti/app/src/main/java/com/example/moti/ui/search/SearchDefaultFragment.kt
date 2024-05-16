@@ -1,6 +1,8 @@
 package com.example.moti.ui.search
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -15,6 +17,7 @@ import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.RecentLocation
 import com.example.moti.data.repository.RecentLocationRepository
 import com.example.moti.databinding.FragmentSearchDefaultBinding
+import com.example.moti.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -83,31 +86,30 @@ class SearchDefaultFragment : Fragment() {
     private fun setupPlacesRV() {
         CoroutineScope(Dispatchers.IO).launch {
             recentPlaces = recentLocationRepository.findRecentLocation() as ArrayList<RecentLocation>
-            itemList2 = recentPlaces.map { PlaceItem(it.location.locationName,it.location.address, it.recentLocationId) }.toMutableList() as ArrayList<PlaceItem>
+            itemList2 = recentPlaces.map { PlaceItem(it.location.locationName,it.location.address,it.location.x,it.location.y, it.recentLocationId) }.toMutableList() as ArrayList<PlaceItem>
             withContext(Dispatchers.Main) {
                 val placeAdapter = PlacesRVAdapter(itemList2)
                 binding.rvRecent.adapter = placeAdapter
                 placeAdapter.notifyDataSetChanged()
+                placeAdapter.setItemClickListener(object : PlacesRVAdapter.OnItemClickListener {
+                    override fun onClick(v: View, position: Int) {
+
+                        val intent = Intent(activity, MainActivity::class.java)
+
+                        intent.putExtra("name",itemList2[position].title)
+                        intent.putExtra("address",itemList2[position].contents)
+                        intent.putExtra("lat",itemList2[position].lat.toString())
+                        intent.putExtra("lng",itemList2[position].lng.toString())
+                        requireActivity().setResult(Activity.RESULT_OK, intent)
+                        requireActivity().finish()
+                    }
+                })
+
             }
         }
 
         val decoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
         binding.rvRecent.addItemDecoration(decoration)
-
-        binding.rvRecent.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                val child = rv.findChildViewUnder(e.x, e.y)
-                val position = rv.getChildAdapterPosition(child!!)
-                // !!!
-                return false
-            }
-
-            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
-
-            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-
-            }
-        })
         binding.rvRecent.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
     }
     @SuppressLint("NotifyDataSetChanged")

@@ -48,6 +48,9 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
         holder.contents.text = places[position].contents
         val item = files[position]
         holder.setData(item)
+        holder.itemView.setOnClickListener {
+            itemClickListener.onClick(it, position)
+        }
     }
 
     override fun getFilter(): Filter {
@@ -80,5 +83,12 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
 
         }
     }
+    interface OnItemClickListener {
+        fun onClick(v: View, position: Int)
+    }
+    fun setItemClickListener(onItemClickListener: OnItemClickListener) {
+        this.itemClickListener = onItemClickListener
+    }
+    private lateinit var itemClickListener : OnItemClickListener
 }
-data class PlaceItem(val title: String, val contents: String, val id:Long)
+data class PlaceItem(val title: String, val contents: String,val lat:Double, val lng:Double, val id:Long)
