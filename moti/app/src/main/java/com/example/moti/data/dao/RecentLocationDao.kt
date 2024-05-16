@@ -22,4 +22,16 @@ interface RecentLocationDao {
 
     @Query("select * from RecentLocation")
     fun findAllRecentLocations(): List<RecentLocation>
+
+    @Query("select * from RecentLocation order by updatedAt desc")
+    fun findRecent10Locations():List<RecentLocation>
+
+    @Query("select * from RecentLocation where recentLocationId = :recentLocationId")
+    fun findRecentLocationById(recentLocationId: Long):RecentLocation
+
+    @Query("select * from RecentLocation where isSaved = :isSaved")
+    fun findSavedLocation(isSaved : Boolean):List<RecentLocation>
+
+    @Query("select * from RecentLocation where address = :address")
+    fun findByAddress(address : String):RecentLocation?
 }
