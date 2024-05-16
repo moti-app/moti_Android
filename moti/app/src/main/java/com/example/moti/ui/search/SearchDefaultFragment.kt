@@ -11,14 +11,24 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
+import com.example.moti.data.MotiDatabase
+import com.example.moti.data.entity.RecentLocation
+import com.example.moti.data.repository.RecentLocationRepository
 import com.example.moti.databinding.FragmentSearchDefaultBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class SearchDefaultFragment : Fragment() {
 
     private lateinit var binding: FragmentSearchDefaultBinding
     private val itemList = ArrayList<FavoriteItem>()
-    private val itemList2 = ArrayList<PlaceItem>()
+    private var itemList2 = ArrayList<PlaceItem>()
+    private var recentPlaces = ArrayList<RecentLocation>()
+    private lateinit var db:MotiDatabase
+    private lateinit var recentLocationRepository: RecentLocationRepository
 
     companion object{
         private var instance: SearchDefaultFragment? = null
@@ -30,6 +40,8 @@ class SearchDefaultFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         instance = this
         binding = FragmentSearchDefaultBinding.inflate(inflater, container, false)
+        db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
+        recentLocationRepository = RecentLocationRepository(db.recentLocationDao())
         setupFavoritesRV()
         setupPlacesRV()
 
@@ -69,9 +81,15 @@ class SearchDefaultFragment : Fragment() {
     }
     @SuppressLint("NotifyDataSetChanged")
     private fun setupPlacesRV() {
-        itemList2.add(PlaceItem("학교", "A"))
-        itemList2.add(PlaceItem("학교", "B"))
-        itemList2.add(PlaceItem("학교", "C"))
+        CoroutineScope(Dispatchers.IO).launch {
+            recentPlaces = recentLocationRepository.findRecentLocation() as ArrayList<RecentLocation>
+            itemList2 = recentPlaces.map { PlaceItem(it.location.locationName,it.location.address, it.recentLocationId) }.toMutableList() as ArrayList<PlaceItem>
+            withContext(Dispatchers.Main) {
+                val placeAdapter = PlacesRVAdapter(itemList2)
+                binding.rvRecent.adapter = placeAdapter
+                placeAdapter.notifyDataSetChanged()
+            }
+        }
 
         val decoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
         binding.rvRecent.addItemDecoration(decoration)
@@ -90,15 +108,14 @@ class SearchDefaultFragment : Fragment() {
 
             }
         })
-
-        val placeAdapter = PlacesRVAdapter(itemList2)
-        binding.rvRecent.adapter = placeAdapter
-        placeAdapter.notifyDataSetChanged()
         binding.rvRecent.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
     }
     @SuppressLint("NotifyDataSetChanged")
     fun deleteRecentItem(item: PlaceItem) {
         itemList2.remove(item)
         binding.rvRecent.adapter?.notifyDataSetChanged()
+        CoroutineScope(Dispatchers.IO).launch {
+            recentLocationRepository.deleteRecentLocation(item.id)
+        }
     }
 }

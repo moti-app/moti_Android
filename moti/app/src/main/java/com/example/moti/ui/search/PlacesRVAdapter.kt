@@ -81,4 +81,4 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
         }
     }
 }
-data class PlaceItem(val title: String, val contents: String)
+data class PlaceItem(val title: String, val contents: String, val id:Long)
