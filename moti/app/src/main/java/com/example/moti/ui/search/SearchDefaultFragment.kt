@@ -40,7 +40,7 @@ class SearchDefaultFragment : Fragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         instance = this
         binding = FragmentSearchDefaultBinding.inflate(inflater, container, false)
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!

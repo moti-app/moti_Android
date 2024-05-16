@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.databinding.ItemPlaceBinding
@@ -16,7 +15,6 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
     inner class PlaceViewHolder(private val binding: ItemPlaceBinding) : RecyclerView.ViewHolder(binding.root) {
         val title: TextView = binding.tvItemPlaceTitle
         val contents: TextView = binding.tvItemPlaceContents
-        val img: ImageView = binding.ivItemPlace
         private lateinit var item: PlaceItem
 
         init {
@@ -63,7 +61,7 @@ class PlacesRVAdapter(private val places: MutableList<PlaceItem>) : RecyclerView
                     val filteredList = ArrayList<PlaceItem>()
                     for (name in places) {
                         if(name.toString().contains(charString)) {
-                            filteredList.add(name);
+                            filteredList.add(name)
                         }
                     }
                     filteredList

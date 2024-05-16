@@ -16,13 +16,13 @@ class ReverseGeocoding(private val listener: ReverseGeocodingListener) {
         fun onReverseGeocodeSuccess(address: String)
         fun onReverseGeocodeFailure(errorMessage: String)
     }
-    private val BASE_URL = "https://maps.googleapis.com"
-    private val API_KEY = BuildConfig.PLACE_API_KEY
-    private val TAG = "placeApi"
+    private val url = "https://maps.googleapis.com"
+    private val apiKey = BuildConfig.PLACE_API_KEY
+    private val tag = "placeApi"
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(url)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -34,7 +34,7 @@ class ReverseGeocoding(private val listener: ReverseGeocodingListener) {
 
     fun reverseGeocode(latlng: String, language: String) {
         val service = retrofit.create(GeocodingService::class.java)
-        val call = service.reverseGeocode(latlng, API_KEY,language)
+        val call = service.reverseGeocode(latlng, apiKey,language)
 
         call.enqueue(object : Callback<GeocodingResponse> {
             override fun onResponse(call: Call<GeocodingResponse>, response: Response<GeocodingResponse>) {
@@ -52,7 +52,7 @@ class ReverseGeocoding(private val listener: ReverseGeocodingListener) {
             }
 
             override fun onFailure(call: Call<GeocodingResponse>, t: Throwable) {
-                Log.e(TAG, "Error: ${t.message}", t)
+                Log.e(tag, "Error: ${t.message}", t)
             }
         })
     }
