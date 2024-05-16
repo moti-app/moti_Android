@@ -7,7 +7,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
@@ -114,19 +113,14 @@ class SearchFragment : Fragment() {
     private fun setupPlacesRV() {
         val decoration = DividerItemDecoration(context, RecyclerView.VERTICAL)
         binding.rvSearch.addItemDecoration(decoration)
-        binding.rvSearch.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
-                val child = rv.findChildViewUnder(e.x, e.y)
-                val position = rv.getChildAdapterPosition(child!!)
+//        binding.rvSearch.addOnScrollListener(object  : RecyclerView.OnScrollListener() {
+//
+//        })
+        adapter.setItemClickListener(object : PlacesRVAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
                 searchPlaces(autocompleteList[position].contents,autocompleteList[position].title)
-                return false
             }
 
-            override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {}
-
-            override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-
-            }
         })
         binding.rvSearch.adapter = adapter
         adapter.notifyDataSetChanged()
@@ -238,7 +232,7 @@ class SearchFragment : Fragment() {
                         val description = prediction.description
                         val main = prediction.structuredFormatting.mainText ?: ""
                         val second = prediction.structuredFormatting.secondaryText ?: ""
-                        autocompleteList.add(PlaceItem(main, second, 0)) // id is not important, dummy data
+                        autocompleteList.add(PlaceItem(main, second,1.0,1.0, 0)) // lat, lng, id are not important, dummy data
                     }
                     adapter.notifyDataSetChanged()
                 } else {
