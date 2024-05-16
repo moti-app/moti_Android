@@ -5,31 +5,62 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.moti.data.MotiDatabase
+import com.example.moti.data.entity.Alarm
+import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.FragmentMemoBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MemoFragment : Fragment() {
+
     private lateinit var binding : FragmentMemoBinding
+
+    private lateinit var db: MotiDatabase
+    private lateinit var alarmRepository: AlarmRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // 데이터베이스 초기화
+        db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
+        alarmRepository = AlarmRepository(db.alarmDao(), db.tagDao(), db.alarmAndTagDao())
+
         binding = FragmentMemoBinding.inflate(layoutInflater)
 
-        initRecyclerView()
+        // 코루틴 시작
+        lifecycleScope.launch {
+            initRecyclerView()
+        }
 
         return binding.root
     }
 
     private fun initRecyclerView() {
-        val memoAlarmAdapter = MemoAlarmRVAdapter(requireContext())
-        val memoAlarmManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        getAlarm { alarmList ->
+            val memoAlarmAdapter = MemoAlarmRVAdapter(requireContext(), alarmList)
+            val memoAlarmManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
-        binding.memoAlarmRv.apply {
-            adapter = memoAlarmAdapter
-            layoutManager = memoAlarmManager
+            binding.memoAlarmRv.apply {
+                adapter = memoAlarmAdapter
+                layoutManager = memoAlarmManager
+            }
+        }
+    }
+
+    private fun getAlarm(callback: (List<Alarm>) -> Unit) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val alarmList = alarmRepository.findAllAlarms()
+            withContext(Dispatchers.Main) {
+                callback(alarmList)
+            }
         }
     }
 }

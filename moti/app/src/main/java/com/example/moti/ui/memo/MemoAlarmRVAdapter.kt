@@ -8,18 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.example.moti.data.MotiDatabase
+import com.example.moti.data.entity.Alarm
+import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.ItemMemoAlarmBinding
 
-class MemoAlarmRVAdapter(private val context: Context): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
-
-    var memoTitle = arrayListOf<String>(
-        "아",
-        "이이이이",
-        "dd",
-        "ddd",
-        "ddddd",
-        "dfdf"
-    )
+class MemoAlarmRVAdapter(private val context: Context, private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
 
     inner class ViewHolder(val binding: ItemMemoAlarmBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -30,10 +24,14 @@ class MemoAlarmRVAdapter(private val context: Context): RecyclerView.Adapter<Mem
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int = memoTitle.size
+    override fun getItemCount(): Int = alarmList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.binding.itemMemoInfoTv.text = memoTitle[position]
+
+        holder.binding.itemMemoInfoTv.text = alarmList[position].context
+        holder.binding.itemMemoPlaceTv.text = alarmList[position].title
+        holder.binding.itemMemoAddressTv.text = alarmList[position].location.address
+
 
         val toggle = holder.binding.itemMemoToggleSc
 
