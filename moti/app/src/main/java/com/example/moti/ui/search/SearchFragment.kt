@@ -40,11 +40,11 @@ class SearchFragment : Fragment() {
 
     private val api = BuildConfig.PLACE_API_KEY
 
-    private val TAG = "placeApi"
-    private val BASE_URL = "https://maps.googleapis.com"
-    private val API_KEY = api
-    private var COUNTRY_CODE = "country:kr"
-    private var LANGUAGE_CODE = "ko"
+    private val tag = "placeApi"
+    private val url = "https://maps.googleapis.com"
+    private val apiKey = api
+    private var countryCode = "country:kr"
+    private var languageCode = "ko"
 
 
     // TODO: Rename and change types of parameters
@@ -58,7 +58,7 @@ class SearchFragment : Fragment() {
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(url)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
@@ -79,15 +79,15 @@ class SearchFragment : Fragment() {
         }
         adapter = PlacesRVAdapter(autocompleteList)
         val systemLocale: Locale = activity?.resources?.configuration?.locales?.get(0)!!
-        COUNTRY_CODE = "country:" + systemLocale.country
-        LANGUAGE_CODE = systemLocale.language
+        countryCode = "country:" + systemLocale.country
+        languageCode = systemLocale.language
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         recentLocationRepository = RecentLocationRepository(db.recentLocationDao())
 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
 
         binding = FragmentSearchBinding.inflate(layoutInflater)
         setupPlacesRV()
@@ -129,7 +129,7 @@ class SearchFragment : Fragment() {
 
     fun searchPlaces(query: String,place:String) {
         val service = retrofit.create(PlaceSearchService::class.java)
-        val call = service.getPlaceSearch("$place $query", COUNTRY_CODE,LANGUAGE_CODE, API_KEY)
+        val call = service.getPlaceSearch("$place $query", countryCode,languageCode, apiKey)
 
         call.enqueue(object : Callback<PlaceSearchResponse> {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -139,7 +139,7 @@ class SearchFragment : Fragment() {
                     val lat = response.body()?.results?.get(0)?.geometry?.location?.lat
                     val lng = response.body()?.results?.get(0)?.geometry?.location?.lng
 
-                    val recentLocation:RecentLocation = RecentLocation(com.example.moti.data.entity.Location(lat!!,lng!!,address,place))
+                    val recentLocation = RecentLocation(com.example.moti.data.entity.Location(lat!!,lng!!,address,place))
 
                     CoroutineScope(Dispatchers.IO).launch {
                         recentLocationRepository.createRecentLocation(recentLocation)
@@ -157,7 +157,7 @@ class SearchFragment : Fragment() {
             }
 
             override fun onFailure(call: Call<PlaceSearchResponse>, t: Throwable) {
-                Log.e(TAG, "Error: ${t.message}", t)
+                Log.e(tag, "Error: ${t.message}", t)
             }
         })
     }
@@ -214,7 +214,7 @@ class SearchFragment : Fragment() {
 
 
     private fun autocomplete(input: String) {
-        val call = placeAutocompleteService.getPlaceAutocomplete(input, COUNTRY_CODE,LANGUAGE_CODE, API_KEY)
+        val call = placeAutocompleteService.getPlaceAutocomplete(input, countryCode,languageCode, apiKey)
 
         call.enqueue(object : Callback<PlaceAutocompleteResponse> {
             @SuppressLint("NotifyDataSetChanged")
@@ -225,23 +225,21 @@ class SearchFragment : Fragment() {
                 if (response.isSuccessful) {
                     val predictions = response.body()?.predictions ?: emptyList()
                     autocompleteList.clear()
-                    Log.e(TAG, "Count: ${predictions.count()}")
+                    Log.e(tag, "Count: ${predictions.count()}")
                     for (prediction in predictions) {
-                        Log.e(TAG, "AAA: 1, ${prediction.description}")
-                        val placeId = prediction.placeId
-                        val description = prediction.description
-                        val main = prediction.structuredFormatting.mainText ?: ""
-                        val second = prediction.structuredFormatting.secondaryText ?: ""
+                        Log.e(tag, "AAA: 1, ${prediction.description}")
+                        val main = prediction.structuredFormatting.mainText
+                        val second = prediction.structuredFormatting.secondaryText
                         autocompleteList.add(PlaceItem(main, second,1.0,1.0, 0)) // lat, lng, id are not important, dummy data
                     }
                     adapter.notifyDataSetChanged()
                 } else {
-                    Log.e(TAG, "Error: ${response.code()}")
+                    Log.e(tag, "Error: ${response.code()}")
                 }
             }
 
             override fun onFailure(call: Call<PlaceAutocompleteResponse>, t: Throwable) {
-                Log.e(TAG, "Error: ${t.message}", t)
+                Log.e(tag, "Error: ${t.message}", t)
             }
         })
     }
