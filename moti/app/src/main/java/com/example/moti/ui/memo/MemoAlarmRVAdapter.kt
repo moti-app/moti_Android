@@ -37,31 +37,13 @@ class MemoAlarmRVAdapter(private val context: Context): RecyclerView.Adapter<Mem
 
         val toggle = holder.binding.itemMemoToggleSc
 
-        var checked: Boolean = false
+        var checked = false
 
         toggle.isChecked = checked
 
         toggle.setOnClickListener {
             toggle.isChecked = !checked
             checked = !checked
-        }
-
-        holder.binding.itemMemoCl.setOnLongClickListener {
-            Toast.makeText(context, "길게 눌렸습니다.", Toast.LENGTH_SHORT).show()
-            holder.binding.itemMemoToggleSc.visibility = View.INVISIBLE
-
-            // 길게 눌렀을 때 margin start 값 변경
-            val newMarginStart = 200
-            val layoutParams = holder.binding.itemMemoInfoTv.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.marginStart = newMarginStart
-            holder.binding.itemMemoInfoTv.layoutParams = layoutParams
-
-            val newMarginEnd = -100
-            val layoutParams2 = holder.binding.itemMemoWeekDayLl.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams2.marginEnd = newMarginEnd
-            holder.binding.itemMemoWeekDayLl.layoutParams = layoutParams2
-
-            true
         }
 
     }

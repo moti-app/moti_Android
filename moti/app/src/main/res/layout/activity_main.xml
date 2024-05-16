@@ -26,6 +26,7 @@
         app:labelVisibilityMode="labeled"
         android:layout_gravity="bottom"
         app:menu="@menu/bottom_nav_menu"
+        android:background="@color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
