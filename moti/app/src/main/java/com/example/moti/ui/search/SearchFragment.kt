@@ -3,20 +3,28 @@ package com.example.moti.ui.search
 import android.annotation.SuppressLint
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.BuildConfig
+import com.example.moti.data.MotiDatabase
+import com.example.moti.data.entity.RecentLocation
+import com.example.moti.data.repository.RecentLocationRepository
 import com.example.moti.databinding.FragmentSearchBinding
 import com.example.moti.ui.main.MainActivity
 import com.google.gson.annotations.SerializedName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
@@ -46,6 +54,8 @@ class SearchFragment : Fragment() {
 
     private lateinit var adapter: PlacesRVAdapter
     private var autocompleteList = mutableListOf<PlaceItem>()
+    private lateinit var db: MotiDatabase
+    private lateinit var recentLocationRepository: RecentLocationRepository
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
@@ -72,6 +82,8 @@ class SearchFragment : Fragment() {
         val systemLocale: Locale = activity?.resources?.configuration?.locales?.get(0)!!
         COUNTRY_CODE = "country:" + systemLocale.country
         LANGUAGE_CODE = systemLocale.language
+        db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
+        recentLocationRepository = RecentLocationRepository(db.recentLocationDao())
 
     }
 
@@ -123,14 +135,22 @@ class SearchFragment : Fragment() {
 
     fun searchPlaces(query: String,place:String) {
         val service = retrofit.create(PlaceSearchService::class.java)
-        val call = service.getPlaceSearch(query, COUNTRY_CODE,LANGUAGE_CODE, API_KEY)
+        val call = service.getPlaceSearch("$place $query", COUNTRY_CODE,LANGUAGE_CODE, API_KEY)
 
         call.enqueue(object : Callback<PlaceSearchResponse> {
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onResponse(call: Call<PlaceSearchResponse>, response: Response<PlaceSearchResponse>) {
                 if (response.isSuccessful) {
-                    val address = response.body()?.results?.get(0)?.formattedAddress
+                    val address = response.body()?.results?.get(0)?.formattedAddress ?: "unknown"
                     val lat = response.body()?.results?.get(0)?.geometry?.location?.lat
                     val lng = response.body()?.results?.get(0)?.geometry?.location?.lng
+
+                    val recentLocation:RecentLocation = RecentLocation(com.example.moti.data.entity.Location(lat!!,lng!!,address,place))
+
+                    CoroutineScope(Dispatchers.IO).launch {
+                        recentLocationRepository.createRecentLocation(recentLocation)
+                    }
+
                     val intent = Intent(activity, MainActivity::class.java)
 
                     intent.putExtra("name",place)
@@ -218,7 +238,7 @@ class SearchFragment : Fragment() {
                         val description = prediction.description
                         val main = prediction.structuredFormatting.mainText ?: ""
                         val second = prediction.structuredFormatting.secondaryText ?: ""
-                        autocompleteList.add(PlaceItem(main, second))
+                        autocompleteList.add(PlaceItem(main, second, 0)) // id is not important, dummy data
                     }
                     adapter.notifyDataSetChanged()
                 } else {
@@ -231,7 +251,6 @@ class SearchFragment : Fragment() {
             }
         })
     }
-
 }
     interface PlaceAutocompleteService {
         @GET("/maps/api/place/autocomplete/json")
