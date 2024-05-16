@@ -10,6 +10,7 @@ import com.example.moti.alarm.LocationService
 import com.example.moti.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -44,11 +45,19 @@ class MainActivity : AppCompatActivity() {
     }
     override fun onResume() {
         super.onResume()
-        scheduleLocationCheck()
+        //scheduleLocationCheck()
     }
     private fun scheduleLocationCheck() {
-        val serviceIntent = Intent(this, LocationService::class.java)
-        startService(serviceIntent)
+        //포어그라운드 서비스 시작!
+        Intent(this, LocationService::class.java).run {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) startForegroundService(this)
+            else startService(this)
+        }
+    }
+    private fun stopForegroundService() {
+        Intent(this, LocationService::class.java).run {
+            stopService(this)
+        }
     }
     private fun initBottomNavigation() {
 

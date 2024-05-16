@@ -7,130 +7,108 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.moti.R
+import com.example.moti.ui.main.MainActivity
 
-class LocationService : Service() {
+class LocationService : Service(), LocationListener {
+    private val notificationManager
+        get() = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 
     private lateinit var locationManager: LocationManager
-    private lateinit var locationListener: LocationListener
-    private val handler = Handler(Looper.getMainLooper())
-    private val interval: Long = 1000 // 1 second
-    private var count : Int = 0
+
     override fun onCreate() {
         super.onCreate()
-        startForegroundService()
-        initializeLocationListener()
-        requestLocationUpdates()
-    }
+        registerDefaultNotificationChannel()
 
-    override fun onBind(p0: Intent?): IBinder? {
-        return null
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        startLocationUpdates()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        handler.post(locationUpdateRunnable)
+        startForeground(NOTIFICATION_LOCATION_ID, createLocationNotification())
         return START_STICKY
     }
 
+    private fun startLocationUpdates() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            //위치 갱신 최소 시간, 위치 갱신 최소 거리
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0.01f, this)
+        } else {
+            Log.e(TAG, "Location permissions are not granted.")
+        }
+    }
+
+    private fun createLocationNotification(): Notification {
+        val pendingIntent = PendingIntent.getActivity(
+            this,
+            0,
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            } else {
+                PendingIntent.FLAG_UPDATE_CURRENT
+            }
+        )
+
+        return NotificationCompat.Builder(this, CHANNEL_ID).apply {
+            setContentTitle("Location Service")
+            setContentText("Tracking location...")
+            setSmallIcon(R.drawable.ic_launcher_background)
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            setContentIntent(pendingIntent)
+        }.build()
+    }
+
+    private fun registerDefaultNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(createDefaultNotificationChannel())
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createDefaultNotificationChannel() =
+        NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW).apply {
+            description = CHANNEL_DESCRIPTION
+            setShowBadge(true)
+            lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+        }
+
+    override fun onLocationChanged(location: Location) {
+        Log.d(TAG, "Location: ${location.latitude}, ${location.longitude}")
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+    override fun onProviderEnabled(provider: String) {}
+    override fun onProviderDisabled(provider: String) {}
+
+    override fun onBind(intent: Intent): IBinder? {
+        return null
+    }
+
     override fun onDestroy() {
-        handler.removeCallbacks(locationUpdateRunnable)
-        locationManager.removeUpdates(locationListener)
         super.onDestroy()
+        locationManager.removeUpdates(this)
     }
 
-    private fun initializeLocationListener() {
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        locationListener = object : LocationListener {
-            override fun onLocationChanged(location: Location) {
-                showNotification(location)
-            }
-
-            override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-
-            override fun onProviderEnabled(provider: String) {}
-
-            override fun onProviderDisabled(provider: String) {}
-        }
-    }
-
-    private fun requestLocationUpdates() {
-        try {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                interval,
-                0f,
-                locationListener
-            )
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-        }
-    }
-
-    private val locationUpdateRunnable = object : Runnable {
-        override fun run() {
-            try {
-                locationManager.requestSingleUpdate(
-                    LocationManager.GPS_PROVIDER,
-                    locationListener,
-                    Looper.getMainLooper()
-                )
-            } catch (e: SecurityException) {
-                e.printStackTrace()
-            }
-            handler.postDelayed(this, interval)
-        }
-    }
-
-    private fun showNotification(location: Location) {
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "location_channel_id"
-        val channelName = "Location Updates"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-            notificationManager.createNotificationChannel(channel)
-        }
-        count += 1
-        val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Location Update")
-            //.setContentText("Lat: ${location.latitude}, Lon: ${location.longitude}")
-            .setContentText("count: ${count}")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setAutoCancel(true)
-            .build()
-
-        notificationManager.notify(1, notification)
-    }
-
-    private fun startForegroundService() {
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val channelId = "foreground_channel_id"
-        val channelName = "Foreground Service"
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW)
-            notificationManager.createNotificationChannel(channel)
-        }
-
-        val notification: Notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Location Service")
-            .setContentText("Running...")
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .build()
-
-        startForeground(1, notification)
+    companion object {
+        private const val TAG = "LocationService"
+        private const val NOTIFICATION_LOCATION_ID = 1
+        private const val CHANNEL_ID = "location_channel"
+        private const val CHANNEL_NAME = "Location Service"
+        private const val CHANNEL_DESCRIPTION = "This channel is used by Location Service"
     }
 }
