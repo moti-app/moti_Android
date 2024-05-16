@@ -229,7 +229,7 @@ class SearchFragment : Fragment() {
                     for (prediction in predictions) {
                         Log.e(tag, "AAA: 1, ${prediction.description}")
                         val main = prediction.structuredFormatting.mainText
-                        val second = prediction.structuredFormatting.secondaryText
+                        val second = prediction.structuredFormatting.secondaryText ?: "" // ?: is necessary
                         autocompleteList.add(PlaceItem(main, second,1.0,1.0, 0)) // lat, lng, id are not important, dummy data
                     }
                     adapter.notifyDataSetChanged()
