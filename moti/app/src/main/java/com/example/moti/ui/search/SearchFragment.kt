@@ -25,6 +25,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.util.Locale
 
 
 private const val ARG_PARAM1 = "param1"
@@ -35,7 +36,8 @@ class SearchFragment : Fragment() {
     private val TAG = "placeApi"
     private val BASE_URL = "https://maps.googleapis.com"
     private val API_KEY = api
-    private val COUNTRY_CODE = "country:kr"
+    private var COUNTRY_CODE = "country:kr"
+    private var LANGUAGE_CODE = "ko"
 
 
     // TODO: Rename and change types of parameters
@@ -67,6 +69,9 @@ class SearchFragment : Fragment() {
             query = it.getString(ARG_PARAM1)
         }
         adapter = PlacesRVAdapter(autocompleteList)
+        val systemLocale: Locale = activity?.resources?.configuration?.locales?.get(0)!!
+        COUNTRY_CODE = "country:" + systemLocale.country
+        LANGUAGE_CODE = systemLocale.language
 
     }
 
@@ -118,7 +123,7 @@ class SearchFragment : Fragment() {
 
     fun searchPlaces(query: String,place:String) {
         val service = retrofit.create(PlaceSearchService::class.java)
-        val call = service.getPlaceSearch(query, COUNTRY_CODE,"ko", API_KEY)
+        val call = service.getPlaceSearch(query, COUNTRY_CODE,LANGUAGE_CODE, API_KEY)
 
         call.enqueue(object : Callback<PlaceSearchResponse> {
             override fun onResponse(call: Call<PlaceSearchResponse>, response: Response<PlaceSearchResponse>) {
@@ -195,7 +200,7 @@ class SearchFragment : Fragment() {
 
 
     private fun autocomplete(input: String) {
-        val call = placeAutocompleteService.getPlaceAutocomplete(input, COUNTRY_CODE,"ko", API_KEY)
+        val call = placeAutocompleteService.getPlaceAutocomplete(input, COUNTRY_CODE,LANGUAGE_CODE, API_KEY)
 
         call.enqueue(object : Callback<PlaceAutocompleteResponse> {
             @SuppressLint("NotifyDataSetChanged")

@@ -94,7 +94,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         if (alarmId?.toInt() ==0) {
             this.address = "$lat,$lng"
-            reverseGeocoding.reverseGeocode("$lat,$lng")
+            val language= activity?.resources?.configuration?.locales?.get(0)?.language.toString()
+            reverseGeocoding.reverseGeocode("$lat,$lng",language)
         }
         else {
             getAlarm()
