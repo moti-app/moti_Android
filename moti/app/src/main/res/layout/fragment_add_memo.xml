@@ -232,6 +232,7 @@
                     app:layout_constraintEnd_toStartOf="@id/item_memo_toggle_sc">
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_sun_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -239,11 +240,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot1_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_sun_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="일"
@@ -253,6 +256,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_mon_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -260,11 +264,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot2_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_mon_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="월"
@@ -274,6 +280,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_tue_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -281,11 +288,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot3_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_tue_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="화"
@@ -295,6 +304,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_wed_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -302,11 +312,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot4_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_wed_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="수"
@@ -316,6 +328,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_thu_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -323,11 +336,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot5_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_thu_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="목"
@@ -337,6 +352,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_fri_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -344,11 +360,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot6_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_fri_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="금"
@@ -358,6 +376,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/add_memo_repeat_sat_ll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -365,11 +384,13 @@
                         android:layout_weight="1">
 
                         <ImageView
+                            android:id="@+id/add_memo_repeat_dot7_iv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_memo_dot"/>
 
                         <TextView
+                            android:id="@+id/add_memo_repeat_sat_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="토"
@@ -512,7 +533,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/h2"
-            android:text="취소" />
+            android:text="@string/cancel_memo" />
 
         <Button
             android:id="@+id/saveBtn"
@@ -520,7 +541,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/h2"
-            android:text="저장" />
+            android:text="@string/save_memo" />
     </LinearLayout>
 
 </LinearLayout>

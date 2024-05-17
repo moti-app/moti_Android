@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
@@ -15,6 +16,7 @@ import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.repository.dto.AlarmDetail
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.databinding.FragmentMemoBinding
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -66,8 +68,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
     }
 
-    private var _binding: FragmentAddMemoBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding : FragmentAddMemoBinding
 
     var onDismissListener: (() -> Unit)? = null
 
@@ -97,7 +98,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAddMemoBinding.inflate(inflater, container, false)
+        binding = FragmentAddMemoBinding.inflate(layoutInflater)
         return binding.root
     }
 
@@ -128,6 +129,52 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 isRepeat = false
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
+            }
+
+            val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
+
+            if (isRepeat) {
+                binding.addMemoRepeatSunLl.setOnClickListener {
+                    repeatDay = Week.SUN
+                    binding.addMemoRepeatSunTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot1Iv.setColorFilter(selectColor)
+                }
+
+                binding.addMemoRepeatMonLl.setOnClickListener {
+                    repeatDay = Week.MON
+                    binding.addMemoRepeatMonTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot2Iv.setColorFilter(selectColor)
+                }
+
+                binding.addMemoRepeatTueLl.setOnClickListener {
+                    repeatDay = Week.TUE
+                    binding.addMemoRepeatTueTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot3Iv.setColorFilter(selectColor)
+                }
+
+                binding.addMemoRepeatWedLl.setOnClickListener {
+                    repeatDay = Week.WED
+                    binding.addMemoRepeatWedTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot4Iv.setColorFilter(selectColor)
+                }
+
+                binding.addMemoRepeatThuLl.setOnClickListener {
+                    repeatDay = Week.THU
+                    binding.addMemoRepeatThuTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot5Iv.setColorFilter(selectColor)
+                }
+
+                binding.addMemoRepeatFriLl.setOnClickListener {
+                    repeatDay = Week.FRI
+                    binding.addMemoRepeatFriTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot6Iv.setColorFilter(selectColor)
+                }
+
+                binding.addMemoRepeatSatLl.setOnClickListener {
+                    repeatDay = Week.SAT
+                    binding.addMemoRepeatSatTv.setTextColor(selectColor)
+                    binding.addMemoRepeatDot7Iv.setColorFilter(selectColor)
+                }
             }
         }
         binding.alarmTypeLinearLayout.setOnClickListener() {
@@ -173,7 +220,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
-        _binding = null
     }
 
     override fun onReverseGeocodeSuccess(address: String) {
@@ -184,7 +230,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onReverseGeocodeFailure(errorMessage: String) {
         this.address = "$lat,$lng"
     }
-    fun getAlarm() {
+
+    private fun getAlarm() {
         alarmId?.let { id ->
             CoroutineScope(Dispatchers.IO).launch {
                 val alarm: AlarmDetail?
@@ -220,9 +267,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun delete() {
         CoroutineScope(Dispatchers.IO).launch {
-            val alams: List<Long>? = alarmId?.let { listOf(it) }
-            if (alams != null) {
-                alarmRepository.deleteAlarms(alams)
+            val alarms: List<Long>? = alarmId?.let { listOf(it) }
+            if (alarms != null) {
+                alarmRepository.deleteAlarms(alarms)
             }
         }
 
