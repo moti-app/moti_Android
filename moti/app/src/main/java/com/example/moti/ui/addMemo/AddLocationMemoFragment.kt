@@ -92,14 +92,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         else {
             getAlarm()
         }
-        binding.alarmTypeLayout.setOnClickListener {
-            val intent = Intent(requireContext(), alarmCategory::class.java)
-            startActivity(intent)
-        }
-        binding.alarmTypeBackButten.setOnClickListener {
-            val intent2 = Intent(requireContext(), alarmCategory::class.java)
-            startActivity(intent2)
-        }
+
 
 
     }
@@ -171,6 +164,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarmRepository.createAlarmAndTag(alarm, tagIds = list)
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
+        }
+        binding.alarmTypeLinearLayout.setOnClickListener {
+            val intent = Intent(requireContext(), alarmCategory::class.java)
+            startActivity(intent)
         }
     }
 
