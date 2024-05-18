@@ -1,6 +1,7 @@
 package com.example.moti.ui.addMemo
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,6 +16,7 @@ import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.repository.dto.AlarmDetail
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -90,6 +92,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         else {
             getAlarm()
         }
+        binding.alarmTypeLayout.setOnClickListener {
+            val intent = Intent(requireContext(), alarmCategory::class.java)
+            startActivity(intent)
+        }
+        binding.alarmTypeBackButten.setOnClickListener {
+            val intent2 = Intent(requireContext(), alarmCategory::class.java)
+            startActivity(intent2)
+        }
+
 
     }
 

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <!-- Back button -->
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:scaleX="-1"
+            android:src="@drawable/right_arrow_24" />
+
+        <!-- Notification Type -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="알림 유형"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginLeft="8dp" />
+    </LinearLayout>
+
+
+    <!-- Notification Type Options -->
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="48dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/radioButton"
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/cardview_shadow_start_color" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:id="@+id/primaryText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/b3"
+                    android:text="배너 알림"/>
+
+                <TextView
+                    android:id="@+id/secondaryText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="배너 알림"
+                    android:textSize="12sp"
+                    android:textColor="#888888" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="0"
+            android:background="@color/mt_gray3"
+            android:layout_marginBottom="12dp"
+            android:layout_marginLeft="40dp"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/radioButton2"
+                android:layout_width="32dp"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/cardview_shadow_start_color" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <TextView
+                    android:id="@+id/primaryText2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/b3"
+                    android:text="전체 화면 알림"/>
+
+                <TextView
+                    android:id="@+id/secondaryText2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="확인해야만 꺼지는 알림"
+                    android:textSize="12sp"
+                    android:textColor="#888888" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_weight="0"
+            android:background="@color/mt_gray3"
+            android:layout_marginBottom="3dp"
+            android:layout_marginLeft="40dp"/>
+    </RadioGroup>
+
+    <!-- Notification Sound -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="48dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/primaryText3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/b3"
+                android:text="알림음"/>
+
+            <TextView
+                android:id="@+id/secondaryText3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="homecoming"
+                android:textSize="12sp"
+                android:textColor="#007AFF" />
+        </LinearLayout>
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:layout_marginStart="8dp"
+            android:trackTint="#001FBC"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="0"
+        android:background="@color/mt_gray3"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="16dp"/>
+    <!-- Vibration -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/primaryText4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/b3"
+                android:text="진동"/>
+
+            <TextView
+                android:id="@+id/secondaryText4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="basic call"
+                android:textSize="12sp"
+                android:textColor="#007AFF" />
+        </LinearLayout>
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:layout_marginStart="8dp"
+            android:trackTint="#001FBC"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="0"
+        android:background="@color/mt_gray3"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Repeat Notification -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/primaryText5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/b3"
+                android:text="다시 알림"/>
+
+            <TextView
+                android:id="@+id/secondaryText5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5분, 계속 반복"
+                android:textSize="12sp"
+                android:textColor="#007AFF" />
+        </LinearLayout>
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:layout_marginStart="8dp"
+            android:trackTint="#001FBC"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="0"
+        android:background="@color/mt_gray3"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="16dp"/>
+
+</LinearLayout>
