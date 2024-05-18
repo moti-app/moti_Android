@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
@@ -16,6 +17,8 @@ import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.repository.dto.AlarmDetail
+import com.example.moti.data.viewModel.RadioButtonViewModel
+import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
 import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
@@ -29,11 +32,14 @@ import kotlinx.coroutines.withContext
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener {
+    private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
+    private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
     private var lat: Double = 0.0
     private var lng: Double = 0.0
     private var address: String = "address"
     private var whenArrival: Boolean = true
+    private var radius2: Double = 300.0 // 기본 반경 값 설정
 
     private var context : String = "안녕"
 
@@ -109,6 +115,19 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
+            when(i) {
+                binding.inRadioBtn.id -> {
+                    radioButtonViewModel.setSelectedOption(1) // 첫 번째 버튼 선택
+                    whenArrival = true
+                }
+                binding.outRadioBtn.id -> {
+                    radioButtonViewModel.setSelectedOption(2) // 두 번째 버튼 선택
+                    whenArrival = false
+                }
+            }
+        }
         binding.saveCancelBtn.setOnClickListener() {
             if (alarmId?.toInt() !=0) {
                 delete()
@@ -117,12 +136,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
         binding.locationTitleEditText.setText(name)
         binding.locationDetailTextView.text = address
+        /*
         binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
             when(i) {
                 binding.inRadioBtn.id->whenArrival = true
                 binding.outRadioBtn.id->whenArrival = false
             }
-        }
+        }*/
         // TODO: 반복 요일 구현 (repeatDay)
         binding.repeatSwitch.setOnCheckedChangeListener { compoundButton, b ->
             if (b) {
@@ -174,8 +194,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         // SeekBar 리스너 설정
         binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // 원의 반지름을 SeekBar의 progress 값에 따라 조절
-                textView.text = if (progress < 1000) {
+                val radiusValue = progress.toDouble()
+                radiusViewModel.setRadius(radiusValue) // ViewModel에 반경 값 설정
+                binding.radiusTextView.text = if (progress < 1000) {
                     "$progress m"
                 } else {
                     String.format("%.1f km", progress / 1000.0)
@@ -255,4 +276,3 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     }
 
 }
-
