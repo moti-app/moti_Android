@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.annotation.RequiresApi
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
@@ -169,6 +170,26 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             val intent = Intent(requireContext(), alarmCategory::class.java)
             startActivity(intent)
         }
+        val textView = binding.radiusTextView
+        // SeekBar 리스너 설정
+        binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // 원의 반지름을 SeekBar의 progress 값에 따라 조절
+                textView.text = if (progress < 1000) {
+                    "$progress m"
+                } else {
+                    String.format("%.1f km", progress / 1000.0)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // 필요한 경우 사용
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 필요한 경우 사용
+            }
+        })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

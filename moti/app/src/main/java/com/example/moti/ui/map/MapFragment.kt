@@ -2,10 +2,15 @@ package com.example.moti.ui.map
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.location.Location
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -199,5 +204,25 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         lng = p0.position.longitude
         showAddMemoBottomSheet(p0.title.toString(),lat,lng, p0.snippet?.toLong())
         return true
+    }
+}
+
+class CircleView(context: Context, attrs: AttributeSet) : View(context, attrs) {
+    private val paint: Paint = Paint()
+    var radius: Float = 50f
+
+    init {
+        paint.color = Color.RED
+        paint.style = Paint.Style.FILL
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        canvas.drawCircle(width / 2f, height / 2f, radius, paint)
+    }
+
+    fun setRadius(newRadius: Float) {
+        radius = newRadius
+        invalidate() // View를 다시 그리도록 요청
     }
 }
