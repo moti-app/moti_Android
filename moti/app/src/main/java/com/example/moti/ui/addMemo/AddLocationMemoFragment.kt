@@ -115,7 +115,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        // ViewModel에서 라디오 버튼 상태 복원
+        radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
+            when (selectedOption) {
+                1 -> binding.inRadioBtn.isChecked = true
+                2 -> binding.outRadioBtn.isChecked = true
+            }
+        }
         binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
             when(i) {
                 binding.inRadioBtn.id -> {
@@ -191,10 +197,20 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             startActivity(intent)
         }
         val textView = binding.radiusTextView
+        // ViewModel에서 반경 값 복원
+        radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
+            val progress = radius.toInt()
+            binding.radiusSeekBar.progress = progress
+            binding.radiusTextView.text = if (progress < 1000) {
+                "$progress m"
+            } else {
+                String.format("%.1f km", progress / 1000.0)
+            }
+        }
         // SeekBar 리스너 설정
         binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val radiusValue = progress.toDouble()
+                val radiusValue = (progress).toDouble()
                 radiusViewModel.setRadius(radiusValue) // ViewModel에 반경 값 설정
                 binding.radiusTextView.text = if (progress < 1000) {
                     "$progress m"

@@ -158,9 +158,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                                 CircleOptions()
                                     .center(latLng) // 좌표를 center에 설정
                                     .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
-                                    .strokeColor(Color.RED) // 테두리 색상 설정 (파란색)
+                                    .strokeColor(Color.GRAY) // 테두리 색상 설정 (파란색)
                                     .strokeWidth(5f) // 테두리 두께 설정
-                                    .fillColor(Color.argb(50, 235, 135, 135)) // 원의 내부 색상 (하늘색, 불투명)
+                                    .fillColor(Color.argb(50, 128, 128, 128)) // 원의 내부 색상 (회색, 불투명)
                             )
                         }
 
