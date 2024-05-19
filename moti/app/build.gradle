@@ -43,6 +43,7 @@ android {
     buildToolsVersion '33.0.1'
     buildFeatures {
         buildConfig true
+        dataBinding true
     }
 }
 

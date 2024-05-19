@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.RecentLocation
+import com.example.moti.data.model.PlaceItem
 import com.example.moti.data.repository.RecentLocationRepository
 import com.example.moti.databinding.FragmentSearchDefaultBinding
 import com.example.moti.ui.main.MainActivity
@@ -84,6 +85,7 @@ class SearchDefaultFragment : Fragment() {
             withContext(Dispatchers.Main) {
                 val placeAdapter = PlacesRVAdapter(itemList2)
                 binding.rvRecent.adapter = placeAdapter
+                binding.rvRecent.isVisible = true
                 placeAdapter.notifyDataSetChanged()
                 placeAdapter.setItemClickListener(object : PlacesRVAdapter.OnItemClickListener {
                     override fun onClick(v: View, position: Int) {
