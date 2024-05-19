@@ -128,6 +128,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                         .strokeWidth(5f) // 테두리 두께 설정
                         .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
                 )
+                adjustZoomLevel(radius*2.3)
             }
             radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
                 when (selectedOption) {
@@ -145,6 +146,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                                     .strokeWidth(5f) // 테두리 두께 설정
                                     .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
                             )
+                            adjustZoomLevel(radius*2.3)
                         }
 
                     }
@@ -162,6 +164,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                                     .strokeWidth(5f) // 테두리 두께 설정
                                     .fillColor(Color.argb(50, 128, 128, 128)) // 원의 내부 색상 (회색, 불투명)
                             )
+                            adjustZoomLevel(radius*2.3)
                         }
 
                     }}}
@@ -170,6 +173,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
+    }
+    private fun adjustZoomLevel(radius: Double) {
+        val scale = radius / 500
+        val zoomLevel = (16 - Math.log(scale) / Math.log(2.0)).toFloat()
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), zoomLevel))
     }
 
     private fun showAddMemoBottomSheet(name:String,lat:Double,lng:Double,id:Long?) {
