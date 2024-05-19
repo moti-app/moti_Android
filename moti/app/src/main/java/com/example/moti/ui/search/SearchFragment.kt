@@ -41,13 +41,13 @@ class SearchFragment : Fragment() {
     private var query:String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val systemLocale: Locale = activity?.resources?.configuration?.locales?.get(0)!!
+        countryCode = "country:" + systemLocale.country
+        languageCode = systemLocale.language
         super.onCreate(savedInstanceState)
         arguments?.let {
             searchViewModel.autocomplete(it.getString(ARG_PARAM1) ?: "", countryCode, languageCode)
         }
-        val systemLocale: Locale = activity?.resources?.configuration?.locales?.get(0)!!
-        //countryCode = "country:" + systemLocale.country
-        languageCode = systemLocale.language
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         recentLocationRepository = RecentLocationRepository(db.recentLocationDao())
     }
