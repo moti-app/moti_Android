@@ -39,7 +39,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var lng: Double = 0.0
     private var address: String = "address"
     private var whenArrival: Boolean = true
-    private var radius2: Double = 300.0 // 기본 반경 값 설정
+    private var radius2: Double = 50.0 // 기본 반경 값 설정
 
     private var context : String = "안녕"
 
