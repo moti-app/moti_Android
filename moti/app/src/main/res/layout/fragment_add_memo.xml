@@ -107,8 +107,8 @@
                         android:layout_weight="1"
                         android:maxHeight="15dp"
                         android:minHeight="15dp"
-                        android:max="10"
-                        android:min="1"
+                        android:max="5000"
+                        android:min="300"
                         android:progress="0"
                         style="@style/CustomSeekBarStyle"
                         />
@@ -120,7 +120,7 @@
                         android:layout_weight="1"
                         android:gravity="center"
                         style="@style/b3"
-                        android:text="5km" />
+                        android:text="300m" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -217,17 +217,18 @@
                 android:paddingLeft="24dp"
                 android:paddingTop="10dp"
                 android:paddingRight="24dp"
-                android:paddingBottom="10dp">
+                android:paddingBottom="10dp"
+                android:background="?attr/selectableItemBackground">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:id="@+id/alarmTypeLayout">
 
                     <TextView
-                        android:id="@+id/alarmTypeTitleTextView"
                         style="@style/b3"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
