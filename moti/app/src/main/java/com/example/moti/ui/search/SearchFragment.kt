@@ -98,7 +98,6 @@ class SearchFragment : Fragment() {
 
                 val intent = Intent(activity, MainActivity::class.java).apply {
                     putExtra("name", response.results[0].name)
-                    putExtra("address", address)
                     putExtra("lat", lat.toString())
                     putExtra("lng", lng.toString())
                 }

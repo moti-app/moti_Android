@@ -11,7 +11,6 @@ import com.example.moti.databinding.ItemPlaceBinding
 class PlacesRVAdapter(places: MutableList<PlaceItem>) : RecyclerView.Adapter<PlacesRVAdapter.PlaceViewHolder>() {
 
     var places: MutableList<PlaceItem> = places
-    private var filteredPlaces: MutableList<PlaceItem> = places
     private lateinit var itemClickListener: OnItemClickListener
 
     interface OnItemClickListener {
@@ -48,11 +47,11 @@ class PlacesRVAdapter(places: MutableList<PlaceItem>) : RecyclerView.Adapter<Pla
     }
 
     override fun getItemCount(): Int {
-        return filteredPlaces.size
+        return places.size
     }
 
     override fun onBindViewHolder(holder: PlaceViewHolder, position: Int) {
-        holder.bind(filteredPlaces[position])
+        holder.bind(places[position])
     }
 
 
@@ -60,7 +59,6 @@ class PlacesRVAdapter(places: MutableList<PlaceItem>) : RecyclerView.Adapter<Pla
     fun submitList(newItems: List<PlaceItem>) {
         places.clear()
         places.addAll(newItems)
-        filteredPlaces = places
         notifyDataSetChanged()
     }
 }
