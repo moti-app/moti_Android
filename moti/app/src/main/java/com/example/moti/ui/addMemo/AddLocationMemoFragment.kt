@@ -202,6 +202,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         })
     }
     private fun initUi() {
+        radioButtonViewModel.setSelectedOption(1)
         binding.locationTitleEditText.setText(name)
         binding.locationDetailTextView.text = address
         binding.radiusSeekBar.progress = radius.toInt()

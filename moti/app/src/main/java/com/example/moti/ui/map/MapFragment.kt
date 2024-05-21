@@ -126,7 +126,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             lat = latLng.latitude
             lng = latLng.longitude
             showAddMemoBottomSheet("Enter title",lat,lng,null)
-            addCircle(Color.BLUE)
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
