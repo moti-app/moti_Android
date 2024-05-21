@@ -19,8 +19,8 @@ data class Alarm (
     var repeatDay : List<Week>?,
     var hasBanner : Boolean,
     var tagColor : TagColor,
-    var lastNoti : LocalDateTime,
-    var interval : Int = 1440
+    var lastNoti : LocalDateTime?,
+    var interval : Int?
 ){
   constructor(
       title : String,
@@ -32,8 +32,8 @@ data class Alarm (
       repeatDay : List<Week>?,
       hasBanner : Boolean,
       tagColor: TagColor,
-      lastNoti : LocalDateTime,
-      interval : Int)
+      lastNoti : LocalDateTime?,
+      interval : Int? = 1440)
           : this(0, title, context, location, whenArrival, radius, isRepeat,
       repeatDay, hasBanner, tagColor, lastNoti, interval)
 }
