@@ -31,7 +31,17 @@ class FavoritesRVAdapter (private val favorites : ArrayList<FavoriteItem>) : Rec
         holder.title.text = favorites[position].title
         holder.contents.text = favorites[position].contents
         holder.img.setImageResource(favorites[position].img)
+        holder.itemView.setOnClickListener {
+            itemClickListener.onClick(it, position)
+        }
     }
+    interface OnItemClickListener {
+        fun onClick(v: View, position: Int)
+    }
+    fun setItemClickListener(onItemClickListener: OnItemClickListener) {
+        this.itemClickListener = onItemClickListener
+    }
+    private lateinit var itemClickListener : OnItemClickListener
 }
 
 data class FavoriteItem(val title: String, val contents: String, val img: Int)
