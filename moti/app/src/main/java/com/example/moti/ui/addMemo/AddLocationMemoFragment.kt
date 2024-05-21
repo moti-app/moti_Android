@@ -39,13 +39,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var lng: Double = 0.0
     private var address: String = "address"
     private var whenArrival: Boolean = true
-    private var radius2: Double = 50.0 // 기본 반경 값 설정
 
     private var context : String = "안녕"
 
     private var location : Location = Location(lat,lng,address,name)
 
-    private var radius : Double = 0.0
+    private var radius : Double = 500.0
     private var isRepeat : Boolean = true
     private var repeatDay : Week = Week.MON
     private var hasBanner : Boolean = true
@@ -116,13 +115,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // ViewModel에서 라디오 버튼 상태 복원
-        radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
-            when (selectedOption) {
-                1 -> binding.inRadioBtn.isChecked = true
-                2 -> binding.outRadioBtn.isChecked = true
-            }
-        }
+        initUi()
         binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
             when(i) {
                 binding.inRadioBtn.id -> {
@@ -141,15 +134,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
-        binding.locationTitleEditText.setText(name)
-        binding.locationDetailTextView.text = address
-        /*
-        binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
-            when(i) {
-                binding.inRadioBtn.id->whenArrival = true
-                binding.outRadioBtn.id->whenArrival = false
-            }
-        }*/
         // TODO: 반복 요일 구현 (repeatDay)
         binding.repeatSwitch.setOnCheckedChangeListener { compoundButton, b ->
             if (b) {
@@ -165,7 +149,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         binding.tagLinearLayout.setOnClickListener() {
             // TODO: 태그 구현
         }
-        // TODO: 반경 구현
 
         binding.saveBtn.setOnClickListener() {
             location = Location(
@@ -197,22 +180,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             val intent = Intent(requireContext(), alarmCategory::class.java)
             startActivity(intent)
         }
-        val textView = binding.radiusTextView
-        // ViewModel에서 반경 값 복원
-        radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
-            val progress = radius.toInt()
-            binding.radiusSeekBar.progress = progress
-            binding.radiusTextView.text = if (progress < 1000) {
-                "$progress m"
-            } else {
-                String.format("%.1f km", progress / 1000.0)
-            }
-        }
         // SeekBar 리스너 설정
         binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val radiusValue = (progress).toDouble()
-                radiusViewModel.setRadius(radiusValue) // ViewModel에 반경 값 설정
+                radius = (progress).toDouble()
+                radiusViewModel.setRadius(radius) // ViewModel에 반경 값 설정
                 binding.radiusTextView.text = if (progress < 1000) {
                     "$progress m"
                 } else {
@@ -228,6 +200,17 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 // 필요한 경우 사용
             }
         })
+    }
+    private fun initUi() {
+        binding.locationTitleEditText.setText(name)
+        binding.locationDetailTextView.text = address
+        binding.radiusSeekBar.progress = radius.toInt()
+        radiusViewModel.setRadius(radius) // ViewModel에 반경 값 설정
+        binding.radiusTextView.text = if (radius < 1000) {
+            "$radius m"
+        } else {
+            String.format("%.1f km", radius / 1000.0)
+        }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -261,6 +244,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
                         address = fetchedAlarm.alarm.location.address
+                        radius = fetchedAlarm.alarm.radius
+                        binding.radiusSeekBar.progress = radius.toInt()
+                        radiusViewModel.setRadius(radius)
+                        binding.radiusTextView.text = if (radius < 1000) {
+                            "$radius m"
+                        } else {
+                            String.format("%.1f km", radius / 1000.0)
+                        }
                         binding.memoEditText.setText(fetchedAlarm.alarm.context)
                         if (!fetchedAlarm.alarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
