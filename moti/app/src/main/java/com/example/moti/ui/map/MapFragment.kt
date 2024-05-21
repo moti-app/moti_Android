@@ -102,6 +102,17 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
             }
         }
+        radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
+            when (selectedOption) {
+                1 -> {
+                    // 새로운 원을 추가
+                    addCircle(Color.BLUE)
+
+                }
+                2 -> {
+                    // 새로운 원을 추가
+                    addCircle(Color.GRAY)
+                }}}
         binding.btnSearch.setOnClickListener() {
             val intent = Intent(activity, SearchActivity::class.java)
             resultLauncher.launch(intent)
@@ -115,61 +126,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             lat = latLng.latitude
             lng = latLng.longitude
             showAddMemoBottomSheet("Enter title",lat,lng,null)
-            // 새로운 원을 추가
-            radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
-                currentRadius=radius
-                // 기존의 원을 제거
-                currentCircle?.remove()
-                currentCircle = googleMap.addCircle(
-                    CircleOptions()
-                        .center(latLng) // 좌표를 center에 설정
-                        .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
-                        .strokeColor(Color.BLUE) // 테두리 색상 설정 (파란색)
-                        .strokeWidth(5f) // 테두리 두께 설정
-                        .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
-                )
-                adjustZoomLevel(radius*2.3)
-            }
-            radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
-                when (selectedOption) {
-                    1 -> {
-                        // 새로운 원을 추가
-                        radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
-                            currentRadius=radius
-                            // 기존의 원을 제거
-                            currentCircle?.remove()
-                            currentCircle = googleMap.addCircle(
-                                CircleOptions()
-                                    .center(latLng) // 좌표를 center에 설정
-                                    .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
-                                    .strokeColor(Color.BLUE) // 테두리 색상 설정 (파란색)
-                                    .strokeWidth(5f) // 테두리 두께 설정
-                                    .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
-                            )
-                            adjustZoomLevel(radius*2.3)
-                        }
-
-                    }
-                    2 -> {
-                        // 새로운 원을 추가
-                        radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
-                            currentRadius=radius
-                            // 기존의 원을 제거
-                            currentCircle?.remove()
-                            currentCircle = googleMap.addCircle(
-                                CircleOptions()
-                                    .center(latLng) // 좌표를 center에 설정
-                                    .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
-                                    .strokeColor(Color.GRAY) // 테두리 색상 설정 (파란색)
-                                    .strokeWidth(5f) // 테두리 두께 설정
-                                    .fillColor(Color.argb(50, 128, 128, 128)) // 원의 내부 색상 (회색, 불투명)
-                            )
-                            adjustZoomLevel(radius*2.3)
-                        }
-
-                    }}}
-
-
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
@@ -268,5 +224,20 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         lng = p0.position.longitude
         showAddMemoBottomSheet(p0.title.toString(),lat,lng, p0.snippet?.toLong())
         return true
+    }
+    private fun addCircle(color: Int) {
+        radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
+            currentRadius=radius
+            currentCircle?.remove() // 기존의 원을 제거
+            currentCircle = googleMap.addCircle(
+                CircleOptions()
+                    .center(LatLng(lat,lng)) // 좌표를 center에 설정
+                    .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
+                    .strokeColor(color) // 테두리 색상 설정 (파란색)
+                    .strokeWidth(5f) // 테두리 두께 설정
+                    .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
+            )
+            adjustZoomLevel(radius*2.3)
+        }
     }
 }
