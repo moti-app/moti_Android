@@ -14,6 +14,7 @@ import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Location
+import com.example.moti.data.entity.TagColor
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.repository.dto.AlarmDetail
@@ -29,6 +30,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener {
@@ -46,9 +48,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var radius : Double = 1000.0
     private var isRepeat : Boolean = true
-    private var repeatDay : Week = Week.MON
+    private var repeatDay : List<Week> = mutableListOf<Week>() //빈 리스트 넣기?
     private var hasBanner : Boolean = true
-
+    private var tagColor : TagColor = TagColor.BK
+    @RequiresApi(Build.VERSION_CODES.O)
+    private var lastNoti : LocalDateTime = LocalDateTime.now()
+    private var interval : Int = 1440;
     private var alarmId: Long? = null
 
     private lateinit var db:MotiDatabase
@@ -164,7 +169,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 radius = radius,
                 isRepeat = isRepeat,
                 repeatDay = repeatDay,
-                hasBanner = hasBanner
+                hasBanner = hasBanner,
+                tagColor = tagColor,
+                lastNoti = lastNoti,
+                interval = interval
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -235,7 +243,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     fun getAlarm() {
         alarmId?.let { id ->
             CoroutineScope(Dispatchers.IO).launch {
-                val alarm: AlarmDetail?
+                val alarm: Alarm?
                 val deferred = async {
                     alarmRepository.findAlarm(id)
                 }
@@ -243,9 +251,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarm.let { fetchedAlarm ->
                     withContext(Dispatchers.Main) {
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
-                        binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
-                        address = fetchedAlarm.alarm.location.address
-                        radius = fetchedAlarm.alarm.radius
+                        binding.locationDetailTextView.text = fetchedAlarm.location.address
+                        address = fetchedAlarm.location.address
+                        radius = fetchedAlarm.radius
                         binding.radiusSeekBar.progress = radius.toInt()
                         radiusViewModel.setRadius(radius)
                         binding.radiusTextView.text = if (radius < 1000) {
@@ -253,17 +261,17 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         } else {
                             String.format("%.1f km", radius / 1000.0)
                         }
-                        binding.memoEditText.setText(fetchedAlarm.alarm.context)
-                        if (!fetchedAlarm.alarm.whenArrival) {
+                        binding.memoEditText.setText(fetchedAlarm.context)
+                        if (!fetchedAlarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
                         }
-                        if (!fetchedAlarm.alarm.isRepeat) {
+                        if (!fetchedAlarm.isRepeat) {
                             isRepeat = false
                             binding.repeatSwitch.isChecked = false
                         }
-                        if (!fetchedAlarm.alarm.hasBanner) {
+                        if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
                         }

@@ -44,7 +44,7 @@ class LocationService : Service(), LocationListener {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             //위치 갱신 최소 시간, 위치 갱신 최소 거리
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0.01f, this)
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this)
         } else {
             Log.e(TAG, "Location permissions are not granted.")
         }

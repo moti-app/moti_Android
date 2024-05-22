@@ -4,7 +4,6 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.ActivityMainBinding
@@ -12,7 +11,6 @@ import com.example.moti.ui.map.MapFragment
 import com.example.moti.ui.memo.MemoFragment
 import com.example.moti.R
 import com.example.moti.alarm.LocationService
-import com.example.moti.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
