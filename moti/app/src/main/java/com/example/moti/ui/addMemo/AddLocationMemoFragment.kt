@@ -2,19 +2,24 @@ package com.example.moti.ui.addMemo
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Location
+import com.example.moti.data.entity.TagColor
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.repository.dto.AlarmDetail
@@ -46,8 +51,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var radius : Double = 500.0
     private var isRepeat : Boolean = true
-    private var repeatDay : Week = Week.MON
+    private var repeatDay : List<Week>? = null
     private var hasBanner : Boolean = true
+    private var tagColor : TagColor = TagColor.BK
 
     private var alarmId: Long? = null
 
@@ -76,6 +82,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var _binding: FragmentAddMemoBinding? = null
     private val binding get() = _binding!!
+
+    private val radiusViewModel: RadiusViewModel by viewModels()
+    private val radioButtonViewModel: RadioButtonViewModel by viewModels()
 
     var onDismissListener: (() -> Unit)? = null
 
@@ -151,52 +160,86 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             repeatToggle.isChecked = !repeatChecked
             repeatChecked = !repeatChecked
 
-            val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
+
 
             if (repeatToggle.isChecked) {
                 binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                 binding.repeatDetailTextView.visibility = View.VISIBLE
 
+//                binding.addMemoRepeatSunLl.setOnClickListener {
+//                    repeatDay = Week.SUN
+//                    binding.addMemoRepeatSunTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot1Iv.setColorFilter(selectColor)
+//                }
+//
+//                binding.addMemoRepeatMonLl.setOnClickListener {
+//                    repeatDay = Week.MON
+//                    binding.addMemoRepeatMonTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot2Iv.setColorFilter(selectColor)
+//                }
+//
+//                binding.addMemoRepeatTueLl.setOnClickListener {
+//                    repeatDay = Week.TUE
+//                    binding.addMemoRepeatTueTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot3Iv.setColorFilter(selectColor)
+//                }
+//
+//                binding.addMemoRepeatWedLl.setOnClickListener {
+//                    repeatDay = Week.WED
+//                    binding.addMemoRepeatWedTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot4Iv.setColorFilter(selectColor)
+//                }
+//
+//                binding.addMemoRepeatThuLl.setOnClickListener {
+//                    repeatDay = Week.THU
+//                    binding.addMemoRepeatThuTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot5Iv.setColorFilter(selectColor)
+//                }
+//
+//                binding.addMemoRepeatFriLl.setOnClickListener {
+//                    repeatDay = Week.FRI
+//                    binding.addMemoRepeatFriTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot6Iv.setColorFilter(selectColor)
+//                }
+//
+//                binding.addMemoRepeatSatLl.setOnClickListener {
+//                    repeatDay = Week.SAT
+//                    binding.addMemoRepeatSatTv.setTextColor(selectColor)
+//                    binding.addMemoRepeatDot7Iv.setColorFilter(selectColor)
+//                }
                 binding.addMemoRepeatSunLl.setOnClickListener {
-                    repeatDay = Week.SUN
-                    binding.addMemoRepeatSunTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot1Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.SUN)
+                    updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
                 }
 
                 binding.addMemoRepeatMonLl.setOnClickListener {
-                    repeatDay = Week.MON
-                    binding.addMemoRepeatMonTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot2Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.MON)
+                    updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
                 }
 
                 binding.addMemoRepeatTueLl.setOnClickListener {
-                    repeatDay = Week.TUE
-                    binding.addMemoRepeatTueTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot3Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.TUE)
+                    updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
                 }
 
                 binding.addMemoRepeatWedLl.setOnClickListener {
-                    repeatDay = Week.WED
-                    binding.addMemoRepeatWedTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot4Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.WED)
+                    updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
                 }
 
                 binding.addMemoRepeatThuLl.setOnClickListener {
-                    repeatDay = Week.THU
-                    binding.addMemoRepeatThuTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot5Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.THU)
+                    updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
                 }
 
                 binding.addMemoRepeatFriLl.setOnClickListener {
-                    repeatDay = Week.FRI
-                    binding.addMemoRepeatFriTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot6Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.FRI)
+                    updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
                 }
 
                 binding.addMemoRepeatSatLl.setOnClickListener {
-                    repeatDay = Week.SAT
-                    binding.addMemoRepeatSatTv.setTextColor(selectColor)
-                    binding.addMemoRepeatDot7Iv.setColorFilter(selectColor)
+                    repeatDaySelect(Week.SAT)
+                    updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
                 }
             } else {
                 binding.addMemoRepeatDayLl.visibility = View.GONE
@@ -225,7 +268,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 radius = radius,
                 isRepeat = repeatToggle.isChecked,
                 repeatDay = repeatDay,
-                hasBanner = hasBanner
+                hasBanner = hasBanner,
+                tagColor = tagColor,
+                lastNoti = null,
+                interval = null
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -297,18 +343,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private fun getAlarm() {
         alarmId?.let { id ->
             CoroutineScope(Dispatchers.IO).launch {
-                val alarm: AlarmDetail?
+                val alarm: Alarm
                 val deferred = async {
                     alarmRepository.findAlarm(id)
                 }
                 alarm = deferred.await()
                 alarm.let { fetchedAlarm ->
                     withContext(Dispatchers.Main) {
-                        binding.locationTitleEditText.setText(fetchedAlarm.alarm.title)
+                        binding.locationTitleEditText.setText(fetchedAlarm.title)
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
-                        binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
-                        address = fetchedAlarm.alarm.location.address
-                        radius = fetchedAlarm.alarm.radius
+                        binding.locationDetailTextView.text = fetchedAlarm.location.address
+                        address = fetchedAlarm.location.address
+                        radius = fetchedAlarm.radius
                         binding.radiusSeekBar.progress = radius.toInt()
                         radiusViewModel.setRadius(radius)
                         binding.radiusTextView.text = if (radius < 1000) {
@@ -316,15 +362,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         } else {
                             String.format("%.1f km", radius / 1000.0)
                         }
-                        binding.memoEditText.setText(fetchedAlarm.alarm.context)
-                        binding.addMemoToggle1Sc.isChecked = fetchedAlarm.alarm.isRepeat
+                        binding.memoEditText.setText(fetchedAlarm.context)
+                        binding.addMemoToggle1Sc.isChecked = fetchedAlarm.isRepeat
 
-                        if (fetchedAlarm.alarm.isRepeat) {
+                        if (fetchedAlarm.isRepeat) {
                             binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                             binding.repeatDetailTextView.visibility = View.VISIBLE
                         }
 
-                        if (!fetchedAlarm.alarm.whenArrival) {
+                        if (!fetchedAlarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
@@ -333,7 +379,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 //                            isRepeat = false
 //                            binding.addMemoToggle1Sc.isChecked = false
 //                        }
-                        if (!fetchedAlarm.alarm.hasBanner) {
+                        if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
                         }
@@ -352,6 +398,31 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
         }
 
+    }
+
+    // 선택된 날짜를 추가하는 함수
+    private fun repeatDaySelect(day: Week) {
+        repeatDay = repeatDay?.let {
+            if (it.contains(day)) {
+                it - day
+            } else {
+                it + day
+            }
+        } ?: listOf(day) // repeatDay가 null인 경우, 선택된 day를 포함하는 리스트로 초기화
+    }
+
+    // UI 업데이트를 위한 함수
+    private fun updateUIForDay(day: Week, textView: TextView, imageView: ImageView) {
+        val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
+        val defaultColor = Color.BLACK // 선택되지 않았을 때의 색상
+
+        if (repeatDay?.contains(day) == true) {
+            textView.setTextColor(selectColor)
+            imageView.setColorFilter(selectColor)
+        } else {
+            textView.setTextColor(defaultColor)
+            imageView.setColorFilter(defaultColor)
+        }
     }
 
 }

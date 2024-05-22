@@ -15,8 +15,7 @@ import com.example.moti.ui.memo.MemoFragment
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
-    private val radiusViewModel: RadiusViewModel by viewModels()
-    private val radioButtonViewModel: RadioButtonViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

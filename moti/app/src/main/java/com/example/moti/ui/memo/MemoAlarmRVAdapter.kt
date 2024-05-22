@@ -1,19 +1,13 @@
 package com.example.moti.ui.memo
 
-import android.animation.ObjectAnimator
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
-import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Week
-import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.ItemMemoAlarmBinding
 
 class MemoAlarmRVAdapter(private val context: Context, private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
@@ -47,12 +41,14 @@ class MemoAlarmRVAdapter(private val context: Context, private val alarmList: Li
             Week.SAT to Pair(holder.binding.itemMemoSatTv, holder.binding.itemMemoDot7Iv)
         )
 
-        val views = dayToViewsMap[alarmList[position].repeatDay]
-
-        if (views != null) {
-            views.first.setTextColor(selectColor)
-            views.second.setColorFilter(selectColor)
+        // alarmList에서 해당 position의 알람의 반복 요일들을 가져옴
+        alarmList[position].repeatDay?.forEach { week ->
+            dayToViewsMap[week]?.let { (textView, imageView) ->
+                textView.setTextColor(selectColor)
+                imageView.setColorFilter(selectColor)
+            }
         }
+
         val toggle = holder.binding.itemMemoToggleSc
 
         var checked = false
