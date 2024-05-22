@@ -7,4 +7,5 @@
     <string name="recent_search">최근 검색</string>
     <string name="memo_title">알람</string>
     <string name="delete_memo">삭제하기</string>
+    <string name="end_alarm">끄기</string>
 </resources>
