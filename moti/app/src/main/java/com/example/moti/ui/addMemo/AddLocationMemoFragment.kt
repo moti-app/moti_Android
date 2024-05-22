@@ -53,7 +53,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var isRepeat : Boolean = true
     private var repeatDay : List<Week>? = null
     private var hasBanner : Boolean = true
-    private var tagColor : TagColor = TagColor.BK
+    private var tagColor : TagColor = TagColor.RD
+    private var selectedTagColor: TagColor? = null
 
     private var alarmId: Long? = null
 
@@ -149,7 +150,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.outRadioBtn.id->whenArrival = false
             }
         }
-        // TODO: 반복 요일 구현 (repeatDay)
+        // 반복 요일 구현 (repeatDay)
         val repeatToggle = binding.addMemoToggle1Sc
 
         var repeatChecked = false
@@ -159,8 +160,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         repeatToggle.setOnClickListener {
             repeatToggle.isChecked = !repeatChecked
             repeatChecked = !repeatChecked
-
-
 
             if (repeatToggle.isChecked) {
                 binding.addMemoRepeatDayLl.visibility = View.VISIBLE
@@ -205,12 +204,93 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.repeatDetailTextView.visibility = View.GONE
             }
         }
+
+        // 반복 요일 구현 (repeatDay)
+        val tagToggle = binding.addMemoToggle2Sc
+
+        var tagChecked = false
+
+        tagToggle.isChecked = repeatChecked
+
+        tagToggle.setOnClickListener {
+            tagToggle.isChecked = !tagChecked
+            tagChecked = !tagChecked
+
+            if (tagToggle.isChecked) {
+                binding.addMemoTagLl.visibility = View.VISIBLE
+
+                binding.addMemoTagRedIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagRedIv, TagColor.RD)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "빨간색"
+                    }
+                }
+
+                binding.addMemoTagOrangeIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOrangeIv, TagColor.OG)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "주황색"
+                    }
+
+                }
+
+                binding.addMemoTagYellowIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagYellowIv, TagColor.YE)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "노란색"
+                    }
+                }
+
+                binding.addMemoTagGreenIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagGreenIv, TagColor.GN)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "초록색"
+                    }
+                }
+
+                binding.addMemoTagBlueIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagBlueIv, TagColor.BU)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "파랑색"
+                    }
+                }
+
+                binding.addMemoTagPurpleIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagPurpleIv, TagColor.PU)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "보라색"
+                    }
+                }
+
+                binding.addMemoTagGrayIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagGrayIv, TagColor.BK)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "회색"
+                    }
+                }
+            } else {
+                binding.addMemoTagLl.visibility = View.GONE
+                binding.tagDetailTextView.visibility = View.GONE
+            }
+        }
         binding.alarmTypeLinearLayout.setOnClickListener() {
             // TODO: 알림 유형 구현
         }
-        binding.tagLinearLayout.setOnClickListener() {
-            // TODO: 태그 구현
-        }
+
         // TODO: 반경 구현
 
         binding.saveBtn.setOnClickListener() {
@@ -228,7 +308,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 isRepeat = repeatToggle.isChecked,
                 repeatDay = repeatDay,
                 hasBanner = hasBanner,
-                tagColor = tagColor,
+                tagColor = selectedTagColor!!,
                 lastNoti = null,
                 interval = null
             )
@@ -384,5 +464,36 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
     }
 
+    // 현재 선택된 태그의 ImageView 참조를 저장하기 위한 변수
+    private var selectedImageView: ImageView? = null
+
+    private fun toggleTagSize(imageView: ImageView, tagColor: TagColor): Boolean {
+        val scale = imageView.context.resources.displayMetrics.density
+        val newSize = (16 * scale + 0.5f).toInt() // Convert dp to pixels
+
+        if (selectedImageView != null && selectedImageView != imageView) {
+            val layoutParams = selectedImageView!!.layoutParams
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            selectedImageView!!.layoutParams = layoutParams
+        }
+
+        if (selectedImageView == imageView) {
+            val layoutParams = imageView.layoutParams
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            imageView.layoutParams = layoutParams
+            selectedImageView = null
+            return true // 선택된 태그가 취소되었음을 의미
+        } else {
+            val layoutParams = imageView.layoutParams
+            layoutParams.width = newSize
+            layoutParams.height = newSize
+            imageView.layoutParams = layoutParams
+            selectedImageView = imageView
+            selectedTagColor = tagColor
+            return false // 새로운 태그가 선택되었음을 의미
+        }
+    }
 }
 
