@@ -2,9 +2,9 @@
     <string name="app_name">moti</string>
     <string name="bottom_map">지도</string>
     <string name="bottom_memo">메모</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="query_hint">검색하기</string>
     <string name="recent_search">최근 검색</string>
+    <string name="memo_title">알람</string>
     <string name="delete_memo">삭제하기</string>
 </resources>

@@ -6,4 +6,11 @@
     </style>
 
     <style name="Theme.Moti" parent="Base.Theme.Moti" />
+
+    <style name="category_toggle">
+        <item name="thumbTint">@color/white</item>
+        <item name="track">@drawable/style_toggle_btn</item>
+        <item name="android:thumb">@drawable/style_toggle_thumb</item>
+        <item name="android:enabled">true</item>
+    </style>
 </resources>

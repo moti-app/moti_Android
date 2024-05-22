@@ -3,6 +3,11 @@ package com.example.moti.ui.main
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.example.moti.data.viewModel.RadioButtonViewModel
+import com.example.moti.data.viewModel.RadiusViewModel
+import com.example.moti.databinding.ActivityMainBinding
 import com.example.moti.ui.map.MapFragment
 import com.example.moti.ui.memo.MemoFragment
 import com.example.moti.R
@@ -17,6 +22,8 @@ import androidx.core.content.ContextCompat
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
+    private val radiusViewModel: RadiusViewModel by viewModels()
+    private val radioButtonViewModel: RadioButtonViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,7 +97,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.lockerFragment -> {
                     supportFragmentManager.beginTransaction()
-                        .replace(R.id.main_frm, MemoFragment()) // 추후 변경
                         .commitAllowingStateLoss()
                     return@setOnItemSelectedListener true
                 }

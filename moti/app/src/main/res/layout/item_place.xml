@@ -1,63 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:background="@color/white">
-
-    <ImageView
-        android:id="@+id/iv_item_place"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginStart="10dp"
-        app:srcCompat="@drawable/ic_baseline_place_24"/>
-
-    <Space
-        android:id="@+id/spacer"
-        android:layout_width="10dp"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="placeItemV"
+            type="com.example.moti.data.model.PlaceItem" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/iv_item_place"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:padding="10dp"
+        android:background="@color/white">
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/spacer"
-        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/iv_item_place"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="10dp"
+            app:srcCompat="@drawable/ic_baseline_place_24"/>
 
-        <TextView
-            android:id="@+id/tv_item_place_title"
-            android:layout_width="wrap_content"
-            android:layout_height="17dp"
-            android:text=""
-            android:textSize="14sp"
-            android:textStyle="bold" />
+        <Space
+            android:id="@+id/spacer"
+            android:layout_width="10dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/iv_item_place"
+            app:layout_constraintTop_toTopOf="parent"/>
 
-        <TextView
-            android:id="@+id/tv_item_place_contents"
+        <LinearLayout
+            android:id="@+id/linearLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="12sp" />
-    </LinearLayout>
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/spacer"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <ImageButton
-        android:id="@+id/imageButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:padding="10dp"
-        app:srcCompat="@drawable/ic_baseline_clear_24"
-        android:background="#00000000"
-        android:visibility="invisible"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tv_item_place_title"
+                android:layout_width="wrap_content"
+                android:layout_height="17dp"
+                android:text="@{placeItemV.title}"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_item_place_contents"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{placeItemV.contents}"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:id="@+id/imageButton"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:padding="10dp"
+            app:srcCompat="@drawable/ic_baseline_clear_24"
+            android:background="#00000000"
+            android:visibility="invisible"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

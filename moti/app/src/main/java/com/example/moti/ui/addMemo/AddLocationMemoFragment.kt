@@ -1,12 +1,15 @@
 package com.example.moti.ui.addMemo
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.annotation.RequiresApi
+import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
@@ -14,7 +17,10 @@ import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.repository.dto.AlarmDetail
+import com.example.moti.data.viewModel.RadioButtonViewModel
+import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -26,6 +32,8 @@ import kotlinx.coroutines.withContext
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener {
+    private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
+    private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
     private var lat: Double = 0.0
     private var lng: Double = 0.0
@@ -85,11 +93,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         if (alarmId?.toInt() ==0) {
             this.address = "$lat,$lng"
-            reverseGeocoding.reverseGeocode("$lat,$lng")
+            val language= activity?.resources?.configuration?.locales?.get(0)?.language.toString()
+            reverseGeocoding.reverseGeocode("$lat,$lng",language)
         }
         else {
             getAlarm()
         }
+
+
 
     }
 
@@ -104,19 +115,24 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        initUi()
+        binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
+            when(i) {
+                binding.inRadioBtn.id -> {
+                    radioButtonViewModel.setSelectedOption(1) // 첫 번째 버튼 선택
+                    whenArrival = true
+                }
+                binding.outRadioBtn.id -> {
+                    radioButtonViewModel.setSelectedOption(2) // 두 번째 버튼 선택
+                    whenArrival = false
+                }
+            }
+        }
         binding.saveCancelBtn.setOnClickListener() {
             if (alarmId?.toInt() !=0) {
                 delete()
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
-        }
-        binding.locationTitleEditText.setText(name)
-        binding.locationDetailTextView.text = address
-        binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
-            when(i) {
-                binding.inRadioBtn.id->whenArrival = true
-                binding.outRadioBtn.id->whenArrival = false
-            }
         }
         // TODO: 반복 요일 구현 (repeatDay)
         binding.repeatSwitch.setOnCheckedChangeListener { compoundButton, b ->
@@ -133,7 +149,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         binding.tagLinearLayout.setOnClickListener() {
             // TODO: 태그 구현
         }
-        // TODO: 반경 구현
 
         binding.saveBtn.setOnClickListener() {
             location = Location(
@@ -160,6 +175,42 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarmRepository.createAlarmAndTag(alarm, tagIds = list)
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
+        }
+        binding.alarmTypeLinearLayout.setOnClickListener {
+            val intent = Intent(requireContext(), alarmCategory::class.java)
+            startActivity(intent)
+        }
+        // SeekBar 리스너 설정
+        binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                radius = (progress).toDouble()
+                radiusViewModel.setRadius(radius) // ViewModel에 반경 값 설정
+                binding.radiusTextView.text = if (progress < 1000) {
+                    "$progress m"
+                } else {
+                    String.format("%.1f km", progress / 1000.0)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // 필요한 경우 사용
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // 필요한 경우 사용
+            }
+        })
+    }
+    private fun initUi() {
+        radioButtonViewModel.setSelectedOption(1)
+        binding.locationTitleEditText.setText(name)
+        binding.locationDetailTextView.text = address
+        binding.radiusSeekBar.progress = radius.toInt()
+        radiusViewModel.setRadius(radius) // ViewModel에 반경 값 설정
+        binding.radiusTextView.text = if (radius < 1000) {
+            "$radius m"
+        } else {
+            String.format("%.1f km", radius / 1000.0)
         }
     }
 
@@ -194,6 +245,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
                         address = fetchedAlarm.alarm.location.address
+                        radius = fetchedAlarm.alarm.radius
+                        binding.radiusSeekBar.progress = radius.toInt()
+                        radiusViewModel.setRadius(radius)
+                        binding.radiusTextView.text = if (radius < 1000) {
+                            "$radius m"
+                        } else {
+                            String.format("%.1f km", radius / 1000.0)
+                        }
                         binding.memoEditText.setText(fetchedAlarm.alarm.context)
                         if (!fetchedAlarm.alarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
@@ -226,4 +285,3 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     }
 
 }
-
