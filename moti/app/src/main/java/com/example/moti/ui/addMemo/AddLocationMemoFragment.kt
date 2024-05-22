@@ -118,22 +118,24 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.outRadioBtn.id->whenArrival = false
             }
         }
+
         // TODO: 반복 요일 구현 (repeatDay)
-        binding.repeatSwitch.setOnCheckedChangeListener { compoundButton, b ->
-            if (b) {
-                isRepeat = true
-                binding.addMemoRepeatDayLl.visibility = View.VISIBLE
-                binding.repeatDetailTextView.visibility = View.VISIBLE
-            }
-            else {
-                isRepeat = false
-                binding.addMemoRepeatDayLl.visibility = View.GONE
-                binding.repeatDetailTextView.visibility = View.GONE
-            }
+        val repeatToggle = binding.addMemoToggle1Sc
+
+        var repeatChecked = false
+
+        repeatToggle.isChecked = repeatChecked
+
+        repeatToggle.setOnClickListener {
+            repeatToggle.isChecked = !repeatChecked
+            repeatChecked = !repeatChecked
 
             val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
 
-            if (isRepeat) {
+            if (repeatToggle.isChecked) {
+                binding.addMemoRepeatDayLl.visibility = View.VISIBLE
+                binding.repeatDetailTextView.visibility = View.VISIBLE
+
                 binding.addMemoRepeatSunLl.setOnClickListener {
                     repeatDay = Week.SUN
                     binding.addMemoRepeatSunTv.setTextColor(selectColor)
@@ -175,8 +177,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     binding.addMemoRepeatSatTv.setTextColor(selectColor)
                     binding.addMemoRepeatDot7Iv.setColorFilter(selectColor)
                 }
+            } else {
+                binding.addMemoRepeatDayLl.visibility = View.GONE
+                binding.repeatDetailTextView.visibility = View.GONE
             }
+
+
         }
+
         binding.alarmTypeLinearLayout.setOnClickListener() {
             // TODO: 알림 유형 구현
         }
@@ -197,7 +205,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 location = location,
                 whenArrival = whenArrival,
                 radius = radius,
-                isRepeat = isRepeat,
+                isRepeat = repeatToggle.isChecked,
                 repeatDay = repeatDay,
                 hasBanner = hasBanner
             )
@@ -241,19 +249,27 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarm = deferred.await()
                 alarm.let { fetchedAlarm ->
                     withContext(Dispatchers.Main) {
+                        binding.locationTitleEditText.setText(fetchedAlarm.alarm.title)
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.alarm.location.address
                         address = fetchedAlarm.alarm.location.address
                         binding.memoEditText.setText(fetchedAlarm.alarm.context)
+                        binding.addMemoToggle1Sc.isChecked = fetchedAlarm.alarm.isRepeat
+
+                        if (fetchedAlarm.alarm.isRepeat) {
+                            binding.addMemoRepeatDayLl.visibility = View.VISIBLE
+                            binding.repeatDetailTextView.visibility = View.VISIBLE
+                        }
+
                         if (!fetchedAlarm.alarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
                         }
-                        if (!fetchedAlarm.alarm.isRepeat) {
-                            isRepeat = false
-                            binding.repeatSwitch.isChecked = false
-                        }
+//                        if (!fetchedAlarm.alarm.isRepeat) {
+//                            isRepeat = false
+//                            binding.addMemoToggle1Sc.isChecked = false
+//                        }
                         if (!fetchedAlarm.alarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"

@@ -182,7 +182,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:gravity="center_vertical"
                         android:layout_weight="1"
                         android:orientation="vertical">
@@ -200,7 +200,7 @@
                             style="@style/b5"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="매주 화, 수"
+                            android:text="매주"
                             android:textAllCaps="false"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                             android:textColor="@color/mt_main"
@@ -208,14 +208,14 @@
                             android:visibility="gone"/>
                     </LinearLayout>
 
-                    <Switch
-                        android:id="@+id/repeatSwitch"
-                        android:layout_width="wrap_content"
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/add_memo_toggle1_sc"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
-                        android:checked="false"
-                        android:padding="10dp"
-                        android:splitTrack="false"
-                        android:trackTint="#001FBC" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        style="@style/category_toggle"/>
 
                 </LinearLayout>
 
@@ -498,14 +498,18 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="#심부름 #학교"
+                        android:text="선택 색상"
                         android:textColor="@color/mt_main" />
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/right_arrow_24" />
+                <androidx.appcompat.widget.SwitchCompat
+                    android:id="@+id/add_memo_toggle2_sc"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    style="@style/category_toggle"/>
 
             </LinearLayout>
 
@@ -522,25 +526,28 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/mt_gray1"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/saveCancelBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_weight="1"
             style="@style/h2"
+            android:background="@color/mt_gray1"
+            android:stateListAnimator="@null"
             android:text="@string/cancel_memo" />
 
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_weight="1"
             style="@style/h2"
+            android:background="@color/mt_gray1"
+            android:stateListAnimator="@null"
             android:text="@string/save_memo" />
     </LinearLayout>
 
