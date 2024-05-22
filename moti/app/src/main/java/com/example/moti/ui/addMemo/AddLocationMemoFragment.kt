@@ -166,47 +166,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                 binding.repeatDetailTextView.visibility = View.VISIBLE
 
-//                binding.addMemoRepeatSunLl.setOnClickListener {
-//                    repeatDay = Week.SUN
-//                    binding.addMemoRepeatSunTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot1Iv.setColorFilter(selectColor)
-//                }
-//
-//                binding.addMemoRepeatMonLl.setOnClickListener {
-//                    repeatDay = Week.MON
-//                    binding.addMemoRepeatMonTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot2Iv.setColorFilter(selectColor)
-//                }
-//
-//                binding.addMemoRepeatTueLl.setOnClickListener {
-//                    repeatDay = Week.TUE
-//                    binding.addMemoRepeatTueTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot3Iv.setColorFilter(selectColor)
-//                }
-//
-//                binding.addMemoRepeatWedLl.setOnClickListener {
-//                    repeatDay = Week.WED
-//                    binding.addMemoRepeatWedTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot4Iv.setColorFilter(selectColor)
-//                }
-//
-//                binding.addMemoRepeatThuLl.setOnClickListener {
-//                    repeatDay = Week.THU
-//                    binding.addMemoRepeatThuTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot5Iv.setColorFilter(selectColor)
-//                }
-//
-//                binding.addMemoRepeatFriLl.setOnClickListener {
-//                    repeatDay = Week.FRI
-//                    binding.addMemoRepeatFriTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot6Iv.setColorFilter(selectColor)
-//                }
-//
-//                binding.addMemoRepeatSatLl.setOnClickListener {
-//                    repeatDay = Week.SAT
-//                    binding.addMemoRepeatSatTv.setTextColor(selectColor)
-//                    binding.addMemoRepeatDot7Iv.setColorFilter(selectColor)
-//                }
                 binding.addMemoRepeatSunLl.setOnClickListener {
                     repeatDaySelect(Week.SUN)
                     updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
@@ -414,7 +373,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     // UI 업데이트를 위한 함수
     private fun updateUIForDay(day: Week, textView: TextView, imageView: ImageView) {
         val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
-        val defaultColor = Color.BLACK // 선택되지 않았을 때의 색상
+        val defaultColor = ContextCompat.getColor(requireContext(), R.color.mt_gray2) // 선택되지 않았을 때의 색상
 
         if (repeatDay?.contains(day) == true) {
             textView.setTextColor(selectColor)

@@ -251,6 +251,7 @@
                             android:layout_height="wrap_content"
                             android:text="일"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
@@ -275,6 +276,7 @@
                             android:layout_height="wrap_content"
                             android:text="월"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
@@ -299,6 +301,7 @@
                             android:layout_height="wrap_content"
                             android:text="화"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
@@ -323,6 +326,7 @@
                             android:layout_height="wrap_content"
                             android:text="수"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
@@ -347,6 +351,7 @@
                             android:layout_height="wrap_content"
                             android:text="목"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
@@ -371,6 +376,7 @@
                             android:layout_height="wrap_content"
                             android:text="금"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
@@ -395,6 +401,7 @@
                             android:layout_height="wrap_content"
                             android:text="토"
                             android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
                             android:gravity="center_horizontal"/>
 
                     </LinearLayout>
