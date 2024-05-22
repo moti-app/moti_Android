@@ -45,6 +45,7 @@ class LocationService : Service(), LocationListener {
             ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             //위치 갱신 최소 시간, 위치 갱신 최소 거리
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this)
+            locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1000L, 0f, this)
         } else {
             Log.e(TAG, "Location permissions are not granted.")
         }
@@ -87,6 +88,7 @@ class LocationService : Service(), LocationListener {
             lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
         }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onLocationChanged(location: Location) {
         //위치가 변경된 경우 - n초 간격마다 수행되는 함수
         Log.d(TAG, "Location: ${location.latitude}, ${location.longitude}")

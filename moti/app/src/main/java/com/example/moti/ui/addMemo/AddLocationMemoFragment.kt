@@ -52,8 +52,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var hasBanner : Boolean = true
     private var tagColor : TagColor = TagColor.BK
     @RequiresApi(Build.VERSION_CODES.O)
-    private var lastNoti : LocalDateTime = LocalDateTime.now()
-    private var interval : Int = 1440;
+    private var lastNoti : LocalDateTime = LocalDateTime.now().minusDays(1) //하루전으로 설정
+    private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
 
     private lateinit var db:MotiDatabase
