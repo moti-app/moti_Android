@@ -479,7 +479,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingLeft="24dp"
                 android:paddingTop="10dp"
                 android:paddingRight="24dp"
@@ -488,36 +488,95 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tagTitleTextView"
-                        style="@style/b3"
+                    android:orientation="horizontal">
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
-                        android:text="태그" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tagDetailTextView"
-                        style="@style/b5"
-                        android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/tagTitleTextView"
+                            style="@style/b3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="태그" />
+
+                        <TextView
+                            android:id="@+id/tagDetailTextView"
+                            style="@style/b5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="색상 선택"
+                            android:textColor="@color/mt_main"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/add_memo_toggle2_sc"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="선택 색상"
-                        android:textColor="@color/mt_main" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        style="@style/category_toggle"/>
+
                 </LinearLayout>
 
-                <androidx.appcompat.widget.SwitchCompat
-                    android:id="@+id/add_memo_toggle2_sc"
-                    android:layout_width="50dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    style="@style/category_toggle"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:weightSum="7"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/add_memo_tag_red_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_red"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_orange_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_org"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_yellow_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_yel"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_green_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_gre"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_blue_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_blu"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_purple_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_pur"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_gray_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_gra"
+                        android:layout_weight="1"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
