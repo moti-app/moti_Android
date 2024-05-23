@@ -2,8 +2,11 @@ package com.example.moti.ui.map
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
@@ -13,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.moti.R
@@ -30,6 +34,8 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.Circle
 import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
@@ -204,8 +210,20 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     .title(place.title)
                     .position(LatLng(place.location.x,place.location.y))
                     .snippet(place.alarmId.toString())
+                    .icon(bitmapDescriptorFromVector(requireContext(), R.drawable.blue_pin_marker))
+
             )
         }
+    }
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
+        val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
+        vectorDrawable?.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
+        val bitmap = vectorDrawable?.let { Bitmap.createBitmap(vectorDrawable.intrinsicWidth, it.intrinsicHeight, Bitmap.Config.ARGB_8888) }
+        val canvas = bitmap?.let { Canvas(it) }
+        if (canvas != null) {
+            vectorDrawable.draw(canvas)
+        }
+        return bitmap?.let { BitmapDescriptorFactory.fromBitmap(it) }
     }
     private fun getAlarm() {
         CoroutineScope(Dispatchers.IO).launch {
