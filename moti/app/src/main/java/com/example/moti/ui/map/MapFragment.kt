@@ -18,6 +18,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -240,7 +241,6 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     private fun updateMarkers(iconResId: Int) {
-        Log.e("aa", "updateMarkers")
         markers.forEach { marker ->
             // 마커 아이콘을 변경하는 애니메이션
             val fadeOut = ValueAnimator.ofFloat(1f, 0f)
@@ -252,7 +252,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
             fadeOut.addListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
-                    marker.setIcon(bitmapDescriptorFromVector(requireContext(), iconResId))
+                    val place = places.find { it.alarmId.toString() == marker.snippet }
+                    val icon = if (googleMap.cameraPosition.zoom >= 15) {
+                        place?.let { createCustomMarker(requireContext(), it) }
+                    } else {
+                        BitmapDescriptorFactory.fromResource(iconResId)
+                    }
+                    icon?.let { marker.setIcon(it) }
 
                     val fadeIn = ValueAnimator.ofFloat(0f, 1f)
                     fadeIn.duration = 200
@@ -264,6 +270,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             })
         }
     }
+
+
 
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor? {
         return bitmapDescriptorCache[vectorResId] ?: run {
@@ -281,6 +289,24 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             descriptor
         }
     }
+    private fun createCustomMarker(context: Context, alarm: Alarm): BitmapDescriptor? {
+        val markerView = LayoutInflater.from(context).inflate(R.layout.custom_marker, null)
+        val markerText_head = markerView.findViewById<TextView>(R.id.marker_detail_head_text)
+        val markerText_body = markerView.findViewById<TextView>(R.id.marker_detail_body_text)
+
+        markerText_head.text = alarm.title
+        markerText_body.text = alarm.context
+
+        markerView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        markerView.layout(0, 0, markerView.measuredWidth, markerView.measuredHeight)
+        val bitmap = Bitmap.createBitmap(markerView.measuredWidth, markerView.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        markerView.draw(canvas)
+
+        return BitmapDescriptorFactory.fromBitmap(bitmap)
+    }
+
+
 
     private fun getAlarm() {
         CoroutineScope(Dispatchers.IO).launch {
