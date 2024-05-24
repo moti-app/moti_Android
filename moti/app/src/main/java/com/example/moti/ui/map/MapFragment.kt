@@ -328,14 +328,26 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         radiusViewModel.radius.observe(viewLifecycleOwner) { radius ->
             currentRadius = radius
             currentCircle?.remove() // 기존의 원을 제거
-            currentCircle = googleMap.addCircle(
-                CircleOptions()
-                    .center(LatLng(lat, lng)) // 좌표를 center에 설정
-                    .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
-                    .strokeColor(color) // 테두리 색상 설정 (파란색)
-                    .strokeWidth(5f) // 테두리 두께 설정
-                    .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
-            )
+            if (color==Color.BLUE) {
+                currentCircle = googleMap.addCircle(
+                    CircleOptions()
+                        .center(LatLng(lat, lng)) // 좌표를 center에 설정
+                        .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
+                        .strokeColor(color) // 테두리 색상 설정 (파란색)
+                        .strokeWidth(5f) // 테두리 두께 설정
+                        .fillColor(Color.argb(50, 135, 206, 235)) // 원의 내부 색상 (하늘색, 불투명)
+                )
+            }
+            else {
+                currentCircle = googleMap.addCircle(
+                    CircleOptions()
+                        .center(LatLng(lat, lng)) // 좌표를 center에 설정
+                        .radius(radius) // 반지름을 ViewModel의 반경 값으로 설정
+                        .strokeColor(color) // 테두리 색상 설정 (파란색)
+                        .strokeWidth(5f) // 테두리 두께 설정
+                        .fillColor(Color.argb(50, 128, 128, 128)) // 원의 내부 색상 (회색, 불투명)
+                )
+            }
             adjustZoomLevel(radius * 2.3)
         }
     }
