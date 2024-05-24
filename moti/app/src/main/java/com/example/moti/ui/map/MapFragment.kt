@@ -158,6 +158,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     }
 
     private fun showAddMemoBottomSheet(name: String, lat: Double, lng: Double, id: Long?) {
+        this.lat = lat
+        this.lng = lng
         val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name, lat, lng, id)
         addMemoBottomSheet.show(childFragmentManager, addMemoBottomSheet.tag)
         addMemoBottomSheet.onDismissListener = {
