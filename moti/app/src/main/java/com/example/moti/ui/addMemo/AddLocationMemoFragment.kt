@@ -15,7 +15,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
