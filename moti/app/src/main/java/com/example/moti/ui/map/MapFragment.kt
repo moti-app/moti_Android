@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,6 +24,7 @@ import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentMapBinding
 import com.example.moti.ui.addMemo.AddLocationMemoFragment
+import com.example.moti.ui.memo.MemoFragment
 import com.example.moti.ui.search.SearchActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -69,6 +71,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         binding = FragmentMapBinding.inflate(layoutInflater)
+
+
         return binding.root
     }
 
@@ -129,6 +133,15 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
+
+        val alarmTitle = arguments?.getString("alarmTitle")
+        val alarmXLocation = arguments?.getDouble("alarmXLocation")
+        val alarmYLocation = arguments?.getDouble("alarmYLocation")
+        val alarmId = arguments?.getLong("alarmId")
+
+        if (alarmTitle != null && alarmXLocation != null && alarmYLocation != null && alarmId != null) {
+            showAddMemoBottomSheet(alarmTitle, alarmXLocation, alarmYLocation, alarmId)
+        }
     }
     private fun adjustZoomLevel(radius: Double) {
         val scale = radius / 500

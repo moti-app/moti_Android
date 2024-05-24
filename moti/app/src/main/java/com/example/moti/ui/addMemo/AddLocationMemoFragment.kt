@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,6 +59,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var alarmId: Long? = null
 
+    private var repeatChecked = false
+    private var tagChecked = false
+
     private lateinit var db:MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
     companion object {
@@ -81,8 +85,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
     }
 
-    private var _binding: FragmentAddMemoBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding : FragmentAddMemoBinding
 
     private val radiusViewModel: RadiusViewModel by viewModels()
     private val radioButtonViewModel: RadioButtonViewModel by viewModels()
@@ -116,7 +119,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAddMemoBinding.inflate(inflater, container, false)
+        binding = FragmentAddMemoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -152,8 +155,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
         // 반복 요일 구현 (repeatDay)
         val repeatToggle = binding.addMemoToggle1Sc
-
-        var repeatChecked = false
 
         repeatToggle.isChecked = repeatChecked
 
@@ -207,8 +208,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
         // 반복 요일 구현 (repeatDay)
         val tagToggle = binding.addMemoToggle2Sc
-
-        var tagChecked = false
 
         tagToggle.isChecked = repeatChecked
 
@@ -367,7 +366,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
-        _binding = null
     }
 
     override fun onReverseGeocodeSuccess(address: String) {
@@ -403,6 +401,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         }
                         binding.memoEditText.setText(fetchedAlarm.context)
                         binding.addMemoToggle1Sc.isChecked = fetchedAlarm.isRepeat
+                        repeatChecked = fetchedAlarm.isRepeat
 
                         if (fetchedAlarm.isRepeat) {
                             binding.addMemoRepeatDayLl.visibility = View.VISIBLE

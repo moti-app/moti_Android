@@ -1,6 +1,7 @@
 package com.example.moti.ui.memo
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +13,10 @@ import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.FragmentMemoBinding
+import com.example.moti.ui.addMemo.AddLocationMemoFragment
 import com.example.moti.ui.main.MainActivity
 import com.example.moti.ui.map.MapFragment
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -26,6 +29,8 @@ class MemoFragment : Fragment() {
 
     private lateinit var db: MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
+
+    private var bottomSheetVisible = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,10 +63,20 @@ class MemoFragment : Fragment() {
 
             // 메모 클릭 시 MapFragment로 이동
             memoAlarmAdapter.setMemoClick(object: MemoAlarmRVAdapter.MemoClickListener{
-                override fun memoClick() {
-                    (context as MainActivity).supportFragmentManager.beginTransaction()
-                        .replace(R.id.main_frm, MapFragment()).addToBackStack(tag)
-                        .commitAllowingStateLoss()
+                override fun memoClick(position: Int) {
+
+                    val mapFragment = MapFragment()
+                    val bundle = Bundle()
+                    bundle.putString("alarmTitle", alarmList[position].title)
+                    bundle.putDouble("alarmXLocation", alarmList[position].location.x)
+                    bundle.putDouble("alarmYLocation", alarmList[position].location.y)
+                    bundle.putLong("alarmId", alarmList[position].alarmId)
+                    mapFragment.arguments = bundle
+
+                    parentFragmentManager.beginTransaction()
+                        .replace(R.id.main_frm, mapFragment)
+                        .commit()
+
                 }
 
             })

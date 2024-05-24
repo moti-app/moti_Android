@@ -13,7 +13,7 @@ import com.example.moti.databinding.ItemMemoAlarmBinding
 class MemoAlarmRVAdapter(private val context: Context, private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
 
     interface MemoClickListener {
-        fun memoClick()
+        fun memoClick(position: Int)
     }
 
     private lateinit var mMemoClickListener: MemoClickListener
@@ -71,7 +71,7 @@ class MemoAlarmRVAdapter(private val context: Context, private val alarmList: Li
         }
 
         holder.binding.itemMemoCl.setOnClickListener {
-            mMemoClickListener.memoClick()
+            mMemoClickListener.memoClick(position)
         }
 
     }
