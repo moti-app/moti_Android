@@ -37,9 +37,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener {
+    private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
+    private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
     private var lat: Double = 0.0
     private var lng: Double = 0.0
@@ -50,13 +53,16 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var location : Location = Location(lat,lng,address,name)
 
-    private var radius : Double = 500.0
+    private var radius : Double = 1000.0
     private var isRepeat : Boolean = true
     private var repeatDay : List<Week>? = null
     private var hasBanner : Boolean = true
     private var tagColor : TagColor = TagColor.RD
     private var selectedTagColor: TagColor? = null
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private var lastNoti : LocalDateTime = LocalDateTime.now().minusDays(1) //하루전으로 설정
+    private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
 
     private var repeatChecked = false
@@ -86,9 +92,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     }
 
     private lateinit var binding : FragmentAddMemoBinding
-
-    private val radiusViewModel: RadiusViewModel by viewModels()
-    private val radioButtonViewModel: RadioButtonViewModel by viewModels()
 
     var onDismissListener: (() -> Unit)? = null
 
@@ -308,8 +311,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 repeatDay = repeatDay,
                 hasBanner = hasBanner,
                 tagColor = selectedTagColor!!,
-                lastNoti = null,
-                interval = null
+                lastNoti = lastNoti,
+                interval = interval
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -380,7 +383,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private fun getAlarm() {
         alarmId?.let { id ->
             CoroutineScope(Dispatchers.IO).launch {
-                val alarm: Alarm
+                val alarm: Alarm?
                 val deferred = async {
                     alarmRepository.findAlarm(id)
                 }
@@ -413,9 +416,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
                         }
-//                        if (!fetchedAlarm.alarm.isRepeat) {
+//                        if (!fetchedAlarm.isRepeat) {
 //                            isRepeat = false
-//                            binding.addMemoToggle1Sc.isChecked = false
+//                            binding.repeatSwitch.isChecked = false
 //                        }
                         if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
@@ -495,4 +498,3 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
     }
 }
-
