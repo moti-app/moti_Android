@@ -214,8 +214,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             if (tagToggle.isChecked) {
                 binding.addMemoTagLl.visibility = View.VISIBLE
 
-                binding.addMemoTagRedIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagRedIv, TagColor.RD)
+                binding.addMemoTagRedLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnRedIv, binding.addMemoTagOffRedIv, TagColor.RD)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -223,8 +223,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     }
                 }
 
-                binding.addMemoTagOrangeIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOrangeIv, TagColor.OG)
+                binding.addMemoTagOrangeLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnOrangeIv, binding.addMemoTagOffOrangeIv, TagColor.OG)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -233,8 +233,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
                 }
 
-                binding.addMemoTagYellowIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagYellowIv, TagColor.YE)
+                binding.addMemoTagYellowLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnYellowIv, binding.addMemoTagOffYellowIv, TagColor.YE)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -242,8 +242,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     }
                 }
 
-                binding.addMemoTagGreenIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagGreenIv, TagColor.GN)
+                binding.addMemoTagGreenLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnGreenIv, binding.addMemoTagOffGreenIv, TagColor.GN)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -251,8 +251,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     }
                 }
 
-                binding.addMemoTagBlueIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagBlueIv, TagColor.BU)
+                binding.addMemoTagBlueLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnBlueIv, binding.addMemoTagOffBlueIv, TagColor.BU)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -260,8 +260,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     }
                 }
 
-                binding.addMemoTagPurpleIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagPurpleIv, TagColor.PU)
+                binding.addMemoTagPurpleLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnPurpleIv, binding.addMemoTagOffPurpleIv,TagColor.PU)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -269,8 +269,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     }
                 }
 
-                binding.addMemoTagGrayIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagGrayIv, TagColor.BK)
+                binding.addMemoTagGrayLl.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnGrayIv, binding.addMemoTagOffGrayIv, TagColor.BK)
                     if (isTagDeselected) {
                         binding.tagDetailTextView.text = "없음"
                     } else {
@@ -310,7 +310,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
             }
-            val list: List<Long> = listOf() // TODO: 태그 구현
+            val list: List<Long> = listOf()
 
             CoroutineScope(Dispatchers.IO).launch {
                 alarmRepository.createAlarmAndTag(alarm, tagIds = list)
@@ -462,31 +462,37 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     // 현재 선택된 태그의 ImageView 참조를 저장하기 위한 변수
     private var selectedImageView: ImageView? = null
 
-    private fun toggleTagSize(imageView: ImageView, tagColor: TagColor): Boolean {
-        val scale = imageView.context.resources.displayMetrics.density
+    private fun toggleTagSize(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor): Boolean {
+        val scale = tagOnImageView.context.resources.displayMetrics.density
         val newSize = (16 * scale + 0.5f).toInt() // Convert dp to pixels
+        tagOffImageView.visibility = View.GONE
+        tagOnImageView.visibility = View.VISIBLE
 
-        if (selectedImageView != null && selectedImageView != imageView) {
+        if (selectedImageView != null && selectedImageView != tagOnImageView) {
             val layoutParams = selectedImageView!!.layoutParams
             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             selectedImageView!!.layoutParams = layoutParams
         }
 
-        if (selectedImageView == imageView) {
-            val layoutParams = imageView.layoutParams
+        if (selectedImageView == tagOnImageView) {
+            val layoutParams = tagOnImageView.layoutParams
             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            imageView.layoutParams = layoutParams
+            tagOnImageView.layoutParams = layoutParams
             selectedImageView = null
+            tagOffImageView.visibility = View.VISIBLE
+            tagOnImageView.visibility = View.GONE
             return true // 선택된 태그가 취소되었음을 의미
         } else {
-            val layoutParams = imageView.layoutParams
+            val layoutParams = tagOnImageView.layoutParams
             layoutParams.width = newSize
             layoutParams.height = newSize
-            imageView.layoutParams = layoutParams
-            selectedImageView = imageView
+            tagOnImageView.layoutParams = layoutParams
+            selectedImageView = tagOnImageView
             selectedTagColor = tagColor
+            tagOffImageView.visibility = View.GONE
+            tagOnImageView.visibility = View.VISIBLE
             return false // 새로운 태그가 선택되었음을 의미
         }
     }

@@ -535,48 +535,162 @@
                     android:gravity="center_vertical"
                     android:visibility="gone">
 
-                    <ImageView
-                        android:id="@+id/add_memo_tag_red_iv"
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_red_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_red"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/add_memo_tag_orange_iv"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_red_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_red"/>
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_red_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_red"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_orange_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_org"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/add_memo_tag_yellow_iv"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_orange_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_org"/>
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_orange_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_org"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_yellow_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_yel"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/add_memo_tag_green_iv"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_yellow_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_yel" />
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_yellow_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_yel"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_green_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_gre"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/add_memo_tag_blue_iv"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_green_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_gre" />
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_green_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_gre"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_blue_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_blu"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/add_memo_tag_purple_iv"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_blue_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_blu" />
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_blue_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_blu"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_purple_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_pur"
-                        android:layout_weight="1"/>
-                    <ImageView
-                        android:id="@+id/add_memo_tag_gray_iv"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_purple_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_pur" />
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_purple_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_pur"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_tag_gray_ll"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_tag_gra"
-                        android:layout_weight="1"/>
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_off_gray_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_off_gra" />
+
+                        <ImageView
+                            android:id="@+id/add_memo_tag_on_gray_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_tag_on_gra"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+
+
 
                 </LinearLayout>
 
