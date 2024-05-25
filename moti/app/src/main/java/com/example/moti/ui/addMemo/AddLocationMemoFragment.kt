@@ -2,17 +2,14 @@ package com.example.moti.ui.addMemo
 
 import android.app.Dialog
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -23,11 +20,9 @@ import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.TagColor
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
-import com.example.moti.data.repository.dto.AlarmDetail
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
-import com.example.moti.databinding.FragmentMemoBinding
 import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -108,7 +103,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         if (alarmId?.toInt() ==0) {
-            this.address = "$lat,$lng"
             val language= activity?.resources?.configuration?.locales?.get(0)?.language.toString()
             reverseGeocoding.reverseGeocode("$lat,$lng",language)
         }
@@ -387,6 +381,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.location.address
                         address = fetchedAlarm.location.address
+                        if (fetchedAlarm.location.address=="address") { // 디비에 자동 저장 안됨..
+                            val language= activity?.resources?.configuration?.locales?.get(0)?.language.toString()
+                            reverseGeocoding.reverseGeocode("$lat,$lng",language)
+                        }
                         radius = fetchedAlarm.radius
                         binding.radiusSeekBar.progress = radius.toInt()
                         radiusViewModel.setRadius(radius)
