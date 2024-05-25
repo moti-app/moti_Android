@@ -163,7 +163,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 }
             }
         }
-        binding.saveCancelBtn.setOnClickListener() {
+        binding.saveCancelBtn.setOnClickListener {
             if (alarmId?.toInt() !=0) {
                 delete()
             }
@@ -303,13 +303,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.tagDetailTextView.visibility = View.GONE
             }
         }
-        binding.alarmTypeLinearLayout.setOnClickListener() {
+        binding.alarmTypeLinearLayout.setOnClickListener {
             // TODO: 알림 유형 구현
         }
 
         // TODO: 반경 구현
 
-        binding.saveBtn.setOnClickListener() {
+        binding.saveBtn.setOnClickListener {
             location = Location(
                 lat,lng,address,name
             )
@@ -537,7 +537,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
                 if (acceleration > shakeThreshold) {
                     val uri = generateMotiUri(name, context, lat, lng, radius.toInt())
-                    val bitmap = generateQRCode(uri.toString())
+                    val bitmap = generateQRCode(uri)
                     bitmap?.let { copyImageToClipboard(requireContext(), it) }
                     lastShakeTime = currentTime
                 }
@@ -548,7 +548,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
 
     }
-    fun copyImageToClipboard(context: Context, bitmap: Bitmap) {
+    private fun copyImageToClipboard(context: Context, bitmap: Bitmap) {
         CoroutineScope(Dispatchers.Main).launch {
             val imageUri = withContext(Dispatchers.IO) {
                 saveBitmapToFile(bitmap, context)
@@ -561,7 +561,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
         }
     }
-    fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
+    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
         val encodedParam1 = URLEncoder.encode(param1, StandardCharsets.UTF_8.toString())
         val encodedParam2 = URLEncoder.encode(param2, StandardCharsets.UTF_8.toString())
         val encodedParam3 = param3.toString()
@@ -592,7 +592,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             null
         }
     }
-    fun saveBitmapToFile(bitmap: Bitmap, context: Context): Uri? {
+    private fun saveBitmapToFile(bitmap: Bitmap, context: Context): Uri? {
         val imagesFolder = File(context.cacheDir, "images")
         imagesFolder.mkdirs()
         val file = File(imagesFolder, "qr_code.png")
@@ -601,11 +601,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
             stream.flush()
             stream.close()
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                FileProvider.getUriForFile(context, context.packageName + ".provider", file)
-            } else {
-                Uri.fromFile(file)
-            }
+            return FileProvider.getUriForFile(context, context.packageName + ".provider", file)
         } catch (e: IOException) {
             e.printStackTrace()
             return null
