@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
+import android.os.PowerManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -58,6 +59,7 @@ class AlarmShooter(private val context: Context) {
 
     private fun sendFullScreenAlarm22(context: Context) {
         Log.e("aa", "sendFullScreenAlarm22")
+        acquireWakeLock(context)
         // 기본 알림 채널 설정
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = context.getString(R.string.high_importance_channel_name)
@@ -83,6 +85,7 @@ class AlarmShooter(private val context: Context) {
         val fullscreenIntent = Intent(context, FullScreenAlarmActivity::class.java).apply {
             action = "fullscreen_activity"
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            putExtra("NOTIFICATION_ID", 218) // 알림 ID 전달
         }
         val fullscreenPendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
@@ -103,13 +106,22 @@ class AlarmShooter(private val context: Context) {
 
         // 알림을 트리거
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(1, builder.build())
+        notificationManager.notify(218, builder.build())
 
         // 잠금화면에서도 알림이 뜨도록 인텐트를 시작
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startActivity(fullscreenIntent)
         }
     }
+    fun acquireWakeLock(context: Context) {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+        val wakeLock = powerManager.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "MyApp::MyWakelockTag"
+        )
+        wakeLock.acquire(10*60*1000L /*10 minutes*/)
+    }
+
 
 
 
