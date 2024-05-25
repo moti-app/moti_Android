@@ -149,13 +149,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
         binding.locationTitleEditText.setText(name)
-        binding.locationDetailTextView.text = address
-        binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
-            when(i) {
-                binding.inRadioBtn.id->whenArrival = true
-                binding.outRadioBtn.id->whenArrival = false
-            }
-        }
         // 반복 요일 구현 (repeatDay)
         val repeatToggle = binding.addMemoToggle1Sc
 

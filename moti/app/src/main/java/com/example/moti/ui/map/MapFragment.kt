@@ -122,7 +122,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
-        enableMyLocationIfPermitted()
+
         googleMap.setOnMapClickListener { latLng ->
             lat = latLng.latitude
             lng = latLng.longitude
@@ -138,6 +138,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         if (alarmTitle != null && alarmXLocation != null && alarmYLocation != null && alarmId != null) {
             showAddMemoBottomSheet(alarmTitle, alarmXLocation, alarmYLocation, alarmId)
+        } else {
+            enableMyLocationIfPermitted()
         }
 
         radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
