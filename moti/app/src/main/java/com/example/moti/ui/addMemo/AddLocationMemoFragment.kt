@@ -1,6 +1,8 @@
 package com.example.moti.ui.addMemo
 
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -15,7 +17,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -39,6 +40,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import kotlin.math.sqrt
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener,SensorEventListener {
@@ -519,10 +521,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 val y = event.values[1]
                 val z = event.values[2]
 
-                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
+                val acceleration = sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
 
                 if (acceleration > shakeThreshold) {
-                    Toast.makeText(activity, "Device shaken!", Toast.LENGTH_SHORT).show()
+                    val uri = generateMotiUri(name, context, lat, lng, radius.toInt())
+                    activity?.let { copyToClipboard(it,uri.toString()) }
+                    //Toast.makeText(activity, "Device shaken!", Toast.LENGTH_SHORT).show()
                     lastShakeTime = currentTime
                 }
             }
@@ -531,5 +535,16 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
 
+    }
+    fun copyToClipboard(context: Context, text: String) {
+        // ClipboardManager 인스턴스 가져오기
+        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        // 클립보드에 텍스트 설정
+        val clipData = ClipData.newPlainText("label", text)
+        clipboardManager.setPrimaryClip(clipData)
+    }
+    fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
+        return "moti://add?param1=$param1&param2=$param2&param3=$param3&param4=$param4&param5=$param5"
     }
 }
