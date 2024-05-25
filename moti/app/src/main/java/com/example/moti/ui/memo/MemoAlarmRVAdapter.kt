@@ -1,7 +1,9 @@
 package com.example.moti.ui.memo
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -9,8 +11,11 @@ import com.example.moti.R
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Week
 import com.example.moti.databinding.ItemMemoAlarmBinding
+import com.example.moti.ui.cancelShare.BottomSheetCancelShare
 
-class MemoAlarmRVAdapter(private val context: Context, private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
+class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
+
+    private var isShareVisible: Boolean = false
 
     interface MemoClickListener {
         fun memoClick(position: Int)
@@ -74,6 +79,19 @@ class MemoAlarmRVAdapter(private val context: Context, private val alarmList: Li
             mMemoClickListener.memoClick(position)
         }
 
+        holder.binding.itemMemoAlarmShareIv.visibility = if (isShareVisible) View.VISIBLE else View.INVISIBLE
+        holder.binding.itemMemoToggleSc.visibility = if (isShareVisible) View.INVISIBLE else View.VISIBLE
+
+        holder.binding.itemMemoAlarmShareIv.setOnClickListener {
+            // TODO: 공유 기능 구현
+        }
+
     }
+
+    fun shareClick(visible: Boolean) {
+        isShareVisible = visible
+        notifyDataSetChanged()
+    }
+
 
 }

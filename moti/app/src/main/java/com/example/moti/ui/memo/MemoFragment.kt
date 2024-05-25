@@ -14,6 +14,8 @@ import com.example.moti.data.entity.Alarm
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.databinding.FragmentMemoBinding
 import com.example.moti.ui.addMemo.AddLocationMemoFragment
+import com.example.moti.ui.cancelShare.BottomSheetCancelShare
+import com.example.moti.ui.cancelShare.BottomSheetCancelShareInterface
 import com.example.moti.ui.main.MainActivity
 import com.example.moti.ui.map.MapFragment
 import com.google.android.gms.maps.model.MarkerOptions
@@ -23,14 +25,13 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class MemoFragment : Fragment() {
+class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
 
     private lateinit var binding : FragmentMemoBinding
 
     private lateinit var db: MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
-
-    private var bottomSheetVisible = false
+    private lateinit var memoAlarmAdapter: MemoAlarmRVAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,12 +54,18 @@ class MemoFragment : Fragment() {
 
     private fun initRecyclerView() {
         getAlarm { alarmList ->
-            val memoAlarmAdapter = MemoAlarmRVAdapter(requireContext(), alarmList)
+            memoAlarmAdapter = MemoAlarmRVAdapter(alarmList)
             val memoAlarmManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
 
             binding.memoAlarmRv.apply {
                 adapter = memoAlarmAdapter
                 layoutManager = memoAlarmManager
+            }
+
+            binding.memoShareIv.setOnClickListener {
+                memoAlarmAdapter.shareClick(true)
+                val bottomSheetCancelShare = BottomSheetCancelShare(this@MemoFragment)
+                bottomSheetCancelShare.show(parentFragmentManager, bottomSheetCancelShare.tag)
             }
 
             // 메모 클릭 시 MapFragment로 이동
@@ -90,5 +97,9 @@ class MemoFragment : Fragment() {
                 callback(alarmList)
             }
         }
+    }
+
+    override fun cancelBottomSheet() {
+        memoAlarmAdapter.shareClick(false)
     }
 }
