@@ -282,9 +282,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.tagDetailTextView.visibility = View.GONE
             }
         }
-        binding.alarmTypeLinearLayout.setOnClickListener() {
-            // TODO: 알림 유형 구현
-        }
+//        binding.alarmTypeLinearLayout.setOnClickListener() {
+//            // TODO: 알림 유형 구현
+//        }
 
         // TODO: 반경 구현
 
@@ -317,10 +317,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
-        binding.alarmTypeLinearLayout.setOnClickListener {
-            val intent = Intent(requireContext(), alarmCategory::class.java)
-            startActivity(intent)
-        }
+//        binding.alarmTypeLinearLayout.setOnClickListener {
+//            val intent = Intent(requireContext(), alarmCategory::class.java)
+//            startActivity(intent)
+//        }
         // SeekBar 리스너 설정
         binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -413,10 +413,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 //                            isRepeat = false
 //                            binding.repeatSwitch.isChecked = false
 //                        }
-                        if (!fetchedAlarm.hasBanner) {
-                            hasBanner = false
-                            binding.alarmTypeDetailTextView.text = "배너"
-                        }
+//                        if (!fetchedAlarm.hasBanner) {
+//                            hasBanner = false
+//                            binding.alarmTypeDetailTextView.text = "배너"
+//                        }
                         // TODO: 태그
                     }
                 }

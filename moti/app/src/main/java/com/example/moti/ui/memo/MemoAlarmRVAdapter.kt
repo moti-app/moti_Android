@@ -59,16 +59,15 @@ class MemoAlarmRVAdapter(private val context: Context, private val alarmList: Li
             }
         }
 
-        val toggle = holder.binding.itemMemoToggleSc
-
-        var checked = false
-
-        toggle.isChecked = checked
-
-        toggle.setOnClickListener {
-            toggle.isChecked = !checked
-            checked = !checked
-        }
+//        val toggle = holder.binding.itemMemoToggleSc
+//
+//        var checked = false
+//
+//        toggle.isChecked = checked
+//        toggle.setOnClickListener {
+//            toggle.isChecked = !checked
+//            checked = !checked
+//        }
 
         holder.binding.itemMemoCl.setOnClickListener {
             mMemoClickListener.memoClick(position)
