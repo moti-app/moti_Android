@@ -1,7 +1,12 @@
 package com.example.moti.ui.addMemo
 
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,6 +15,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
@@ -35,7 +41,7 @@ import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
-    ReverseGeocoding.ReverseGeocodingListener {
+    ReverseGeocoding.ReverseGeocodingListener,SensorEventListener {
     private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
     private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
@@ -65,6 +71,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private lateinit var db:MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
+    private lateinit var sensorManager: SensorManager
+    private lateinit var accelerometer: Sensor
+    private val shakeThreshold = 30
+    private val shakeTimeLapse = 1000
+    private var lastShakeTime: Long = 0
     companion object {
         private const val ARG_NAME = "name"
         private const val ARG_LAT = "lat"
@@ -109,6 +120,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         else {
             getAlarm()
         }
+        sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
 
     }
 
@@ -487,5 +500,36 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             selectedTagColor = tagColor
             return false // 새로운 태그가 선택되었음을 의미
         }
+    }
+    override fun onResume() {
+        sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL)
+        super.onResume()
+    }
+
+    override fun onPause() {
+        sensorManager.unregisterListener(this)
+        super.onPause()
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastShakeTime > shakeTimeLapse) {
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                val acceleration = Math.sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
+
+                if (acceleration > shakeThreshold) {
+                    Toast.makeText(activity, "Device shaken!", Toast.LENGTH_SHORT).show()
+                    lastShakeTime = currentTime
+                }
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+
     }
 }
