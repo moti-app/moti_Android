@@ -1,8 +1,9 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Base.Theme.Moti" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Moti" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+         <item name="colorPrimary">@color/mt_main</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.Moti" parent="Base.Theme.Moti" />

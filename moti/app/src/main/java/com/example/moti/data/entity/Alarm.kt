@@ -18,7 +18,7 @@ data class Alarm (
     var isRepeat : Boolean,
     var repeatDay : List<Week>?,
     var hasBanner : Boolean,
-    var tagColor : TagColor,
+    var tagColor : TagColor?,
     var lastNoti : LocalDateTime?,
     var interval : Int?
 ){
@@ -31,7 +31,7 @@ data class Alarm (
       isRepeat : Boolean,
       repeatDay : List<Week>?,
       hasBanner : Boolean,
-      tagColor: TagColor,
+      tagColor: TagColor?,
       lastNoti : LocalDateTime?,
       interval : Int? = 1440)
           : this(0, title, context, location, whenArrival, radius, isRepeat,

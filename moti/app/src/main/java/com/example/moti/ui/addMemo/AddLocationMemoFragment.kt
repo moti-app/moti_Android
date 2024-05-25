@@ -2,13 +2,19 @@ package com.example.moti.ui.addMemo
 
 import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.SeekBar
+import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
@@ -21,6 +27,7 @@ import com.example.moti.data.repository.dto.AlarmDetail
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.databinding.FragmentMemoBinding
 import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -48,13 +55,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var radius : Double = 1000.0
     private var isRepeat : Boolean = true
-    private var repeatDay : List<Week> = mutableListOf<Week>() //빈 리스트 넣기?
+    private var repeatDay : List<Week>? = null
     private var hasBanner : Boolean = true
-    private var tagColor : TagColor = TagColor.BK
+    private var tagColor : TagColor = TagColor.RD
+    private var selectedTagColor: TagColor? = null
+
     @RequiresApi(Build.VERSION_CODES.O)
     private var lastNoti : LocalDateTime = LocalDateTime.now().minusDays(1) //하루전으로 설정
     private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
+
+    private var repeatChecked = false
+    private var tagChecked = false
 
     private lateinit var db:MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
@@ -79,8 +91,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
     }
 
-    private var _binding: FragmentAddMemoBinding? = null
-    private val binding get() = _binding!!
+    private lateinit var binding : FragmentAddMemoBinding
 
     var onDismissListener: (() -> Unit)? = null
 
@@ -105,15 +116,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             getAlarm()
         }
 
-
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAddMemoBinding.inflate(inflater, container, false)
+        binding = FragmentAddMemoBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -139,21 +148,145 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
-        // TODO: 반복 요일 구현 (repeatDay)
-        binding.repeatSwitch.setOnCheckedChangeListener { compoundButton, b ->
-            if (b) {
-                isRepeat = true
+        binding.locationTitleEditText.setText(name)
+        // 반복 요일 구현 (repeatDay)
+        val repeatToggle = binding.addMemoToggle1Sc
+
+        repeatToggle.isChecked = repeatChecked
+
+        repeatToggle.setOnClickListener {
+            repeatToggle.isChecked = !repeatChecked
+            repeatChecked = !repeatChecked
+
+            if (repeatToggle.isChecked) {
+                binding.addMemoRepeatDayLl.visibility = View.VISIBLE
+                binding.repeatDetailTextView.visibility = View.VISIBLE
+
+                binding.addMemoRepeatSunLl.setOnClickListener {
+                    repeatDaySelect(Week.SUN)
+                    updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
+                }
+
+                binding.addMemoRepeatMonLl.setOnClickListener {
+                    repeatDaySelect(Week.MON)
+                    updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
+                }
+
+                binding.addMemoRepeatTueLl.setOnClickListener {
+                    repeatDaySelect(Week.TUE)
+                    updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
+                }
+
+                binding.addMemoRepeatWedLl.setOnClickListener {
+                    repeatDaySelect(Week.WED)
+                    updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
+                }
+
+                binding.addMemoRepeatThuLl.setOnClickListener {
+                    repeatDaySelect(Week.THU)
+                    updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
+                }
+
+                binding.addMemoRepeatFriLl.setOnClickListener {
+                    repeatDaySelect(Week.FRI)
+                    updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
+                }
+
+                binding.addMemoRepeatSatLl.setOnClickListener {
+                    repeatDaySelect(Week.SAT)
+                    updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
+                }
+            } else {
+                binding.addMemoRepeatDayLl.visibility = View.GONE
+                binding.repeatDetailTextView.visibility = View.GONE
             }
-            else {
-                isRepeat = false
+        }
+
+        // 반복 요일 구현 (repeatDay)
+        val tagToggle = binding.addMemoToggle2Sc
+
+        tagToggle.isChecked = repeatChecked
+
+        tagToggle.setOnClickListener {
+            tagToggle.isChecked = !tagChecked
+            tagChecked = !tagChecked
+
+            if (tagToggle.isChecked) {
+                binding.addMemoTagLl.visibility = View.VISIBLE
+
+                binding.addMemoTagRedIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagRedIv, TagColor.RD)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "빨간색"
+                    }
+                }
+
+                binding.addMemoTagOrangeIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagOrangeIv, TagColor.OG)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "주황색"
+                    }
+
+                }
+
+                binding.addMemoTagYellowIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagYellowIv, TagColor.YE)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "노란색"
+                    }
+                }
+
+                binding.addMemoTagGreenIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagGreenIv, TagColor.GN)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "초록색"
+                    }
+                }
+
+                binding.addMemoTagBlueIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagBlueIv, TagColor.BU)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "파랑색"
+                    }
+                }
+
+                binding.addMemoTagPurpleIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagPurpleIv, TagColor.PU)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "보라색"
+                    }
+                }
+
+                binding.addMemoTagGrayIv.setOnClickListener {
+                    val isTagDeselected = toggleTagSize(binding.addMemoTagGrayIv, TagColor.BK)
+                    if (isTagDeselected) {
+                        binding.tagDetailTextView.text = "없음"
+                    } else {
+                        binding.tagDetailTextView.text = "회색"
+                    }
+                }
+            } else {
+                binding.addMemoTagLl.visibility = View.GONE
+                binding.tagDetailTextView.visibility = View.GONE
             }
         }
         binding.alarmTypeLinearLayout.setOnClickListener() {
             // TODO: 알림 유형 구현
         }
-        binding.tagLinearLayout.setOnClickListener() {
-            // TODO: 태그 구현
-        }
+
+        // TODO: 반경 구현
 
         binding.saveBtn.setOnClickListener() {
             location = Location(
@@ -167,10 +300,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 location = location,
                 whenArrival = whenArrival,
                 radius = radius,
-                isRepeat = isRepeat,
+                isRepeat = repeatToggle.isChecked,
                 repeatDay = repeatDay,
                 hasBanner = hasBanner,
-                tagColor = tagColor,
+                tagColor = selectedTagColor,
                 lastNoti = lastNoti,
                 interval = interval
             )
@@ -229,7 +362,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
-        _binding = null
     }
 
     override fun onReverseGeocodeSuccess(address: String) {
@@ -240,7 +372,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onReverseGeocodeFailure(errorMessage: String) {
         this.address = "$lat,$lng"
     }
-    fun getAlarm() {
+
+    private fun getAlarm() {
         alarmId?.let { id ->
             CoroutineScope(Dispatchers.IO).launch {
                 val alarm: Alarm?
@@ -250,6 +383,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarm = deferred.await()
                 alarm.let { fetchedAlarm ->
                     withContext(Dispatchers.Main) {
+                        binding.locationTitleEditText.setText(fetchedAlarm.title)
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.location.address
                         address = fetchedAlarm.location.address
@@ -262,15 +396,23 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             String.format("%.1f km", radius / 1000.0)
                         }
                         binding.memoEditText.setText(fetchedAlarm.context)
+                        binding.addMemoToggle1Sc.isChecked = fetchedAlarm.isRepeat
+                        repeatChecked = fetchedAlarm.isRepeat
+
+                        if (fetchedAlarm.isRepeat) {
+                            binding.addMemoRepeatDayLl.visibility = View.VISIBLE
+                            binding.repeatDetailTextView.visibility = View.VISIBLE
+                        }
+
                         if (!fetchedAlarm.whenArrival) {
                             binding.inRadioBtn.isChecked = false
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
                         }
-                        if (!fetchedAlarm.isRepeat) {
-                            isRepeat = false
-                            binding.repeatSwitch.isChecked = false
-                        }
+//                        if (!fetchedAlarm.isRepeat) {
+//                            isRepeat = false
+//                            binding.repeatSwitch.isChecked = false
+//                        }
                         if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
@@ -284,12 +426,68 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     fun delete() {
         CoroutineScope(Dispatchers.IO).launch {
-            val alams: List<Long>? = alarmId?.let { listOf(it) }
-            if (alams != null) {
-                alarmRepository.deleteAlarms(alams)
+            val alarms: List<Long>? = alarmId?.let { listOf(it) }
+            if (alarms != null) {
+                alarmRepository.deleteAlarms(alarms)
             }
         }
 
     }
 
+    // 선택된 날짜를 추가하는 함수
+    private fun repeatDaySelect(day: Week) {
+        repeatDay = repeatDay?.let {
+            if (it.contains(day)) {
+                it - day
+            } else {
+                it + day
+            }
+        } ?: listOf(day) // repeatDay가 null인 경우, 선택된 day를 포함하는 리스트로 초기화
+    }
+
+    // UI 업데이트를 위한 함수
+    private fun updateUIForDay(day: Week, textView: TextView, imageView: ImageView) {
+        val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
+        val defaultColor = ContextCompat.getColor(requireContext(), R.color.mt_gray2) // 선택되지 않았을 때의 색상
+
+        if (repeatDay?.contains(day) == true) {
+            textView.setTextColor(selectColor)
+            imageView.setColorFilter(selectColor)
+        } else {
+            textView.setTextColor(defaultColor)
+            imageView.setColorFilter(defaultColor)
+        }
+    }
+
+    // 현재 선택된 태그의 ImageView 참조를 저장하기 위한 변수
+    private var selectedImageView: ImageView? = null
+
+    private fun toggleTagSize(imageView: ImageView, tagColor: TagColor): Boolean {
+        val scale = imageView.context.resources.displayMetrics.density
+        val newSize = (16 * scale + 0.5f).toInt() // Convert dp to pixels
+
+        if (selectedImageView != null && selectedImageView != imageView) {
+            val layoutParams = selectedImageView!!.layoutParams
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            selectedImageView!!.layoutParams = layoutParams
+        }
+
+        if (selectedImageView == imageView) {
+            val layoutParams = imageView.layoutParams
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            imageView.layoutParams = layoutParams
+            selectedImageView = null
+            return true // 선택된 태그가 취소되었음을 의미
+        } else {
+            val layoutParams = imageView.layoutParams
+            layoutParams.width = newSize
+            layoutParams.height = newSize
+            imageView.layoutParams = layoutParams
+            selectedImageView = imageView
+            selectedTagColor = tagColor
+            return false // 새로운 태그가 선택되었음을 의미
+        }
+    }
 }
