@@ -5,10 +5,12 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -19,6 +21,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
@@ -34,11 +37,20 @@ import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.google.zxing.common.BitMatrix
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import kotlin.math.sqrt
 
@@ -525,8 +537,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
                 if (acceleration > shakeThreshold) {
                     val uri = generateMotiUri(name, context, lat, lng, radius.toInt())
-                    activity?.let { copyToClipboard(it,uri.toString()) }
-                    //Toast.makeText(activity, "Device shaken!", Toast.LENGTH_SHORT).show()
+                    val bitmap = generateQRCode(uri.toString())
+                    bitmap?.let { copyImageToClipboard(requireContext(), it) }
                     lastShakeTime = currentTime
                 }
             }
@@ -536,15 +548,68 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
 
     }
-    fun copyToClipboard(context: Context, text: String) {
-        // ClipboardManager 인스턴스 가져오기
-        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-        // 클립보드에 텍스트 설정
-        val clipData = ClipData.newPlainText("label", text)
-        clipboardManager.setPrimaryClip(clipData)
+    fun copyImageToClipboard(context: Context, bitmap: Bitmap) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val imageUri = withContext(Dispatchers.IO) {
+                saveBitmapToFile(bitmap, context)
+            }
+            imageUri?.let { uri ->
+                val clipboardManager =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipData = ClipData.newUri(context.contentResolver, "label", uri)
+                clipboardManager.setPrimaryClip(clipData)
+            }
+        }
     }
     fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
-        return "moti://add?param1=$param1&param2=$param2&param3=$param3&param4=$param4&param5=$param5"
+        val encodedParam1 = URLEncoder.encode(param1, StandardCharsets.UTF_8.toString())
+        val encodedParam2 = URLEncoder.encode(param2, StandardCharsets.UTF_8.toString())
+        val encodedParam3 = param3.toString()
+        val encodedParam4 = param4.toString()
+        val encodedParam5 = param5.toString()
+
+        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5"
     }
+    private fun generateQRCode(text: String): Bitmap? {
+        return try {
+            val bitMatrix: BitMatrix = MultiFormatWriter().encode(
+                text,
+                BarcodeFormat.QR_CODE,
+                500,
+                500
+            )
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bitmap.setPixel(x, y, if (bitMatrix[x, y]) -0x1000000 else -0x1)
+                }
+            }
+            bitmap
+        } catch (e: WriterException) {
+            e.printStackTrace()
+            null
+        }
+    }
+    fun saveBitmapToFile(bitmap: Bitmap, context: Context): Uri? {
+        val imagesFolder = File(context.cacheDir, "images")
+        imagesFolder.mkdirs()
+        val file = File(imagesFolder, "qr_code.png")
+        try {
+            val stream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            stream.flush()
+            stream.close()
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                FileProvider.getUriForFile(context, context.packageName + ".provider", file)
+            } else {
+                Uri.fromFile(file)
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
 }
