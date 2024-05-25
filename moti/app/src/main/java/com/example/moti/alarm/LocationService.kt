@@ -68,7 +68,7 @@ class LocationService : Service(), LocationListener {
         return NotificationCompat.Builder(this, CHANNEL_ID).apply {
             setContentTitle("Location Service")
             setContentText("Tracking location...")
-            setSmallIcon(R.drawable.ic_launcher_background)
+            setSmallIcon(R.drawable.blue_pin_marker)
             setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             setContentIntent(pendingIntent)
         }.build()
