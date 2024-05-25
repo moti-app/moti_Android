@@ -303,7 +303,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 isRepeat = repeatToggle.isChecked,
                 repeatDay = repeatDay,
                 hasBanner = hasBanner,
-                tagColor = selectedTagColor!!,
+                tagColor = selectedTagColor,
                 lastNoti = lastNoti,
                 interval = interval
             )
