@@ -32,10 +32,9 @@
                     style="@style/b3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="TextView"
+                    android:hint="장소 이름"
                     android:textColor="@color/black"
-                    android:textStyle="normal"
-                    android:background="@null"/>
+                    android:textStyle="normal" />
 
                 <TextView
                     android:id="@+id/locationDetailTextView"
@@ -50,7 +49,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0"
-                android:background="@color/mt_gray3" />
+                android:background="@color/mt_gray3"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -92,7 +93,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="0"
                     android:background="@color/mt_gray3"
-                    android:visibility="visible" />
+                    android:visibility="visible"/>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -129,33 +130,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0"
-                android:background="@color/mt_gray3" />
+                android:background="@color/mt_gray3"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
-            <EditText
-                android:id="@+id/memoEditText"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
-                android:hint="메모 추가하기"
-                android:inputType="text"
-                android:paddingLeft="24dp"
-                android:paddingTop="10dp"
-                android:paddingRight="24dp"
-                android:paddingBottom="10dp"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp">
 
-                />
+                <EditText
+                    android:id="@+id/memoEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="메모 추가하기"
+                    android:inputType="text"
+                    style="@style/b3"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0"
-                android:background="@color/mt_gray3" />
+                android:background="@color/mt_gray3"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingLeft="24dp"
                 android:paddingTop="10dp"
                 android:paddingRight="24dp"
@@ -163,41 +175,240 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/repeatTitleTextView"
-                        style="@style/b3"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
                         android:layout_weight="1"
-                        android:text="반복"
-                        android:textColor="@color/black" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/repeatDetailTextView"
-                        style="@style/b5"
-                        android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/repeatTitleTextView"
+                            style="@style/b3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="반복"
+                            android:textColor="@color/black" />
+
+                        <TextView
+                            android:id="@+id/repeatDetailTextView"
+                            style="@style/b5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="매주"
+                            android:textAllCaps="false"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                            android:textColor="@color/mt_main"
+                            android:textStyle="normal"
+                            android:visibility="gone"/>
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/add_memo_toggle1_sc"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="매주 화, 수"
-                        android:textAllCaps="false"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                        android:textColor="@color/mt_main"
-                        android:textStyle="normal" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        style="@style/category_toggle"/>
+
                 </LinearLayout>
 
-                <Switch
-                    android:id="@+id/repeatSwitch"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:id="@+id/add_memo_repeat_day_ll"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:padding="10dp"
-                    android:splitTrack="false"
-                    android:trackTint="#001FBC" />
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
+                    android:weightSum="7"
+                    android:visibility="gone"
+                    app:layout_constraintTop_toTopOf="@id/item_memo_cl"
+                    app:layout_constraintBottom_toBottomOf="@id/item_memo_cl"
+                    app:layout_constraintEnd_toStartOf="@id/item_memo_toggle_sc">
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_sun_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot1_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_sun_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="일"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_mon_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot2_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_mon_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="월"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_tue_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot3_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_tue_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="화"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_wed_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot4_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_wed_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="수"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_thu_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot5_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_thu_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="목"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_fri_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot6_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_fri_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="금"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/add_memo_repeat_sat_ll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal"
+                        android:layout_weight="1">
+
+                        <ImageView
+                            android:id="@+id/add_memo_repeat_dot7_iv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_memo_dot"/>
+
+                        <TextView
+                            android:id="@+id/add_memo_repeat_sat_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="토"
+                            android:textSize="12sp"
+                            android:textColor="@color/mt_gray2"
+                            android:gravity="center_horizontal"/>
+
+                    </LinearLayout>
+
+
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -205,7 +416,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0"
-                android:background="@color/mt_gray3" />
+                android:background="@color/mt_gray3"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
             <LinearLayout
                 android:id="@+id/alarmTypeLinearLayout"
@@ -256,7 +469,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0"
-                android:background="@color/mt_gray3" />
+                android:background="@color/mt_gray3"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
             <LinearLayout
                 android:id="@+id/tagLinearLayout"
@@ -264,7 +479,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
+                android:orientation="vertical"
                 android:paddingLeft="24dp"
                 android:paddingTop="10dp"
                 android:paddingRight="24dp"
@@ -274,31 +489,96 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tagTitleTextView"
-                        style="@style/b3"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
-                        android:text="태그" />
+                        android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tagDetailTextView"
-                        style="@style/b5"
-                        android:layout_width="match_parent"
+                        <TextView
+                            android:id="@+id/tagTitleTextView"
+                            style="@style/b3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="태그" />
+
+                        <TextView
+                            android:id="@+id/tagDetailTextView"
+                            style="@style/b5"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="없음"
+                            android:textColor="@color/mt_main" />
+                    </LinearLayout>
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/add_memo_toggle2_sc"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="#심부름 #학교"
-                        android:textColor="@color/mt_main" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        style="@style/category_toggle"/>
+
                 </LinearLayout>
 
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/right_arrow_24" />
+                <LinearLayout
+                    android:id="@+id/add_memo_tag_ll"
+                    android:layout_width="match_parent"
+                    android:layout_height="32dp"
+                    android:weightSum="7"
+                    android:gravity="center_vertical"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/add_memo_tag_red_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_red"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_orange_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_org"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_yellow_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_yel"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_green_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_gre"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_blue_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_blu"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_purple_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_pur"
+                        android:layout_weight="1"/>
+                    <ImageView
+                        android:id="@+id/add_memo_tag_gray_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_tag_gra"
+                        android:layout_weight="1"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -306,32 +586,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="0"
-                android:background="@color/mt_gray3" />
+                android:background="@color/mt_gray3"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
+
         </LinearLayout>
     </ScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:background="@color/mt_gray1"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/saveCancelBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_weight="1"
             style="@style/h2"
-            android:text="취소" />
+            android:background="@color/mt_gray1"
+            android:stateListAnimator="@null"
+            android:text="@string/cancel_memo" />
 
         <Button
             android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:layout_weight="1"
             style="@style/h2"
-            android:text="저장" />
+            android:background="@color/mt_gray1"
+            android:stateListAnimator="@null"
+            android:text="@string/save_memo" />
     </LinearLayout>
 
 </LinearLayout>

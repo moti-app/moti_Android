@@ -10,16 +10,9 @@
         android:title="@string/bottom_map"
         tools:ignore="AlwaysShowAction" />
     <item
-        android:id="@+id/lookFragment"
+        android:id="@+id/memoFragment"
         app:showAsAction="always"
         android:title="@string/bottom_memo" />
-    <item
-        android:id="@+id/searchFragment"
-        app:showAsAction="always"
-        android:title="@string/bottom_memo" />
-    <item
-        android:id="@+id/lockerFragment"
-        app:showAsAction="always"
-        android:title="@string/bottom_memo" />
+
 
 </menu>

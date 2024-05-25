@@ -13,6 +13,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -121,7 +122,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
-        enableMyLocationIfPermitted()
+
         googleMap.setOnMapClickListener { latLng ->
             lat = latLng.latitude
             lng = latLng.longitude
@@ -129,6 +130,18 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
+
+        val alarmTitle = arguments?.getString("alarmTitle")
+        val alarmXLocation = arguments?.getDouble("alarmXLocation")
+        val alarmYLocation = arguments?.getDouble("alarmYLocation")
+        val alarmId = arguments?.getLong("alarmId")
+
+        if (alarmTitle != null && alarmXLocation != null && alarmYLocation != null && alarmId != null) {
+            showAddMemoBottomSheet(alarmTitle, alarmXLocation, alarmYLocation, alarmId)
+        } else {
+            enableMyLocationIfPermitted()
+        }
+
         radioButtonViewModel.selectedOption.observe(viewLifecycleOwner) { selectedOption ->
             when (selectedOption) {
                 1 -> {

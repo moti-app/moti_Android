@@ -149,25 +149,18 @@ class MainActivity : AppCompatActivity() {
                         .commitAllowingStateLoss()
                     return@setOnItemSelectedListener true
                 }
-                R.id.lookFragment -> {
+                R.id.memoFragment -> {
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MemoFragment())
                         .commitAllowingStateLoss()
                     return@setOnItemSelectedListener true
                 }
-                R.id.searchFragment -> {
-                    supportFragmentManager.beginTransaction()
-                        .replace(R.id.main_frm, MemoFragment()) // 추후 변경
-                        .commitAllowingStateLoss()
-                    return@setOnItemSelectedListener true
-                }
-                R.id.lockerFragment -> {
-                    supportFragmentManager.beginTransaction()
-                        .commitAllowingStateLoss()
-                    return@setOnItemSelectedListener true
-                }
+
             }
             false
         }
+
+
+
     }
 }
