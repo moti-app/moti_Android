@@ -10,4 +10,7 @@
     <string name="cancel_memo">취소</string>
     <string name="save_memo">저장</string>
     <string name="end_alarm">끄기</string>
+    <string name="high_importance_channel_name">high_importance_channel_name</string>
+    <string name="high_importance_channel_desc">high_importance_channel_desc</string>
+    <string name="high_noti_channel_id">high_noti_channel_id</string>
 </resources>

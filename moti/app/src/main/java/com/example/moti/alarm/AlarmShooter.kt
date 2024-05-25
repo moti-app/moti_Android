@@ -1,5 +1,6 @@
 package com.example.moti.alarm
 
+import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -14,6 +15,7 @@ import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.ui.alarm.FullScreenAlarmActivity
+import com.example.moti.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,7 +46,7 @@ class AlarmShooter(private val context: Context) {
                         val intervalMinutes = alarm.interval ?: 1440
 
                         if (lastNoti == null || ChronoUnit.MINUTES.between(lastNoti, now) >= intervalMinutes) {
-                            sendFullScreenAlarm(alarm)
+                            sendFullScreenAlarm22(context)
                             alarm.lastNoti = now
                             database?.alarmDao()?.update(alarm)
                         }
@@ -53,6 +55,64 @@ class AlarmShooter(private val context: Context) {
             }
         }
     }
+
+    private fun sendFullScreenAlarm22(context: Context) {
+        Log.e("aa", "sendFullScreenAlarm22")
+        // 기본 알림 채널 설정
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = context.getString(R.string.high_importance_channel_name)
+            val descriptionText = context.getString(R.string.high_importance_channel_desc)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(
+                context.getString(R.string.high_noti_channel_id),
+                name,
+                importance
+            ).apply {
+                description = descriptionText
+            }
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        // 전체 화면 알림을 위한 Activity Intent 생성
+        val fullscreenIntent = Intent(context, FullScreenAlarmActivity::class.java).apply {
+            action = "fullscreen_activity"
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val fullscreenPendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+        val builder = NotificationCompat.Builder(context, context.getString(R.string.high_noti_channel_id)).apply {
+            setSmallIcon(R.drawable.ic_launcher_foreground)
+            setContentTitle("fullscreen intent notification")
+            setContentText("fullscreen intent notification!")
+            setAutoCancel(true)
+            setDefaults(Notification.DEFAULT_LIGHTS or Notification.DEFAULT_VIBRATE)
+            setCategory(NotificationCompat.CATEGORY_ALARM)
+            setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            setLocalOnly(true)
+            priority = NotificationCompat.PRIORITY_MAX
+            setContentIntent(pendingIntent)
+            // 전체 화면 인텐트 설정
+            setFullScreenIntent(fullscreenPendingIntent, true)
+        }
+
+        // 알림을 트리거
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1, builder.build())
+
+        // 잠금화면에서도 알림이 뜨도록 인텐트를 시작
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startActivity(fullscreenIntent)
+        }
+    }
+
+
+
     private fun sendFullScreenAlarm(alarm: Alarm) {
         Log.e("aa", "sendFullScreenAlarm")
         val intent = Intent(context, FullScreenAlarmActivity::class.java).apply {
@@ -97,6 +157,7 @@ class AlarmShooter(private val context: Context) {
         notificationManager.notify(alarm.alarmId.toInt(), notification)
         context.startActivity(intent)
     }
+
     private fun sendNotification(alarm: Alarm) {
         // 알림을 보냅니다.
         // 전체 화면 알림 구분 로직 추가 가능
