@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
+import com.example.moti.data.ringtoneManagerUri
 import com.example.moti.ui.alarm.FullScreenAlarmActivity
 import com.example.moti.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -87,7 +88,7 @@ class AlarmShooter(private val context: Context) {
             action = "fullscreen_activity"
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("NOTIFICATION_ID", 218) // 알림 ID 전달
-            putExtra("AlarmID", alarm.alarmId);
+            putExtra("AlarmID", alarm.alarmId)
         }
         val pendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_IMMUTABLE)
         val fullscreenPendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -116,15 +117,15 @@ class AlarmShooter(private val context: Context) {
             context.startActivity(fullscreenIntent)
         }
 
-        startAlarmService(context)
+        startAlarmService(context, alarm)
     }
 
-    private fun startAlarmService(context: Context) {
+    private fun startAlarmService(context: Context, alarm: Alarm) {
         val intent = Intent(context, FullScreenAlarmService::class.java).apply {
             action = FullScreenAlarmService.ACTION_ALARM_ON
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString())
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100)
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, true)
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, alarm.alarmtone.ringtoneManagerUri())
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100) // 필요시 알람 볼륨 설정
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, alarm.useVibration)
         }
         context.startService(intent)
         Log.e("aa", "full startAlarmService")

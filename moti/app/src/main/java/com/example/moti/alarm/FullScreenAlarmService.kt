@@ -2,7 +2,6 @@ package com.example.moti.alarm
 
 import android.app.NotificationManager
 import android.app.Service
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.media.AudioAttributes
@@ -20,7 +19,6 @@ class FullScreenAlarmService : Service() {
 
     private var mediaPlayer: MediaPlayer? = null
     private var vibrator: Vibrator? = null
-
     private lateinit var audioManager: AudioManager
     private var savedVolume: Int = 0
 
@@ -29,105 +27,74 @@ class FullScreenAlarmService : Service() {
         audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null) {
+            when (intent.action) {
+                ACTION_ALARM_ON -> {
+                    val alarmUri = Uri.parse(intent.getStringExtra(EXTRA_ALARM_URI))
+                    val volume = intent.getIntExtra(EXTRA_ALARM_VOLUME, 100)
+                    val vibrate = intent.getBooleanExtra(EXTRA_ALARM_VIBRATE, true)
+                    startAlarm(alarmUri, volume, vibrate)
+                }
+                ACTION_ALARM_OFF -> stopAlarm()
+            }
+        }
+        return START_STICKY
+    }
+
+    private fun startAlarm(alarmUri: Uri, volume: Int, vibrate: Boolean) {
+        Log.e("aa", "startAlarmService")
+        stopAlarm()
+
+        savedVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+        val setVolume = (maxVolume * (volume / 100.0)).toInt()
+        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, setVolume, 0)
+
+        mediaPlayer = MediaPlayer().apply {
+            setDataSource(applicationContext, alarmUri)
+            setAudioStreamType(AudioManager.STREAM_ALARM)
+            isLooping = true
+            prepare()
+            start()
+        }
+
+        if (vibrate) {
+            vibrator = getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator?.vibrate(VibrationEffect.createWaveform(longArrayOf(0, 1000, 1000), 0))
+            } else {
+                vibrator?.vibrate(longArrayOf(0, 1000, 1000), 0)
+            }
+        }
+    }
+
+    private fun stopAlarm() {
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
+        mediaPlayer = null
+
+        vibrator?.cancel()
+        vibrator = null
+
+        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, savedVolume, 0)
+    }
+
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e("aa", "full serv onStartCommand")
-        if(intent != null) {
-            if(intent.action == ACTION_ALARM_ON) {
-                val filePath = intent.getStringExtra(EXTRA_ALARM_URI) ?: RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString()
-                val volume = intent.getIntExtra(EXTRA_ALARM_VOLUME, 0)
-                val vibrate = intent.getBooleanExtra(EXTRA_ALARM_VIBRATE, true)
-
-                if(RingtoneManager.getRingtone(applicationContext, Uri.parse(filePath)) == null) {
-                    Log.w(TAG, "onStartCommand: Cannot find ringtone at $filePath. Setting uri to default alarm ringtone.")
-                }
-
-                if(volume > 0) {
-                    if(mediaPlayer?.isPlaying == true) {
-                        mediaPlayer!!.stop()
-                    }
-
-                    mediaPlayer = MediaPlayer.create(this, Uri.parse(filePath)).apply {
-                        setAudioAttributes(
-                            AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ALARM).build()
-                        )
-                        isLooping = true
-                        setVolume(volume / 100f, volume / 100f)
-                    }
-                }
-
-                if(vibrate) {
-                    vibrator = getSystemService(Vibrator::class.java)
-                }
-
-                playRingtone(volume, vibrate)
-            } else {
-                stopRingtone()
-            }
-        }
-
-        return START_STICKY
-    }
-
-    private fun playRingtone(volume: Int, vibrate: Boolean) {
-        Log.d(TAG, "playRingtone: ")
-        if(volume > 0) {
-            if (mediaPlayer?.isPlaying == false) {
-                changeAudioState(volume)
-                mediaPlayer?.start()
-            } else {
-                Log.d(TAG, "playRingtone: Alarm is already playing")
-            }
-        }
-
-        if(vibrate) {
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                vibrator?.vibrate(longArrayOf(1000, 500), 0)
-            } else {
-                vibrator?.vibrate(
-                    VibrationEffect.createWaveform(longArrayOf(1000, 500), intArrayOf(255, 0), 0))
-            }
-        }
-    }
-
-    private fun stopRingtone() {
-        Log.d(TAG, "stopRingtone: ")
-        if(mediaPlayer?.isPlaying == true) {
-            mediaPlayer?.stop()
-            restoreAudioState()
-        } else {
-            Log.d(TAG, "stopRingtone: Alarm is not playing")
-        }
-
-        vibrator?.cancel()
-
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancelAll()
-    }
-
-    private fun changeAudioState(volume: Int) {
-        savedVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
-        audioManager.setStreamVolume(
-            AudioManager.STREAM_ALARM,
-            (audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM) * (volume / 100.0)).toInt(),
-            0
-        )
-    }
-
-    private fun restoreAudioState() {
-        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, savedVolume, 0)
+    override fun onDestroy() {
+        super.onDestroy()
+        stopAlarm()
     }
 
     companion object {
-        const val ACTION_ALARM_ON: String = "com.example.moti.alarm.ACTION_ALARM_ON"
-        const val ACTION_ALARM_OFF: String = "com.example.moti.alarm.ACTION_ALARM_OFF"
-        const val EXTRA_ALARM_URI: String = "com.example.moti.alarm.EXTRA_ALARM_URI"
-        const val EXTRA_ALARM_VOLUME: String = "com.example.moti.alarm.EXTRA_ALARM_VOLUME"
-        const val EXTRA_ALARM_VIBRATE: String = "com.example.moti.alarm.EXTRA_ALARM_VIBRATE"
+        const val ACTION_ALARM_ON = "com.example.moti.alarm.ACTION_ALARM_ON"
+        const val ACTION_ALARM_OFF = "com.example.moti.alarm.ACTION_ALARM_OFF"
+        const val EXTRA_ALARM_URI = "com.example.moti.alarm.EXTRA_ALARM_URI"
+        const val EXTRA_ALARM_VOLUME = "com.example.moti.alarm.EXTRA_ALARM_VOLUME"
+        const val EXTRA_ALARM_VIBRATE = "com.example.moti.alarm.EXTRA_ALARM_VIBRATE"
         const val EXTRA_NOTIFICATION_ID: String = "com.example.moti.alarm.EXTRA_NOTIFICATION_ID"
-        const val NOTIFICATION_DEFAULT_ID: Int = 333333333
     }
 }
