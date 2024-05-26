@@ -17,6 +17,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.example.moti.R
+import com.example.moti.data.Alarmtone
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Location
@@ -64,6 +65,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var lastNoti : LocalDateTime = LocalDateTime.now().minusDays(1) //하루전으로 설정
     private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
+
+    private var alarmtone : Alarmtone = Alarmtone.Silent;
+    private var useVibration : Boolean = false;
 
     private var repeatChecked = false
     private var tagChecked = false
@@ -305,7 +309,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 hasBanner = hasBanner,
                 tagColor = selectedTagColor,
                 lastNoti = lastNoti,
-                interval = interval
+                interval = interval,
+                alarmtone = alarmtone,
+                useVibration = useVibration
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
