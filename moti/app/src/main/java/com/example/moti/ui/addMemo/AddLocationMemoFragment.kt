@@ -162,40 +162,42 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                 binding.repeatDetailTextView.visibility = View.VISIBLE
 
-                binding.addMemoRepeatSunLl.setOnClickListener {
-                    repeatDaySelect(Week.SUN)
-                    updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
-                }
+                repeatDayCheck()
 
-                binding.addMemoRepeatMonLl.setOnClickListener {
-                    repeatDaySelect(Week.MON)
-                    updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
-                }
-
-                binding.addMemoRepeatTueLl.setOnClickListener {
-                    repeatDaySelect(Week.TUE)
-                    updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
-                }
-
-                binding.addMemoRepeatWedLl.setOnClickListener {
-                    repeatDaySelect(Week.WED)
-                    updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
-                }
-
-                binding.addMemoRepeatThuLl.setOnClickListener {
-                    repeatDaySelect(Week.THU)
-                    updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
-                }
-
-                binding.addMemoRepeatFriLl.setOnClickListener {
-                    repeatDaySelect(Week.FRI)
-                    updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
-                }
-
-                binding.addMemoRepeatSatLl.setOnClickListener {
-                    repeatDaySelect(Week.SAT)
-                    updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
-                }
+//                binding.addMemoRepeatSunLl.setOnClickListener {
+//                    repeatDaySelect(Week.SUN)
+//                    updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
+//                }
+//
+//                binding.addMemoRepeatMonLl.setOnClickListener {
+//                    repeatDaySelect(Week.MON)
+//                    updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
+//                }
+//
+//                binding.addMemoRepeatTueLl.setOnClickListener {
+//                    repeatDaySelect(Week.TUE)
+//                    updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
+//                }
+//
+//                binding.addMemoRepeatWedLl.setOnClickListener {
+//                    repeatDaySelect(Week.WED)
+//                    updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
+//                }
+//
+//                binding.addMemoRepeatThuLl.setOnClickListener {
+//                    repeatDaySelect(Week.THU)
+//                    updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
+//                }
+//
+//                binding.addMemoRepeatFriLl.setOnClickListener {
+//                    repeatDaySelect(Week.FRI)
+//                    updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
+//                }
+//
+//                binding.addMemoRepeatSatLl.setOnClickListener {
+//                    repeatDaySelect(Week.SAT)
+//                    updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
+//                }
             } else {
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
@@ -425,6 +427,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                                     imageView.setColorFilter(selectColor)
                                 }
                             }
+                            repeatDayCheck()
                         }
 
                         if (!fetchedAlarm.whenArrival) {
@@ -439,8 +442,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.addMemoToggle2Sc.isChecked = true
                             tagChecked = true
                             binding.addMemoTagLl.visibility = View.VISIBLE
-
-
                         } else {
                             binding.addMemoToggle2Sc.isChecked = false
                             tagChecked = false
@@ -528,6 +529,44 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             tagOffImageView.visibility = View.GONE
             tagOnImageView.visibility = View.VISIBLE
             return false // 새로운 태그가 선택되었음을 의미
+        }
+    }
+
+    // 반복 요일 선택 함수
+    private fun repeatDayCheck() {
+        binding.addMemoRepeatSunLl.setOnClickListener {
+            repeatDaySelect(Week.SUN)
+            updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
+        }
+
+        binding.addMemoRepeatMonLl.setOnClickListener {
+            repeatDaySelect(Week.MON)
+            updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
+        }
+
+        binding.addMemoRepeatTueLl.setOnClickListener {
+            repeatDaySelect(Week.TUE)
+            updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
+        }
+
+        binding.addMemoRepeatWedLl.setOnClickListener {
+            repeatDaySelect(Week.WED)
+            updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
+        }
+
+        binding.addMemoRepeatThuLl.setOnClickListener {
+            repeatDaySelect(Week.THU)
+            updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
+        }
+
+        binding.addMemoRepeatFriLl.setOnClickListener {
+            repeatDaySelect(Week.FRI)
+            updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
+        }
+
+        binding.addMemoRepeatSatLl.setOnClickListener {
+            repeatDaySelect(Week.SAT)
+            updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
         }
     }
 }
