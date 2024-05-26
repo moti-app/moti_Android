@@ -70,22 +70,26 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
                 layoutManager = memoAlarmManager
             }
 
-            binding.memoShareIv.setOnClickListener {
-                memoAlarmAdapter.shareClick(true)
-                binding.memoShareIv.visibility =View.INVISIBLE
-                binding.memoShareIv.isEnabled = false
-                binding.memoShareTv.visibility = View.VISIBLE
-                binding.memoShareTv.isEnabled = true
+            if (alarmList.isNotEmpty()) {
+                binding.memoShareIv.setOnClickListener {
+                    memoAlarmAdapter.shareClick(true)
+                    binding.memoShareIv.visibility =View.INVISIBLE
+                    binding.memoShareIv.isEnabled = false
+                    binding.memoShareTv.visibility = View.VISIBLE
+                    binding.memoShareTv.isEnabled = true
 //                val bottomSheetCancelShare = BottomSheetCancelShare(this@MemoFragment)
 //                bottomSheetCancelShare.show(parentFragmentManager, bottomSheetCancelShare.tag)
+                }
+                binding.memoShareTv.setOnClickListener {
+                    memoAlarmAdapter.shareClick(false)
+                    binding.memoShareTv.visibility = View.INVISIBLE
+                    binding.memoShareTv.isEnabled = false
+                    binding.memoShareIv.visibility =View.VISIBLE
+                    binding.memoShareIv.isEnabled = true
+                }
             }
-            binding.memoShareTv.setOnClickListener {
-                memoAlarmAdapter.shareClick(false)
-                binding.memoShareTv.visibility = View.INVISIBLE
-                binding.memoShareTv.isEnabled = false
-                binding.memoShareIv.visibility =View.VISIBLE
-                binding.memoShareIv.isEnabled = true
-            }
+
+
 
             // 메모 클릭 시 MapFragment로 이동
             memoAlarmAdapter.setMemoClick(object: MemoAlarmRVAdapter.MemoClickListener{
