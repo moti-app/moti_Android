@@ -83,7 +83,8 @@ class MainActivity : AppCompatActivity() {
                     hasBanner = true,
                     tagColor = null,
                     lastNoti = LocalDateTime.now().minusDays(1),
-                    interval = 1440
+                    interval = 1440,
+                    image = null
                 )
                 val list: List<Long> = listOf()
                 CoroutineScope(Dispatchers.IO).launch {

@@ -16,8 +16,8 @@ import com.example.moti.data.entity.RecentLocation
 import com.example.moti.data.entity.Tag
 
 @Database(entities = [Alarm::class, AlarmAndTag::class, RecentLocation::class, Tag::class],
-    version = 4)
-@TypeConverters(LocalDateTimeConverter::class)
+    version = 6)
+@TypeConverters(Converters::class)
 abstract class MotiDatabase :RoomDatabase(){
     abstract fun alarmDao():AlarmDao
     abstract fun recentLocationDao():RecentLocationDao

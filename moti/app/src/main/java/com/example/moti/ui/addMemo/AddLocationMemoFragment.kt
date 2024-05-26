@@ -1,11 +1,13 @@
 package com.example.moti.ui.addMemo
 
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -13,16 +15,20 @@ import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import com.bumptech.glide.Glide
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
@@ -74,6 +80,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var hasBanner : Boolean = true
     private var tagColor : TagColor = TagColor.RD
     private var selectedTagColor: TagColor? = null
+    private var imageUri : Uri? = null
+    private var newImageUri : Uri? = null
+
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private var lastNoti : LocalDateTime = LocalDateTime.now().minusDays(1) //하루전으로 설정
@@ -116,6 +126,20 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     var onDismissListener: (() -> Unit)? = null
 
     private val reverseGeocoding = ReverseGeocoding(this)
+
+    val startActivityResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ){result: ActivityResult ->
+        if(result.resultCode == RESULT_OK){
+            val uri = result.data?.data
+            if (uri != null) {
+                newImageUri = uri
+
+                Glide.with(this).load(newImageUri).into(binding.memoImg)
+                binding.memoImg.visibility = View.VISIBLE
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -170,6 +194,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
         binding.locationTitleEditText.setText(name)
+
+        //메모 이미지
+        setImgBtn()
+
         // 반복 요일 구현 (repeatDay)
         val repeatToggle = binding.addMemoToggle1Sc
 
@@ -309,12 +337,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
         // TODO: 반경 구현
 
+        //알람 저장
         binding.saveBtn.setOnClickListener {
             location = Location(
                 lat,lng,address,name
             )
             name = binding.locationTitleEditText.text.toString()
             context = binding.memoEditText.text.toString()
+            if(newImageUri!=null) {//새로운 이미지 있으면 그걸로 저장
+                if(imageUri!=null)//기존 이미지 있으면 저장소에서 삭제
+                    deleteImage()
+                imageUri = saveImageToInternalStorage(newImageUri)
+            }
             val alarm = Alarm(
                 title = name,
                 context = context,
@@ -326,7 +360,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 hasBanner = hasBanner,
                 tagColor = selectedTagColor,
                 lastNoti = lastNoti,
-                interval = interval
+                interval = interval,
+                image = imageUri
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -373,6 +408,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             "$radius m"
         } else {
             String.format("%.1f km", radius / 1000.0)
+        }
+        //부모 스크롤 막기
+        binding.innerScroll.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
         }
     }
 
@@ -442,6 +482,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
                         }
+                        if(fetchedAlarm.image!=null){
+                            imageUri = fetchedAlarm.image
+                            binding.memoImg.visibility = View.VISIBLE
+                            val file = File(imageUri.toString())
+                            Glide.with(this@AddLocationMemoFragment).load(file).into(binding.memoImg)
+                        }
                         // TODO: 태그
                     }
                 }
@@ -456,7 +502,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarmRepository.deleteAlarms(alarms)
             }
         }
+        deleteImage()
+    }
+    fun deleteImage(){
+        var fileList = requireActivity().cacheDir.listFiles()
 
+        fileList.forEach {
+            if (it.absolutePath.toString() == imageUri.toString()) {
+                it.delete()
+                Log.d("hjk", "$imageUri 삭제성공")
+
+            }
+        }
     }
 
     // 선택된 날짜를 추가하는 함수
@@ -606,6 +663,42 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             e.printStackTrace()
             return null
         }
+    }
+
+    private fun setImgBtn(){
+        binding.galleryBtn.setOnClickListener{
+            val intent = Intent()
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityResult.launch(intent)
+        }
+    }
+
+    //이미지를 앱 내부 저장소로 복사 한뒤 Uri반환
+    private fun saveImageToInternalStorage(uri : Uri?):Uri?{
+        if(uri!=null) {
+            //영구적인 uri권한 부여
+            val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            requireActivity().contentResolver.takePersistableUriPermission(uri, flag)
+
+            val inputStream = requireActivity().contentResolver.openInputStream(uri)
+            var bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+            val filename = "IMG_${System.currentTimeMillis()}.png"
+            val file = File(requireActivity().cacheDir, filename)
+            val outputStream = FileOutputStream(file)
+            while(bitmap.height*bitmap.width > 5000000) {//너무 큰 이미지 scaling
+                bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt(), false)
+            }
+            Log.d("hjk", "density"+bitmap.height*bitmap.width)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 80, outputStream)
+
+            outputStream.close()
+            Log.d("hjk", "file : $file")
+
+            return Uri.parse(file.absolutePath)
+        }
+        return null
     }
 
 }
