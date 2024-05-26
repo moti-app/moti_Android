@@ -1,8 +1,7 @@
 package com.example.moti.ui.memo
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -117,7 +116,7 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
                     val sRadius = alarmList[position].radius
                     val uri = generateMotiUri(sTitle, sContents, sLat, sLng, sRadius.toInt())
                     val bitmap = generateQRCode(uri)
-                    bitmap?.let { copyImageToClipboard(requireContext(), it) }
+                    bitmap?.let { share(requireContext(), it) }
                 }
             })
         }
@@ -135,17 +134,17 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
     override fun cancelBottomSheet() {
         memoAlarmAdapter.shareClick(false)
     }
-
-    private fun copyImageToClipboard(context: Context, bitmap: Bitmap) {
+    private fun share(context: Context, bitmap: Bitmap) {
         CoroutineScope(Dispatchers.Main).launch {
             val imageUri = withContext(Dispatchers.IO) {
                 saveBitmapToFile(bitmap, context)
             }
             imageUri?.let { uri ->
-                val clipboardManager =
-                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                val clipData = ClipData.newUri(context.contentResolver, "label", uri)
-                clipboardManager.setPrimaryClip(clipData)
+                val chooserTitle = "Share with friends"
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.type = "image/png"
+                intent.putExtra(Intent.EXTRA_STREAM, uri)
+                startActivity(Intent.createChooser(intent,chooserTitle))
             }
         }
     }

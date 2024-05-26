@@ -1,11 +1,15 @@
 package com.example.moti.ui.main
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.CombinedVibration
+import android.os.VibrationEffect
+import android.os.VibratorManager
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
@@ -35,6 +39,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val radiusViewModel: RadiusViewModel by viewModels()
     private val radioButtonViewModel: RadioButtonViewModel by viewModels()
+    private lateinit var vibrator: VibratorManager
+    private lateinit var vibrationEffect: VibrationEffect
+    private lateinit var combinedVibration: CombinedVibration
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 321
@@ -42,7 +49,7 @@ class MainActivity : AppCompatActivity() {
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 322
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -87,6 +94,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        vibrator = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibrationEffect = VibrationEffect.createOneShot(5L, VibrationEffect.DEFAULT_AMPLITUDE)
+        combinedVibration = CombinedVibration.createParallel(vibrationEffect)
     }
 
     private fun checkPermissions() {
@@ -179,6 +189,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun initBottomNavigation() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.main_frm, MapFragment())
@@ -187,12 +198,14 @@ class MainActivity : AppCompatActivity() {
         binding.mainBnv.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.homeFragment -> {
+                    vibrator.vibrate(combinedVibration)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MapFragment())
                         .commitAllowingStateLoss()
                     return@setOnItemSelectedListener true
                 }
                 R.id.memoFragment -> {
+                    vibrator.vibrate(combinedVibration)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MemoFragment())
                         .commitAllowingStateLoss()
