@@ -1,20 +1,27 @@
 package com.example.moti.ui.addMemo
 
 import android.app.Dialog
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.Bitmap
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
@@ -23,24 +30,32 @@ import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.TagColor
 import com.example.moti.data.entity.Week
 import com.example.moti.data.repository.AlarmRepository
-import com.example.moti.data.repository.dto.AlarmDetail
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
-import com.example.moti.databinding.FragmentMemoBinding
 import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.WriterException
+import com.google.zxing.common.BitMatrix
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
+import kotlin.math.sqrt
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
-    ReverseGeocoding.ReverseGeocodingListener {
+    ReverseGeocoding.ReverseGeocodingListener,SensorEventListener {
     private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
     private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
@@ -70,6 +85,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private lateinit var db:MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
+    private lateinit var sensorManager: SensorManager
+    private lateinit var accelerometer: Sensor
+    private val shakeThreshold = 30
+    private val shakeTimeLapse = 1000
+    private var lastShakeTime: Long = 0
     companion object {
         private const val ARG_NAME = "name"
         private const val ARG_LAT = "lat"
@@ -108,13 +128,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         if (alarmId?.toInt() ==0) {
-            this.address = "$lat,$lng"
             val language= activity?.resources?.configuration?.locales?.get(0)?.language.toString()
             reverseGeocoding.reverseGeocode("$lat,$lng",language)
         }
         else {
             getAlarm()
         }
+        sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
 
     }
 
@@ -142,7 +163,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 }
             }
         }
-        binding.saveCancelBtn.setOnClickListener() {
+        binding.saveCancelBtn.setOnClickListener {
             if (alarmId?.toInt() !=0) {
                 delete()
             }
@@ -188,13 +209,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.tagDetailTextView.visibility = View.GONE
             }
         }
-        binding.alarmTypeLinearLayout.setOnClickListener() {
+        binding.alarmTypeLinearLayout.setOnClickListener {
             // TODO: 알림 유형 구현
         }
 
         // TODO: 반경 구현
 
-        binding.saveBtn.setOnClickListener() {
+        binding.saveBtn.setOnClickListener {
             location = Location(
                 lat,lng,address,name
             )
@@ -293,6 +314,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         binding.saveCancelBtn.text = activity?.resources!!.getString(R.string.delete_memo)
                         binding.locationDetailTextView.text = fetchedAlarm.location.address
                         address = fetchedAlarm.location.address
+                        if (fetchedAlarm.location.address=="address") { // 디비에 자동 저장 안됨..
+                            val language= activity?.resources?.configuration?.locales?.get(0)?.language.toString()
+                            reverseGeocoding.reverseGeocode("$lat,$lng",language)
+                        }
                         radius = fetchedAlarm.radius
                         binding.radiusSeekBar.progress = radius.toInt()
                         radiusViewModel.setRadius(radius)
@@ -553,4 +578,97 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             binding.tagDetailTextView.text = tagText
         }
     }
+    override fun onResume() {
+        sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL)
+        super.onResume()
+    }
+
+    override fun onPause() {
+        sensorManager.unregisterListener(this)
+        super.onPause()
+    }
+
+    override fun onSensorChanged(event: SensorEvent?) {
+        if (event?.sensor?.type == Sensor.TYPE_ACCELEROMETER) {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastShakeTime > shakeTimeLapse) {
+                val x = event.values[0]
+                val y = event.values[1]
+                val z = event.values[2]
+
+                val acceleration = sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
+
+                if (acceleration > shakeThreshold) {
+                    val uri = generateMotiUri(name, context, lat, lng, radius.toInt())
+                    val bitmap = generateQRCode(uri)
+                    bitmap?.let { copyImageToClipboard(requireContext(), it) }
+                    lastShakeTime = currentTime
+                }
+            }
+        }
+    }
+
+    override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
+
+    }
+    private fun copyImageToClipboard(context: Context, bitmap: Bitmap) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val imageUri = withContext(Dispatchers.IO) {
+                saveBitmapToFile(bitmap, context)
+            }
+            imageUri?.let { uri ->
+                val clipboardManager =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipData = ClipData.newUri(context.contentResolver, "label", uri)
+                clipboardManager.setPrimaryClip(clipData)
+            }
+        }
+    }
+    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
+        val encodedParam1 = URLEncoder.encode(param1, StandardCharsets.UTF_8.toString())
+        val encodedParam2 = URLEncoder.encode(param2, StandardCharsets.UTF_8.toString())
+        val encodedParam3 = param3.toString()
+        val encodedParam4 = param4.toString()
+        val encodedParam5 = param5.toString()
+
+        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5"
+    }
+    private fun generateQRCode(text: String): Bitmap? {
+        return try {
+            val bitMatrix: BitMatrix = MultiFormatWriter().encode(
+                text,
+                BarcodeFormat.QR_CODE,
+                500,
+                500
+            )
+            val width = bitMatrix.width
+            val height = bitMatrix.height
+            val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+            for (x in 0 until width) {
+                for (y in 0 until height) {
+                    bitmap.setPixel(x, y, if (bitMatrix[x, y]) -0x1000000 else -0x1)
+                }
+            }
+            bitmap
+        } catch (e: WriterException) {
+            e.printStackTrace()
+            null
+        }
+    }
+    private fun saveBitmapToFile(bitmap: Bitmap, context: Context): Uri? {
+        val imagesFolder = File(context.cacheDir, "images")
+        imagesFolder.mkdirs()
+        val file = File(imagesFolder, "qr_code.png")
+        try {
+            val stream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream)
+            stream.flush()
+            stream.close()
+            return FileProvider.getUriForFile(context, context.packageName + ".provider", file)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return null
+        }
+    }
+
 }

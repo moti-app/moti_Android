@@ -1,7 +1,5 @@
 package com.example.moti.ui.memo
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +9,6 @@ import com.example.moti.R
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Week
 import com.example.moti.databinding.ItemMemoAlarmBinding
-import com.example.moti.ui.cancelShare.BottomSheetCancelShare
 
 class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
 
@@ -20,11 +17,18 @@ class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapt
     interface MemoClickListener {
         fun memoClick(position: Int)
     }
+    interface ShareClickListener {
+        fun shareButtonClick(position: Int)
+    }
 
     private lateinit var mMemoClickListener: MemoClickListener
+    private lateinit var mMemoShareClickListner: ShareClickListener
 
     fun setMemoClick(memoClickListener: MemoClickListener) {
         mMemoClickListener = memoClickListener
+    }
+    fun setShareClick(shareClickListener: ShareClickListener) {
+        mMemoShareClickListner = shareClickListener
     }
 
     inner class ViewHolder(val binding: ItemMemoAlarmBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -81,9 +85,11 @@ class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapt
 
         holder.binding.itemMemoAlarmShareIv.visibility = if (isShareVisible) View.VISIBLE else View.INVISIBLE
         holder.binding.itemMemoToggleSc.visibility = if (isShareVisible) View.INVISIBLE else View.VISIBLE
+        holder.binding.itemMemoToggleSc.isEnabled = !isShareVisible
+        holder.binding.itemMemoAlarmShareIv.isEnabled = isShareVisible
 
         holder.binding.itemMemoAlarmShareIv.setOnClickListener {
-            // TODO: 공유 기능 구현
+            mMemoShareClickListner.shareButtonClick(position)
         }
 
     }
