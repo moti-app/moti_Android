@@ -82,6 +82,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var tagColor : TagColor = TagColor.RD
     private var selectedTagColor: TagColor? = null
     private var imageUri : Uri? = null
+    private var newImageUri : Uri? = null
+
 
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -132,12 +134,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         if(result.resultCode == RESULT_OK){
             val uri = result.data?.data
             if (uri != null) {
-                //영구적인 uri권한 부여
-                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                requireActivity().contentResolver.takePersistableUriPermission(uri, flag)
-                imageUri = uri
+                newImageUri = uri
 
-                binding.memoImg.setImageURI(imageUri)
+                binding.memoImg.setImageURI(newImageUri)
                 binding.memoImg.visibility = View.VISIBLE
             }
         }
@@ -358,7 +357,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 tagColor = selectedTagColor,
                 lastNoti = lastNoti,
                 interval = interval,
-                image = saveImageToInternalStorage(imageUri)
+                image = saveImageToInternalStorage(newImageUri)
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -480,8 +479,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.alarmTypeDetailTextView.text = "배너"
                         }
                         if(fetchedAlarm.image!=null){
+                            imageUri = fetchedAlarm.image
                             binding.memoImg.visibility = View.VISIBLE
-                            binding.memoImg.setImageURI(fetchedAlarm.image)
+                            binding.memoImg.setImageURI(imageUri)
                         }
                         // TODO: 태그
                     }
@@ -497,7 +497,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarmRepository.deleteAlarms(alarms)
             }
         }
+        var fileList = requireActivity().cacheDir.listFiles()
+        fileList.forEach { Log.d("hjk", "fileList : "+it.absolutePath) }
 
+        Log.d("hjk","$imageUri 삭제시도")
+        fileList.forEach {
+            if (it.absolutePath.toString() == imageUri.toString()) {
+                Log.d("hjk", "$imageUri 삭제")
+                it.delete()
+                Log.d("hjk", "$imageUri 삭제성공")
+
+            }
+        }
     }
 
     // 선택된 날짜를 추가하는 함수
@@ -661,15 +672,20 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     //이미지를 앱 내부 저장소로 복사 한뒤 Uri반환
     private fun saveImageToInternalStorage(uri : Uri?):Uri?{
         if(uri!=null) {
+            //영구적인 uri권한 부여
+            val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            requireActivity().contentResolver.takePersistableUriPermission(uri, flag)
+
             val inputStream = requireActivity().contentResolver.openInputStream(uri)
             val bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
 
 
             val filename = "IMG_${System.currentTimeMillis()}.png"
-            val file = File(requireActivity().filesDir, filename)
+            val file = File(requireActivity().cacheDir, filename)
             val outputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            
+            bitmap.compress(Bitmap.CompressFormat.PNG, 80, outputStream)
             outputStream.close()
             Log.d("hjk", "file : $file")
 
