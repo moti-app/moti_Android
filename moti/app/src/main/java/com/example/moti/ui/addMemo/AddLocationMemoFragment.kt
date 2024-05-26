@@ -1,5 +1,6 @@
 package com.example.moti.ui.addMemo
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -79,7 +80,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         private const val ARG_LAT = "lat"
         private const val ARG_LNG = "lng"
         private const val ARG_id = "id"
-
+        private const val REQUEST_CODE_ALARM_CATEGORY = 1
         fun newInstance(name: String, lat: Double, lng: Double,id:Long?): AddLocationMemoFragment {
             val fragment = AddLocationMemoFragment()
             val args = Bundle().apply {
@@ -101,6 +102,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private val reverseGeocoding = ReverseGeocoding(this)
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_ALARM_CATEGORY && resultCode == Activity.RESULT_OK) {
+            hasBanner = data?.getBooleanExtra("hasBanner", true) ?: true
+            binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -206,6 +214,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
         }
 
+        //알림 유형 구현
+        binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+
         // 반복 요일 구현 (repeatDay)
         val tagToggle = binding.addMemoToggle2Sc
 
@@ -286,9 +297,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.tagDetailTextView.visibility = View.GONE
             }
         }
-        binding.alarmTypeLinearLayout.setOnClickListener() {
-            // TODO: 알림 유형 구현
-        }
 
         // TODO: 반경 구현
 
@@ -323,10 +331,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
+        // 알림 유형 설정 버튼 클릭 시 인텐트로 hasBanner 값 전달
         binding.alarmTypeLinearLayout.setOnClickListener {
             val intent = Intent(requireContext(), alarmCategory::class.java)
-            startActivity(intent)
+            intent.putExtra("hasBanner", hasBanner)
+            startActivityForResult(intent, REQUEST_CODE_ALARM_CATEGORY)
         }
+
+
+
         // SeekBar 리스너 설정
         binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -419,10 +432,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 //                            isRepeat = false
 //                            binding.repeatSwitch.isChecked = false
 //                        }
-                        if (!fetchedAlarm.hasBanner) {
-                            hasBanner = false
-                            binding.alarmTypeDetailTextView.text = "배너"
+                        if (fetchedAlarm.hasBanner != null) {
+                            hasBanner = fetchedAlarm.hasBanner
                         }
+                        binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+
+
                         // TODO: 태그
                     }
                 }
