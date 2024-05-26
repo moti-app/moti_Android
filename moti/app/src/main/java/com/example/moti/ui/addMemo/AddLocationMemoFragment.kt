@@ -14,6 +14,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -373,6 +374,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             "$radius m"
         } else {
             String.format("%.1f km", radius / 1000.0)
+        }
+        //부모 스크롤 막기
+        binding.innerScroll.setOnTouchListener { view, motionEvent ->
+            binding.scrollView.requestDisallowInterceptTouchEvent(true)
+            false
         }
     }
 
