@@ -10,13 +10,19 @@ import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moti.R
 import com.example.moti.alarm.FullScreenAlarmService
+import com.example.moti.data.MotiDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class FullScreenAlarmActivity : AppCompatActivity() {
 
     private var notificationId: Int = 0
+    private var alarmId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,6 +30,7 @@ class FullScreenAlarmActivity : AppCompatActivity() {
         Log.e("aa", "full onCreate")
 
         notificationId = intent.getIntExtra("NOTIFICATION_ID", 0)
+        alarmId = intent.getLongExtra("AlarmID", 0)
 
         // Find the button by its ID
         val endBtn: Button = findViewById(R.id.endBtn)
@@ -35,9 +42,22 @@ class FullScreenAlarmActivity : AppCompatActivity() {
         }
 
         turnScreenOnAndKeyguardOff()
+        loadAlarmDetails()
     }
 
-
+    private fun loadAlarmDetails() {
+        CoroutineScope(Dispatchers.IO).launch {
+            val database = MotiDatabase.getInstance(applicationContext)
+            val alarm = database?.alarmDao()?.findAlarmById(alarmId)
+            if (alarm != null) {
+                runOnUiThread {
+                    findViewById<TextView>(R.id.alarmTitleTv).text = alarm.title
+                    findViewById<TextView>(R.id.LocationTv).text = alarm.context
+                    findViewById<TextView>(R.id.whenTv).text = if (alarm.whenArrival) "도착할때" else "떠날때"
+                }
+            }
+        }
+    }
 
     private fun stopAlarmService() {
         val intent = Intent(this, FullScreenAlarmService::class.java).apply {

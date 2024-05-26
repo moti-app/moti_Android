@@ -48,7 +48,7 @@ class AlarmShooter(private val context: Context) {
                         val intervalMinutes = alarm.interval ?: 1440
 
                         if (lastNoti == null || ChronoUnit.MINUTES.between(lastNoti, now) >= intervalMinutes) {
-                            sendFullScreenAlarm22(context, alarm)
+                            sendFullScreenAlarm(context, alarm)
                             alarm.lastNoti = now
                             database?.alarmDao()?.update(alarm)
                         }
@@ -58,7 +58,7 @@ class AlarmShooter(private val context: Context) {
         }
     }
 
-    private fun sendFullScreenAlarm22(context: Context, alarm: Alarm) {
+    private fun sendFullScreenAlarm(context: Context, alarm: Alarm) {
         Log.e("aa", "sendFullScreenAlarm22")
         acquireWakeLock(context)
         // 기본 알림 채널 설정
@@ -87,6 +87,7 @@ class AlarmShooter(private val context: Context) {
             action = "fullscreen_activity"
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("NOTIFICATION_ID", 218) // 알림 ID 전달
+            putExtra("AlarmID", alarm.alarmId);
         }
         val pendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_IMMUTABLE)
         val fullscreenPendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
@@ -138,7 +139,8 @@ class AlarmShooter(private val context: Context) {
         wakeLock.acquire(10*60*1000L /*10 minutes*/)
     }
 
-    private fun sendFullScreenAlarm(alarm: Alarm) {
+    private fun sendFullScreenAlarmFAIL(alarm: Alarm) {
+        //실패작 함수
         Log.e("aa", "sendFullScreenAlarm")
         val intent = Intent(context, FullScreenAlarmActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
