@@ -3,14 +3,16 @@ package com.example.moti.ui.alarm
 import android.app.KeyguardManager
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moti.R
+import com.example.moti.alarm.FullScreenAlarmService
 
 class FullScreenAlarmActivity : AppCompatActivity() {
 
@@ -27,15 +29,33 @@ class FullScreenAlarmActivity : AppCompatActivity() {
         val endBtn: Button = findViewById(R.id.endBtn)
         // Set an onClickListener for the button
         endBtn.setOnClickListener {
+            stopAlarmService()
             dismissNotification()
             finish() // Close the activity when the button is clicked
         }
 
         turnScreenOnAndKeyguardOff()
+        startAlarmService()
     }
 
+    private fun startAlarmService() {
+        val intent = Intent(this, FullScreenAlarmService::class.java).apply {
+            action = FullScreenAlarmService.ACTION_ALARM_ON
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString())
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100)
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, true)
+        }
+        startService(intent)
+        Log.e("aa", "full startAlarmService")
+    }
 
-
+    private fun stopAlarmService() {
+        val intent = Intent(this, FullScreenAlarmService::class.java).apply {
+            action = FullScreenAlarmService.ACTION_ALARM_OFF
+            putExtra(FullScreenAlarmService.EXTRA_NOTIFICATION_ID, notificationId)
+        }
+        startService(intent)
+    }
 
     private fun turnScreenOnAndKeyguardOff() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {

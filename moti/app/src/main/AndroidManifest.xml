@@ -56,7 +56,9 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden"/>
-
+        <service
+            android:name=".alarm.FullScreenAlarmService"
+            android:exported="false" />
     </application>
 
 </manifest>
