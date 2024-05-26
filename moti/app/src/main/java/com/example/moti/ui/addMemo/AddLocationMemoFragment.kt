@@ -399,21 +399,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         binding.addMemoToggle1Sc.isChecked = fetchedAlarm.isRepeat
                         repeatChecked = fetchedAlarm.isRepeat
 
+                        isRepeat = fetchedAlarm.isRepeat
+                        repeatDay = fetchedAlarm.repeatDay
+
                         if (fetchedAlarm.isRepeat) {
                             binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                             binding.repeatDetailTextView.visibility = View.VISIBLE
-                        }
-
-                        if (!fetchedAlarm.whenArrival) {
-                            binding.inRadioBtn.isChecked = false
-                            binding.outRadioBtn.isChecked = true
-                            whenArrival = false
-                        }
-
-                        if (fetchedAlarm.tagColor != null) {
-                            binding.addMemoToggle2Sc.isChecked = true
-                            tagChecked = true
-                            binding.addMemoTagLl.visibility = View.VISIBLE
 
                             val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
 
@@ -434,6 +425,22 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                                     imageView.setColorFilter(selectColor)
                                 }
                             }
+                        }
+
+                        if (!fetchedAlarm.whenArrival) {
+                            binding.inRadioBtn.isChecked = false
+                            binding.outRadioBtn.isChecked = true
+                            whenArrival = false
+                        }
+
+                        selectedTagColor = fetchedAlarm.tagColor
+
+                        if (fetchedAlarm.tagColor != null) {
+                            binding.addMemoToggle2Sc.isChecked = true
+                            tagChecked = true
+                            binding.addMemoTagLl.visibility = View.VISIBLE
+
+
                         } else {
                             binding.addMemoToggle2Sc.isChecked = false
                             tagChecked = false
