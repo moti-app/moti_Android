@@ -81,6 +81,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         private const val ARG_LNG = "lng"
         private const val ARG_id = "id"
         private const val REQUEST_CODE_ALARM_CATEGORY = 1
+        private const val ALARM_CATEGORY_REQUEST_CODE = 1001
         fun newInstance(name: String, lat: Double, lng: Double,id:Long?): AddLocationMemoFragment {
             val fragment = AddLocationMemoFragment()
             val args = Bundle().apply {
@@ -104,9 +105,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == REQUEST_CODE_ALARM_CATEGORY && resultCode == Activity.RESULT_OK) {
-            hasBanner = data?.getBooleanExtra("hasBanner", true) ?: true
-            binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+        if (requestCode == ALARM_CATEGORY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
+            val selectedAlarmtoneString = data.getStringExtra("selectedAlarmtone")
+            if (selectedAlarmtoneString != null) {
+                alarmtone = Alarmtone.fromString(selectedAlarmtoneString)
+            }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -333,8 +336,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
         // 알림 유형 설정 버튼 클릭 시 인텐트로 hasBanner 값 전달
         binding.alarmTypeLinearLayout.setOnClickListener {
-            val intent = Intent(requireContext(), alarmCategory::class.java)
-            intent.putExtra("hasBanner", hasBanner)
+            val intent = Intent(requireContext(), alarmCategory::class.java).apply {
+                putExtra("hasBanner", hasBanner)
+                putExtra("alarmtone", alarmtone.asString())
+            }
             startActivityForResult(intent, REQUEST_CODE_ALARM_CATEGORY)
         }
 
