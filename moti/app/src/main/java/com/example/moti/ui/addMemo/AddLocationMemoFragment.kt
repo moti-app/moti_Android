@@ -164,40 +164,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
                 repeatDayCheck()
 
-//                binding.addMemoRepeatSunLl.setOnClickListener {
-//                    repeatDaySelect(Week.SUN)
-//                    updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
-//                }
-//
-//                binding.addMemoRepeatMonLl.setOnClickListener {
-//                    repeatDaySelect(Week.MON)
-//                    updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
-//                }
-//
-//                binding.addMemoRepeatTueLl.setOnClickListener {
-//                    repeatDaySelect(Week.TUE)
-//                    updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
-//                }
-//
-//                binding.addMemoRepeatWedLl.setOnClickListener {
-//                    repeatDaySelect(Week.WED)
-//                    updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
-//                }
-//
-//                binding.addMemoRepeatThuLl.setOnClickListener {
-//                    repeatDaySelect(Week.THU)
-//                    updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
-//                }
-//
-//                binding.addMemoRepeatFriLl.setOnClickListener {
-//                    repeatDaySelect(Week.FRI)
-//                    updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
-//                }
-//
-//                binding.addMemoRepeatSatLl.setOnClickListener {
-//                    repeatDaySelect(Week.SAT)
-//                    updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
-//                }
             } else {
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
