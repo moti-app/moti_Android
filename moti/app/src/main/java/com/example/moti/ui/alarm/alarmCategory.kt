@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -26,9 +27,21 @@ class alarmCategory : AppCompatActivity() {
     private lateinit var radioButtonFullscreen: RadioButton
     private lateinit var layoutNotificationSound: LinearLayout
     private lateinit var selectedAlarmtone: Alarmtone
-
+    private var useVibration : Boolean = true
+    private var hasBanner : Boolean = true
+    private lateinit var useVibSwitch : Switch
+    private lateinit var useVibSubTextView: TextView
     companion object {
         private const val RINGTONE_PICKER_REQUEST_CODE = 999
+    }
+
+    fun sendResultIntent(){
+        val resultIntent = Intent().apply {
+            putExtra("selectedAlarmtone", selectedAlarmtone.asString())
+            putExtra("hasBanner", hasBanner)
+            putExtra("useVibration", useVibration)
+        }
+        setResult(Activity.RESULT_OK, resultIntent)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +50,7 @@ class alarmCategory : AppCompatActivity() {
 
         val btnBack: ImageButton = findViewById(R.id.btnBack)
         btnBack.setOnClickListener {
+            sendResultIntent()
             finish()
         }
 
@@ -44,15 +58,26 @@ class alarmCategory : AppCompatActivity() {
         radioButtonBanner = findViewById(R.id.radioButtonBanner)
         radioButtonFullscreen = findViewById(R.id.radioButtonFullscreen)
         layoutNotificationSound = findViewById(R.id.layoutNotificationSound)
+        useVibSwitch = findViewById(R.id.useVibSwitch)
+        useVibSubTextView = findViewById(R.id.useVibSubText)
 
-        val hasBanner = intent.getBooleanExtra("hasBanner", true)
-        val alarmtone = intent.getStringExtra("alarmtone")
+        hasBanner = intent.getBooleanExtra("hasBanner", true)
+        var alarmtone = intent.getStringExtra("alarmtone")
+        useVibration = intent.getBooleanExtra("useVibration", true)
+
         selectedAlarmtone = if (alarmtone != null) {
             Alarmtone.fromString(alarmtone)
         } else {
             Alarmtone.Default
         }
 
+        //진동 ui
+        useVibSwitch.isChecked = useVibration
+        useVibSubTextView.text = if (useVibration) "켜짐" else "꺼짐"
+        useVibSwitch.setOnCheckedChangeListener { _, isChecked ->
+            useVibration = isChecked
+            useVibSubTextView.text = if (useVibration) "켜짐" else "꺼짐"
+        }
 
 
 
@@ -65,18 +90,16 @@ class alarmCategory : AppCompatActivity() {
         }
 
         radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            val resultIntent = Intent()
             when (checkedId) {
                 R.id.radioButtonFullscreen -> {
                     showAdditionalSettings(true)
-                    resultIntent.putExtra("hasBanner", false)
+                    hasBanner = false
                 }
                 R.id.radioButtonBanner -> {
                     showAdditionalSettings(false)
-                    resultIntent.putExtra("hasBanner", true)
+                    hasBanner = true
                 }
             }
-            setResult(Activity.RESULT_OK, resultIntent)
         }
 
         layoutNotificationSound.setOnClickListener {
@@ -85,12 +108,22 @@ class alarmCategory : AppCompatActivity() {
 
     }
 
+    override fun onBackPressed() {
+        sendResultIntent()
+        super.onBackPressed()
+    }
+
+    override fun onPause() {
+        sendResultIntent()
+        super.onPause()
+    }
     private fun showAdditionalSettings(show: Boolean) {
         val layoutNotificationSound: View = findViewById(R.id.layoutNotificationSound)
         val layoutVibration: View = findViewById(R.id.layoutVibration)
         val divider3: View = findViewById(R.id.divider3)
         val divider4: View = findViewById(R.id.divider4)
         findViewById<TextView>(R.id.secondaryText3).text = selectedAlarmtone.userFriendlyTitle(this).toString()
+        useVibSwitch.isChecked = useVibration
         if (show) {
             layoutNotificationSound.visibility = View.VISIBLE
             layoutVibration.visibility = View.VISIBLE
@@ -110,12 +143,6 @@ class alarmCategory : AppCompatActivity() {
             selectedAlarmtone = data.getPickedRingtone()
             val alarmToneTitle = selectedAlarmtone.userFriendlyTitle(this)
             findViewById<TextView>(R.id.secondaryText3).text = alarmToneTitle
-            Log.e("AA", selectedAlarmtone.userFriendlyTitle(this).toString())
-            val resultIntent = Intent().apply {
-                putExtra("selectedAlarmtone", selectedAlarmtone.asString())
-                putExtra("hasBanner", false)
-            }
-            setResult(Activity.RESULT_OK, resultIntent)
         }
     }
 
