@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -16,7 +15,6 @@ import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
+import com.bumptech.glide.Glide
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
@@ -136,7 +135,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             if (uri != null) {
                 newImageUri = uri
 
-                binding.memoImg.setImageURI(newImageUri)
+                Glide.with(this).load(newImageUri).into(binding.memoImg)
                 binding.memoImg.visibility = View.VISIBLE
             }
         }
@@ -345,6 +344,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             )
             name = binding.locationTitleEditText.text.toString()
             context = binding.memoEditText.text.toString()
+            if(newImageUri!=null) {//새로운 이미지 있으면 그걸로 저장
+                if(imageUri!=null)//기존 이미지 있으면 저장소에서 삭제
+                    deleteImage()
+                imageUri = saveImageToInternalStorage(newImageUri)
+            }
             val alarm = Alarm(
                 title = name,
                 context = context,
@@ -357,7 +361,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 tagColor = selectedTagColor,
                 lastNoti = lastNoti,
                 interval = interval,
-                image = saveImageToInternalStorage(newImageUri)
+                image = imageUri
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -481,7 +485,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         if(fetchedAlarm.image!=null){
                             imageUri = fetchedAlarm.image
                             binding.memoImg.visibility = View.VISIBLE
-                            binding.memoImg.setImageURI(imageUri)
+                            val file = File(imageUri.toString())
+                            Glide.with(this@AddLocationMemoFragment).load(file).into(binding.memoImg)
                         }
                         // TODO: 태그
                     }
@@ -497,13 +502,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 alarmRepository.deleteAlarms(alarms)
             }
         }
+        deleteImage()
+    }
+    fun deleteImage(){
         var fileList = requireActivity().cacheDir.listFiles()
-        fileList.forEach { Log.d("hjk", "fileList : "+it.absolutePath) }
 
-        Log.d("hjk","$imageUri 삭제시도")
         fileList.forEach {
             if (it.absolutePath.toString() == imageUri.toString()) {
-                Log.d("hjk", "$imageUri 삭제")
                 it.delete()
                 Log.d("hjk", "$imageUri 삭제성공")
 
@@ -677,15 +682,17 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             requireActivity().contentResolver.takePersistableUriPermission(uri, flag)
 
             val inputStream = requireActivity().contentResolver.openInputStream(uri)
-            val bitmap = BitmapFactory.decodeStream(inputStream)
+            var bitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
-
-
             val filename = "IMG_${System.currentTimeMillis()}.png"
             val file = File(requireActivity().cacheDir, filename)
             val outputStream = FileOutputStream(file)
-            
+            while(bitmap.height*bitmap.width > 5000000) {//너무 큰 이미지 scaling
+                bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt(), false)
+            }
+            Log.d("hjk", "density"+bitmap.height*bitmap.width)
             bitmap.compress(Bitmap.CompressFormat.PNG, 80, outputStream)
+
             outputStream.close()
             Log.d("hjk", "file : $file")
 
