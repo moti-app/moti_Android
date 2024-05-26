@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.location.Location
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.PowerManager
 import android.util.Log
@@ -47,7 +48,7 @@ class AlarmShooter(private val context: Context) {
                         val intervalMinutes = alarm.interval ?: 1440
 
                         if (lastNoti == null || ChronoUnit.MINUTES.between(lastNoti, now) >= intervalMinutes) {
-                            sendFullScreenAlarm22(context)
+                            sendFullScreenAlarm22(context, alarm)
                             alarm.lastNoti = now
                             database?.alarmDao()?.update(alarm)
                         }
@@ -57,7 +58,7 @@ class AlarmShooter(private val context: Context) {
         }
     }
 
-    private fun sendFullScreenAlarm22(context: Context) {
+    private fun sendFullScreenAlarm22(context: Context, alarm: Alarm) {
         Log.e("aa", "sendFullScreenAlarm22")
         acquireWakeLock(context)
         // 기본 알림 채널 설정
@@ -79,7 +80,7 @@ class AlarmShooter(private val context: Context) {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
 
         // 전체 화면 알림을 위한 Activity Intent 생성
         val fullscreenIntent = Intent(context, FullScreenAlarmActivity::class.java).apply {
@@ -87,6 +88,7 @@ class AlarmShooter(private val context: Context) {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             putExtra("NOTIFICATION_ID", 218) // 알림 ID 전달
         }
+        val pendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_IMMUTABLE)
         val fullscreenPendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, context.getString(R.string.high_noti_channel_id)).apply {
@@ -112,7 +114,21 @@ class AlarmShooter(private val context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.startActivity(fullscreenIntent)
         }
+
+        startAlarmService(context)
     }
+
+    private fun startAlarmService(context: Context) {
+        val intent = Intent(context, FullScreenAlarmService::class.java).apply {
+            action = FullScreenAlarmService.ACTION_ALARM_ON
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString())
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100)
+            putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, true)
+        }
+        context.startService(intent)
+        Log.e("aa", "full startAlarmService")
+    }
+
     fun acquireWakeLock(context: Context) {
         val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
         val wakeLock = powerManager.newWakeLock(
@@ -121,9 +137,6 @@ class AlarmShooter(private val context: Context) {
         )
         wakeLock.acquire(10*60*1000L /*10 minutes*/)
     }
-
-
-
 
     private fun sendFullScreenAlarm(alarm: Alarm) {
         Log.e("aa", "sendFullScreenAlarm")

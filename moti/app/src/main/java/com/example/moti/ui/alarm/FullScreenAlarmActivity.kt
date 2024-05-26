@@ -35,19 +35,9 @@ class FullScreenAlarmActivity : AppCompatActivity() {
         }
 
         turnScreenOnAndKeyguardOff()
-        startAlarmService()
     }
 
-    private fun startAlarmService() {
-        val intent = Intent(this, FullScreenAlarmService::class.java).apply {
-            action = FullScreenAlarmService.ACTION_ALARM_ON
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM).toString())
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100)
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, true)
-        }
-        startService(intent)
-        Log.e("aa", "full startAlarmService")
-    }
+
 
     private fun stopAlarmService() {
         val intent = Intent(this, FullScreenAlarmService::class.java).apply {
