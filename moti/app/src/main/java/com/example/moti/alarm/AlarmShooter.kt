@@ -42,18 +42,27 @@ class AlarmShooter(private val context: Context) {
                     }
 
                     val distance = currentLocation.distanceTo(alarmLocation)
-                    // 벗어날 때 구분 로직 추가 가능
-                    if (distance <= alarm.radius) {
+                    if (distance <= alarm.radius && alarm.whenArrival || distance >= alarm.radius && !alarm.whenArrival) {
                         val now = LocalDateTime.now()
                         val lastNoti = alarm.lastNoti
                         val intervalMinutes = alarm.interval ?: 1440
 
                         if (lastNoti == null || ChronoUnit.MINUTES.between(lastNoti, now) >= intervalMinutes) {
-                            sendFullScreenAlarm(context, alarm)
+
+                            if(alarm.hasBanner){
+                                //배너 설정 on -> 배너 알림
+                                sendNotification(alarm)
+                            }
+                            else{
+                                //전체화면알림
+                                sendFullScreenAlarm(context, alarm)
+                            }
+
                             alarm.lastNoti = now
                             database?.alarmDao()?.update(alarm)
                         }
                     }
+
                 }
             }
         }
