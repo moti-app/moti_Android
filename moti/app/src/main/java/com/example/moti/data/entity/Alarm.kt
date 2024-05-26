@@ -1,6 +1,7 @@
 package com.example.moti.data.entity
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -22,7 +23,7 @@ data class Alarm (
     var tagColor : TagColor?,
     var lastNoti : LocalDateTime?,
     var interval : Int?,
-    var image : Bitmap?
+    var image : Uri?
 ){
   constructor(
       title : String,
@@ -36,7 +37,7 @@ data class Alarm (
       tagColor: TagColor?,
       lastNoti : LocalDateTime?,
       interval : Int? = 1440,
-      image : Bitmap?)
+      image : Uri?)
           : this(0, title, context, location, whenArrival, radius, isRepeat,
       repeatDay, hasBanner, tagColor, lastNoti, interval, image)
 }

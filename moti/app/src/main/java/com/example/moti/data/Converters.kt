@@ -2,19 +2,21 @@ package com.example.moti.data
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.room.TypeConverter
 import com.example.moti.data.entity.Week
 import com.google.gson.Gson
 import java.io.ByteArrayOutputStream
+import java.net.URI
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 
 
 
-class LocalDateTimeConverter {
+class Converters {
 
     /**LocalDateTime*/
     @TypeConverter
@@ -41,14 +43,12 @@ class LocalDateTimeConverter {
 
     /**Bitmap*/
     @TypeConverter
-    fun bitmapToByteArray(bitmap : Bitmap):ByteArray{
-        val outputStream = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
-        return outputStream.toByteArray()
+    fun uriToString(uri: Uri?):String?{
+        return uri.toString()
     }
 
     @TypeConverter
-    fun byteArrayToBitmap(bytes : ByteArray):Bitmap{
-        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    fun stringToUri(value: String?):Uri?{
+        return Uri.parse(value)
     }
 }
