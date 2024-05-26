@@ -409,10 +409,37 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
                         }
-//                        if (!fetchedAlarm.isRepeat) {
-//                            isRepeat = false
-//                            binding.repeatSwitch.isChecked = false
-//                        }
+
+                        if (fetchedAlarm.tagColor != null) {
+                            binding.addMemoToggle2Sc.isChecked = true
+                            tagChecked = true
+                            binding.addMemoTagLl.visibility = View.VISIBLE
+
+                            val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
+
+                            val dayToViewsMap = mapOf(
+                                Week.SUN to Pair(binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv),
+                                Week.MON to Pair(binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv),
+                                Week.TUE to Pair(binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv),
+                                Week.WED to Pair(binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv),
+                                Week.THU to Pair(binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv),
+                                Week.FRI to Pair(binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv),
+                                Week.SAT to Pair(binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
+                            )
+
+                            // alarmList에서 해당 position의 알람의 반복 요일들을 가져옴
+                            fetchedAlarm.repeatDay?.forEach { week ->
+                                dayToViewsMap[week]?.let { (textView, imageView) ->
+                                    textView.setTextColor(selectColor)
+                                    imageView.setColorFilter(selectColor)
+                                }
+                            }
+                        } else {
+                            binding.addMemoToggle2Sc.isChecked = false
+                            tagChecked = false
+                            binding.addMemoTagLl.visibility = View.GONE
+                        }
+
                         if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
