@@ -19,6 +19,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
+
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -221,28 +223,39 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             )
             name = binding.locationTitleEditText.text.toString()
             context = binding.memoEditText.text.toString()
-            val alarm = Alarm(
-                title = name,
-                context = context,
-                location = location,
-                whenArrival = whenArrival,
-                radius = radius,
-                isRepeat = repeatToggle.isChecked,
-                repeatDay = repeatDay,
-                hasBanner = hasBanner,
-                tagColor = selectedTagColor,
-                lastNoti = lastNoti,
-                interval = interval
-            )
-            if (alarmId != null) {
-                alarm.alarmId = alarmId as Long
-            }
-            val list: List<Long> = listOf()
 
-            CoroutineScope(Dispatchers.IO).launch {
-                alarmRepository.createAlarmAndTag(alarm, tagIds = list)
+            if (context.isEmpty() || name.isEmpty()) {
+                if (context.isEmpty() && name.isEmpty()) {
+                    Toast.makeText(requireContext(), "제목과 메모를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                } else if (context.isEmpty()) {
+                    Toast.makeText(requireContext(), "메모를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                } else if (name.isEmpty()) {
+                    Toast.makeText(requireContext(), "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                val alarm = Alarm(
+                    title = name,
+                    context = context,
+                    location = location,
+                    whenArrival = whenArrival,
+                    radius = radius,
+                    isRepeat = repeatToggle.isChecked,
+                    repeatDay = repeatDay,
+                    hasBanner = hasBanner,
+                    tagColor = selectedTagColor,
+                    lastNoti = lastNoti,
+                    interval = interval
+                )
+                if (alarmId != null) {
+                    alarm.alarmId = alarmId as Long
+                }
+                val list: List<Long> = listOf()
+
+                CoroutineScope(Dispatchers.IO).launch {
+                    alarmRepository.createAlarmAndTag(alarm, tagIds = list)
+                }
+                parentFragmentManager.beginTransaction().remove(this).commit()
             }
-            parentFragmentManager.beginTransaction().remove(this).commit()
         }
         binding.alarmTypeLinearLayout.setOnClickListener {
             val intent = Intent(requireContext(), alarmCategory::class.java)
