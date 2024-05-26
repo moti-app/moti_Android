@@ -216,69 +216,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             if (tagToggle.isChecked) {
                 binding.addMemoTagLl.visibility = View.VISIBLE
 
-                binding.addMemoTagRedLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnRedIv, binding.addMemoTagOffRedIv, TagColor.RD)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "빨간색"
-                    }
-                }
-
-                binding.addMemoTagOrangeLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnOrangeIv, binding.addMemoTagOffOrangeIv, TagColor.OG)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "주황색"
-                    }
-
-                }
-
-                binding.addMemoTagYellowLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnYellowIv, binding.addMemoTagOffYellowIv, TagColor.YE)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "노란색"
-                    }
-                }
-
-                binding.addMemoTagGreenLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnGreenIv, binding.addMemoTagOffGreenIv, TagColor.GN)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "초록색"
-                    }
-                }
-
-                binding.addMemoTagBlueLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnBlueIv, binding.addMemoTagOffBlueIv, TagColor.BU)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "파랑색"
-                    }
-                }
-
-                binding.addMemoTagPurpleLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnPurpleIv, binding.addMemoTagOffPurpleIv,TagColor.PU)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "보라색"
-                    }
-                }
-
-                binding.addMemoTagGrayLl.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOnGrayIv, binding.addMemoTagOffGrayIv, TagColor.BK)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "회색"
-                    }
-                }
+                tagColorClick()
             } else {
                 binding.addMemoTagLl.visibility = View.GONE
                 binding.tagDetailTextView.visibility = View.GONE
@@ -442,6 +380,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.addMemoToggle2Sc.isChecked = true
                             tagChecked = true
                             binding.addMemoTagLl.visibility = View.VISIBLE
+                            tagColorSelect(fetchedAlarm.tagColor)
+                            tagColorClick()
                         } else {
                             binding.addMemoToggle2Sc.isChecked = false
                             tagChecked = false
@@ -567,6 +507,84 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         binding.addMemoRepeatSatLl.setOnClickListener {
             repeatDaySelect(Week.SAT)
             updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
+        }
+    }
+
+    private fun tagColorClick() {
+        binding.addMemoTagRedLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnRedIv, binding.addMemoTagOffRedIv, TagColor.RD, "빨간색")
+        }
+
+        binding.addMemoTagOrangeLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnOrangeIv, binding.addMemoTagOffOrangeIv, TagColor.OG, "주황색")
+        }
+
+        binding.addMemoTagYellowLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnYellowIv, binding.addMemoTagOffYellowIv, TagColor.YE, "노란색")
+        }
+
+        binding.addMemoTagGreenLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnGreenIv, binding.addMemoTagOffGreenIv, TagColor.GN, "초록색")
+        }
+
+        binding.addMemoTagBlueLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnBlueIv, binding.addMemoTagOffBlueIv, TagColor.BU, "파랑색")
+        }
+
+        binding.addMemoTagPurpleLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnPurpleIv, binding.addMemoTagOffPurpleIv, TagColor.PU, "보라색")
+        }
+
+        binding.addMemoTagGrayLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnGrayIv, binding.addMemoTagOffGrayIv, TagColor.BK, "회색")
+        }
+    }
+
+    // 태그 색상을 선택하는 함수
+    private fun tagColorSelect(tagColor: TagColor?) {
+        when (tagColor) {
+            TagColor.RD -> {
+                toggleTagSize(binding.addMemoTagOnRedIv, binding.addMemoTagOffRedIv, TagColor.RD)
+                binding.tagDetailTextView.text = "빨간색"
+            }
+            TagColor.OG -> {
+                toggleTagSize(binding.addMemoTagOnOrangeIv, binding.addMemoTagOffOrangeIv, TagColor.OG)
+                binding.tagDetailTextView.text = "주황색"
+            }
+            TagColor.YE -> {
+                toggleTagSize(binding.addMemoTagOnYellowIv, binding.addMemoTagOffYellowIv, TagColor.YE)
+                binding.tagDetailTextView.text = "노란색"
+            }
+            TagColor.GN -> {
+                toggleTagSize(binding.addMemoTagOnGreenIv, binding.addMemoTagOffGreenIv, TagColor.GN)
+                binding.tagDetailTextView.text = "초록색"
+            }
+            TagColor.BU -> {
+                toggleTagSize(binding.addMemoTagOnBlueIv, binding.addMemoTagOffBlueIv, TagColor.BU)
+                binding.tagDetailTextView.text = "파랑색"
+            }
+            TagColor.PU -> {
+                toggleTagSize(binding.addMemoTagOnPurpleIv, binding.addMemoTagOffPurpleIv, TagColor.PU)
+                binding.tagDetailTextView.text = "보라색"
+            }
+            TagColor.BK -> {
+                toggleTagSize(binding.addMemoTagOnGrayIv, binding.addMemoTagOffGrayIv, TagColor.BK)
+                binding.tagDetailTextView.text = "회색"
+            }
+            else -> {
+                binding.tagDetailTextView.text = "없음"
+            }
+        }
+    }
+
+
+    // 태그 클릭 시 텍스트, 사이즈 변경
+    private fun handleTagClick(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor, tagText: String) {
+        val isTagDeselected = toggleTagSize(tagOnImageView, tagOffImageView, tagColor)
+        if (isTagDeselected) {
+            binding.tagDetailTextView.text = "없음"
+        } else {
+            binding.tagDetailTextView.text = tagText
         }
     }
 }
