@@ -5,6 +5,7 @@ import android.content.Intent
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -51,6 +52,10 @@ class alarmCategory : AppCompatActivity() {
         } else {
             Alarmtone.Default
         }
+
+
+
+
         if (hasBanner) {
             radioButtonBanner.isChecked = true
             showAdditionalSettings(false)
@@ -71,13 +76,13 @@ class alarmCategory : AppCompatActivity() {
                     resultIntent.putExtra("hasBanner", true)
                 }
             }
+            setResult(Activity.RESULT_OK, resultIntent)
         }
 
         layoutNotificationSound.setOnClickListener {
             showRingtonePicker(selectedAlarmtone, RINGTONE_PICKER_REQUEST_CODE)
         }
 
-        selectedAlarmtone = Alarmtone.Default
     }
 
     private fun showAdditionalSettings(show: Boolean) {
@@ -85,7 +90,7 @@ class alarmCategory : AppCompatActivity() {
         val layoutVibration: View = findViewById(R.id.layoutVibration)
         val divider3: View = findViewById(R.id.divider3)
         val divider4: View = findViewById(R.id.divider4)
-
+        findViewById<TextView>(R.id.secondaryText3).text = selectedAlarmtone.userFriendlyTitle(this).toString()
         if (show) {
             layoutNotificationSound.visibility = View.VISIBLE
             layoutVibration.visibility = View.VISIBLE
@@ -105,9 +110,10 @@ class alarmCategory : AppCompatActivity() {
             selectedAlarmtone = data.getPickedRingtone()
             val alarmToneTitle = selectedAlarmtone.userFriendlyTitle(this)
             findViewById<TextView>(R.id.secondaryText3).text = alarmToneTitle
-
+            Log.e("AA", selectedAlarmtone.userFriendlyTitle(this).toString())
             val resultIntent = Intent().apply {
                 putExtra("selectedAlarmtone", selectedAlarmtone.asString())
+                putExtra("hasBanner", false)
             }
             setResult(Activity.RESULT_OK, resultIntent)
         }
@@ -127,7 +133,6 @@ class alarmCategory : AppCompatActivity() {
                 }
 
                 putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, currentUri)
-
                 putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_DEFAULT, true)
                 putExtra(RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI, Uri.parse(Alarmtone.defaultAlarmAlertUri))
             }

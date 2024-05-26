@@ -67,7 +67,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
 
-    private var alarmtone : Alarmtone = Alarmtone.Silent;
+    private var alarmtone : Alarmtone = Alarmtone.Default;
     private var useVibration : Boolean = false;
 
     private var repeatChecked = false
@@ -105,8 +105,17 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == ALARM_CATEGORY_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            val selectedAlarmtoneString = data.getStringExtra("selectedAlarmtone")
+        if (requestCode == REQUEST_CODE_ALARM_CATEGORY && resultCode == Activity.RESULT_OK) {
+
+            //배너? 전체화면?
+            val resultHasBanner = data?.getBooleanExtra("hasBanner", true)
+            if (resultHasBanner != null){
+                hasBanner = resultHasBanner
+                binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+            }
+
+            //알림음
+            val selectedAlarmtoneString = data?.getStringExtra("selectedAlarmtone")
             if (selectedAlarmtoneString != null) {
                 alarmtone = Alarmtone.fromString(selectedAlarmtoneString)
             }
@@ -442,6 +451,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         }
                         binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
 
+                        alarmtone = fetchedAlarm.alarmtone
+                        useVibration = fetchedAlarm.useVibration
 
                         // TODO: 태그
                     }
