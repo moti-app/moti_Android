@@ -7,6 +7,8 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -14,6 +16,8 @@ import android.hardware.SensorManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -77,6 +81,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var hasBanner : Boolean = true
     private var tagColor : TagColor = TagColor.RD
     private var selectedTagColor: TagColor? = null
+    private var imageUri : Uri? = null
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     private var lastNoti : LocalDateTime = LocalDateTime.now().minusDays(1) //하루전으로 설정
@@ -123,12 +129,17 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     val startActivityResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ){result: ActivityResult ->
-        if(result.resultCode == RESULT_OK && result.data != null){
-            val intent = result.data
-            val uri = intent!!.data
-            binding.memoImg.setImageURI(uri)
-            binding.memoImg.visibility = View.VISIBLE
+        if(result.resultCode == RESULT_OK){
+            val uri = result.data?.data
+            if (uri != null) {
+                //영구적인 uri권한 부여
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                requireActivity().contentResolver.takePersistableUriPermission(uri, flag)
+                imageUri = uri
 
+                binding.memoImg.setImageURI(imageUri)
+                binding.memoImg.visibility = View.VISIBLE
+            }
         }
     }
 
@@ -328,6 +339,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
         // TODO: 반경 구현
 
+        //알람 저장
         binding.saveBtn.setOnClickListener {
             location = Location(
                 lat,lng,address,name
@@ -345,7 +357,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 hasBanner = hasBanner,
                 tagColor = selectedTagColor,
                 lastNoti = lastNoti,
-                interval = interval
+                interval = interval,
+                image = saveImageToInternalStorage(imageUri)
             )
             if (alarmId != null) {
                 alarm.alarmId = alarmId as Long
@@ -465,6 +478,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
+                        }
+                        if(fetchedAlarm.image!=null){
+                            binding.memoImg.visibility = View.VISIBLE
+                            binding.memoImg.setImageURI(fetchedAlarm.image)
                         }
                         // TODO: 태그
                     }
@@ -639,6 +656,26 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             intent.action = Intent.ACTION_GET_CONTENT
             startActivityResult.launch(intent)
         }
+    }
+
+    //이미지를 앱 내부 저장소로 복사 한뒤 Uri반환
+    private fun saveImageToInternalStorage(uri : Uri?):Uri?{
+        if(uri!=null) {
+            val inputStream = requireActivity().contentResolver.openInputStream(uri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            inputStream?.close()
+
+
+            val filename = "IMG_${System.currentTimeMillis()}.png"
+            val file = File(requireActivity().filesDir, filename)
+            val outputStream = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            outputStream.close()
+            Log.d("hjk", "file : $file")
+
+            return Uri.parse(file.absolutePath)
+        }
+        return null
     }
 
 }
