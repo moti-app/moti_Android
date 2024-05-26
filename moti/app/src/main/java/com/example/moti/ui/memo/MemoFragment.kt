@@ -63,9 +63,11 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
             }
 
             binding.memoShareIv.setOnClickListener {
-                memoAlarmAdapter.shareClick(true)
-                val bottomSheetCancelShare = BottomSheetCancelShare(this@MemoFragment)
-                bottomSheetCancelShare.show(parentFragmentManager, bottomSheetCancelShare.tag)
+                if (alarmList.isNotEmpty()) {
+                    memoAlarmAdapter.shareClick(true)
+                    val bottomSheetCancelShare = BottomSheetCancelShare(this@MemoFragment)
+                    bottomSheetCancelShare.show(parentFragmentManager, bottomSheetCancelShare.tag)
+                }
             }
 
             // 메모 클릭 시 MapFragment로 이동
