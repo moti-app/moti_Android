@@ -1,5 +1,6 @@
 package com.example.moti.ui.addMemo
 
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -14,12 +15,13 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -118,6 +120,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private val reverseGeocoding = ReverseGeocoding(this)
 
+    val startActivityResult = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ){result: ActivityResult ->
+        if(result.resultCode == RESULT_OK && result.data != null){
+            val intent = result.data
+            val uri = intent!!.data
+            binding.memoImg.setImageURI(uri)
+            binding.memoImg.visibility = View.VISIBLE
+
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -171,6 +185,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
         binding.locationTitleEditText.setText(name)
+
+        //메모 이미지
+        setImgBtn()
+
         // 반복 요일 구현 (repeatDay)
         val repeatToggle = binding.addMemoToggle1Sc
 
@@ -611,6 +629,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         } catch (e: IOException) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    private fun setImgBtn(){
+        binding.galleryBtn.setOnClickListener{
+            val intent = Intent()
+            intent.type = "image/*"
+            intent.action = Intent.ACTION_GET_CONTENT
+            startActivityResult.launch(intent)
         }
     }
 

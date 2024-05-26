@@ -181,11 +181,11 @@
                 >
             <ImageView
                 android:id="@+id/memo_img"
+                android:layout_marginBottom="10dp"
                 android:layout_width="match_parent"
-                android:layout_height="400dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:srcCompat="@drawable/ic_gallery"
-                tools:layout_editor_absoluteX="24dp" />
+                android:layout_height="300dp"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_gallery" />
 
 
             <View
