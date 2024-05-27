@@ -228,6 +228,6 @@ class AlarmShooter(private val context: Context) {
             .setAutoCancel(true)
             .build()
 
-        notificationManager.notify(alarm.alarmId.toInt(), notification)
+        notificationManager.notify(alarm.alarmId.toInt() + 1024, notification)
     }
 }
