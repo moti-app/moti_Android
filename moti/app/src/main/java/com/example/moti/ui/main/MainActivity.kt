@@ -2,30 +2,46 @@ package com.example.moti.ui.main
 
 import android.Manifest
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.os.CombinedVibration
+import android.os.VibrationEffect
+import android.os.VibratorManager
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.moti.R
 import com.example.moti.alarm.LocationService
+import com.example.moti.data.MotiDatabase
+import com.example.moti.data.entity.Alarm
+import com.example.moti.data.entity.Location
+import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.ActivityMainBinding
 import com.example.moti.ui.map.MapFragment
 import com.example.moti.ui.memo.MemoFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val radiusViewModel: RadiusViewModel by viewModels()
     private val radioButtonViewModel: RadioButtonViewModel by viewModels()
+    private lateinit var vibrator: VibratorManager
+    private lateinit var vibrationEffect: VibrationEffect
+    private lateinit var combinedVibration: CombinedVibration
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 321
@@ -33,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         private const val NOTIFICATION_PERMISSION_REQUEST_CODE = 322
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -43,6 +60,44 @@ class MainActivity : AppCompatActivity() {
 
         // 권한 요청
         checkPermissions()
+        val data: Uri? = intent.data
+        if (data != null) {
+            val name: String = data.getQueryParameter("param1") ?:""
+            val context: String = data.getQueryParameter("param2") ?:""
+            val lat: String = data.getQueryParameter("param3") ?:""
+            val lng: String = data.getQueryParameter("param4") ?:""
+            val radius: String = data.getQueryParameter("param5") ?:""
+            if (lat!=""&&lng!="") {
+                val db = MotiDatabase.getInstance(this.applicationContext)!!
+                val alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
+
+                //Toast.makeText(this, "param1: $param1, param2: $param2", Toast.LENGTH_SHORT).show()
+                val alarm = Alarm(
+                    title = name,
+                    context = context,
+                    location = Location(lat.toDouble(),lng.toDouble(),"address",name),
+                    whenArrival = true,
+                    radius = radius.toDouble(),
+                    isRepeat = true,
+                    repeatDay = null,
+                    hasBanner = true,
+                    tagColor = null,
+                    lastNoti = LocalDateTime.now().minusDays(1),
+                    interval = 1440,
+                    image = null
+                )
+                val list: List<Long> = listOf()
+                CoroutineScope(Dispatchers.IO).launch {
+                    alarmRepository.createAlarmAndTag(alarm, tagIds = list)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(applicationContext, "알람이 성공적으로 생성되었습니다.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+        vibrator = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
+        vibrationEffect = VibrationEffect.createOneShot(5L, VibrationEffect.DEFAULT_AMPLITUDE)
+        combinedVibration = CombinedVibration.createParallel(vibrationEffect)
     }
 
     private fun checkPermissions() {
@@ -99,7 +154,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -136,6 +190,7 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
+    @RequiresApi(Build.VERSION_CODES.S)
     private fun initBottomNavigation() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.main_frm, MapFragment())
@@ -144,12 +199,14 @@ class MainActivity : AppCompatActivity() {
         binding.mainBnv.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.homeFragment -> {
+                    vibrator.vibrate(combinedVibration)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MapFragment())
                         .commitAllowingStateLoss()
                     return@setOnItemSelectedListener true
                 }
                 R.id.memoFragment -> {
+                    vibrator.vibrate(combinedVibration)
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MemoFragment())
                         .commitAllowingStateLoss()

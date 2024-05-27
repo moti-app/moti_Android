@@ -1,7 +1,7 @@
 package com.example.moti.ui.memo
 
-import android.content.Context
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -10,16 +10,25 @@ import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Week
 import com.example.moti.databinding.ItemMemoAlarmBinding
 
-class MemoAlarmRVAdapter(private val context: Context, private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
+class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
+
+    private var isShareVisible: Boolean = false
 
     interface MemoClickListener {
         fun memoClick(position: Int)
     }
+    interface ShareClickListener {
+        fun shareButtonClick(position: Int)
+    }
 
     private lateinit var mMemoClickListener: MemoClickListener
+    private lateinit var mMemoShareClickListner: ShareClickListener
 
     fun setMemoClick(memoClickListener: MemoClickListener) {
         mMemoClickListener = memoClickListener
+    }
+    fun setShareClick(shareClickListener: ShareClickListener) {
+        mMemoShareClickListner = shareClickListener
     }
 
     inner class ViewHolder(val binding: ItemMemoAlarmBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -74,6 +83,21 @@ class MemoAlarmRVAdapter(private val context: Context, private val alarmList: Li
             mMemoClickListener.memoClick(position)
         }
 
+        holder.binding.itemMemoAlarmShareIv.visibility = if (isShareVisible) View.VISIBLE else View.INVISIBLE
+        holder.binding.itemMemoToggleSc.visibility = if (isShareVisible) View.INVISIBLE else View.VISIBLE
+        holder.binding.itemMemoToggleSc.isEnabled = !isShareVisible
+        holder.binding.itemMemoAlarmShareIv.isEnabled = isShareVisible
+
+        holder.binding.itemMemoAlarmShareIv.setOnClickListener {
+            mMemoShareClickListner.shareButtonClick(position)
+        }
+
     }
+
+    fun shareClick(visible: Boolean) {
+        isShareVisible = visible
+        notifyDataSetChanged()
+    }
+
 
 }

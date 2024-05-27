@@ -166,10 +166,16 @@
                 android:textSize="12sp"
                 android:textColor="#007AFF" />
         </LinearLayout>
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:src="@drawable/right_arrow_24" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/notification_settings_toggle1_sc"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            style="@style/category_toggle"
+            android:visibility="visible"/>
+
+=
     </LinearLayout>
     <View
         android:id="@+id/divider3"
@@ -187,6 +193,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:layout_marginTop="12dp">
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -213,9 +220,10 @@
             android:id="@+id/useVibSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:checked="true"
-            android:layout_marginStart="8dp"
-            android:trackTint="#001FBC"/>
+            android:layout_marginEnd="16dp"
+            style="@style/category_toggle"
+            android:visibility="visible"/>
+
     </LinearLayout>
     <View
         android:id="@+id/divider4"
@@ -226,4 +234,51 @@
         android:layout_marginBottom="3dp"
         android:layout_marginTop="16dp"/>
 
+    <!-- Repeat Notification -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/primaryText5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/b3"
+                android:text="다시 알림"/>
+
+            <TextView
+                android:id="@+id/secondaryText5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5분, 계속 반복"
+                android:textSize="12sp"
+                android:textColor="#007AFF" />
+        </LinearLayout>
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/notification_settings_toggle3_sc"
+            android:layout_width="50dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            style="@style/category_toggle"
+            android:visibility="visible"/>
+    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_weight="0"
+        android:background="@color/mt_gray3"
+        android:layout_marginBottom="3dp"
+        android:layout_marginTop="16dp"/>
+
 </LinearLayout>
+
