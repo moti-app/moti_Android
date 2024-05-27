@@ -559,6 +559,7 @@
 
                 </LinearLayout>
 
+
                 <LinearLayout
                     android:id="@+id/add_memo_tag_ll"
                     android:layout_width="match_parent"
@@ -727,7 +728,66 @@
                 </LinearLayout>
 
             </LinearLayout>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_weight="0"
+                    android:background="@color/mt_gray3"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"/>
+                <LinearLayout
+                    android:id="@+id/afterLinearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingLeft="24dp"
+                    android:paddingTop="10dp"
+                    android:paddingRight="24dp"
+                    android:paddingBottom="10dp">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                style="@style/b3"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="알람이 울린 뒤 할 일" />
+
+                            <TextView
+                                android:id="@+id/afterDetailTextView"
+                                style="@style/b5"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="없음"
+                                android:textColor="@color/mt_main" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/whatAction"
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            style="@style/category_toggle"/>
+
+                    </LinearLayout>
+                </LinearLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

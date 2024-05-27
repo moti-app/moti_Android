@@ -22,10 +22,12 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
@@ -60,6 +62,7 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import kotlin.math.sqrt
+
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener,SensorEventListener {
@@ -101,6 +104,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private val shakeThreshold = 30
     private val shakeTimeLapse = 1000
     private var lastShakeTime: Long = 0
+    private lateinit var afterDetailTextView: TextView
+    private val REQUEST_SELECT_CONTACT = 1
+
     companion object {
         private const val ARG_NAME = "name"
         private const val ARG_LAT = "lat"
@@ -161,6 +167,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
+        
 
     }
 
@@ -314,6 +321,59 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 // 필요한 경우 사용
             }
         })
+        afterDetailTextView = view.findViewById(R.id.afterDetailTextView)
+        val whatActionSwitch = view.findViewById<SwitchCompat>(R.id.whatAction)
+
+        whatActionSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                showActionDialog()
+            }
+            else{
+                afterDetailTextView.text = "없음"
+            }
+        }
+    }
+
+    private fun showActionDialog() {
+        val options = arrayOf("문자", "전화", "무음모드", "앱 열기")
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("선택하세요")
+            .setItems(options) { dialog, which ->
+                val selectedOption = options[which]
+                afterDetailTextView.text = selectedOption
+                when (which) {
+                    0 -> sendSMS()
+                    1 -> makeCall()
+                    2 -> setSilentMode()
+                    3 -> openApp()
+                }
+            }
+        builder.create().show()
+    }
+    private fun sendSMS1() {
+        // 연락처 선택 인텐트 작성
+
+    }
+    private fun sendSMS() {
+
+    }
+
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+
+    private fun makeCall() {
+        // 전화 걸기 로직
+    }
+
+    private fun setSilentMode() {
+
+    }
+
+    private fun openApp() {
+        // 앱 열기 로직
     }
     private fun initUi() {
         radioButtonViewModel.setSelectedOption(1)
