@@ -24,6 +24,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -211,40 +212,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                 binding.repeatDetailTextView.visibility = View.VISIBLE
 
-                binding.addMemoRepeatSunLl.setOnClickListener {
-                    repeatDaySelect(Week.SUN)
-                    updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
-                }
+                repeatDayCheck()
 
-                binding.addMemoRepeatMonLl.setOnClickListener {
-                    repeatDaySelect(Week.MON)
-                    updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
-                }
-
-                binding.addMemoRepeatTueLl.setOnClickListener {
-                    repeatDaySelect(Week.TUE)
-                    updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
-                }
-
-                binding.addMemoRepeatWedLl.setOnClickListener {
-                    repeatDaySelect(Week.WED)
-                    updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
-                }
-
-                binding.addMemoRepeatThuLl.setOnClickListener {
-                    repeatDaySelect(Week.THU)
-                    updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
-                }
-
-                binding.addMemoRepeatFriLl.setOnClickListener {
-                    repeatDaySelect(Week.FRI)
-                    updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
-                }
-
-                binding.addMemoRepeatSatLl.setOnClickListener {
-                    repeatDaySelect(Week.SAT)
-                    updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
-                }
             } else {
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
@@ -263,69 +232,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             if (tagToggle.isChecked) {
                 binding.addMemoTagLl.visibility = View.VISIBLE
 
-                binding.addMemoTagRedIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagRedIv, TagColor.RD)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "빨간색"
-                    }
-                }
-
-                binding.addMemoTagOrangeIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagOrangeIv, TagColor.OG)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "주황색"
-                    }
-
-                }
-
-                binding.addMemoTagYellowIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagYellowIv, TagColor.YE)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "노란색"
-                    }
-                }
-
-                binding.addMemoTagGreenIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagGreenIv, TagColor.GN)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "초록색"
-                    }
-                }
-
-                binding.addMemoTagBlueIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagBlueIv, TagColor.BU)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "파랑색"
-                    }
-                }
-
-                binding.addMemoTagPurpleIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagPurpleIv, TagColor.PU)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "보라색"
-                    }
-                }
-
-                binding.addMemoTagGrayIv.setOnClickListener {
-                    val isTagDeselected = toggleTagSize(binding.addMemoTagGrayIv, TagColor.BK)
-                    if (isTagDeselected) {
-                        binding.tagDetailTextView.text = "없음"
-                    } else {
-                        binding.tagDetailTextView.text = "회색"
-                    }
-                }
+                tagColorClick()
             } else {
                 binding.addMemoTagLl.visibility = View.GONE
                 binding.tagDetailTextView.visibility = View.GONE
@@ -344,34 +251,44 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             )
             name = binding.locationTitleEditText.text.toString()
             context = binding.memoEditText.text.toString()
-            if(newImageUri!=null) {//새로운 이미지 있으면 그걸로 저장
-                if(imageUri!=null)//기존 이미지 있으면 저장소에서 삭제
-                    deleteImage()
-                imageUri = saveImageToInternalStorage(newImageUri)
-            }
-            val alarm = Alarm(
-                title = name,
-                context = context,
-                location = location,
-                whenArrival = whenArrival,
-                radius = radius,
-                isRepeat = repeatToggle.isChecked,
-                repeatDay = repeatDay,
-                hasBanner = hasBanner,
-                tagColor = selectedTagColor,
-                lastNoti = lastNoti,
-                interval = interval,
-                image = imageUri
-            )
-            if (alarmId != null) {
-                alarm.alarmId = alarmId as Long
-            }
-            val list: List<Long> = listOf() // TODO: 태그 구현
+            if (context.isEmpty() || name.isEmpty()) {
+                if (context.isEmpty() && name.isEmpty()) {
+                    Toast.makeText(requireContext(), "제목과 메모를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                } else if (context.isEmpty()) {
+                    Toast.makeText(requireContext(), "메모를 입력해주세요.", Toast.LENGTH_SHORT).show()
+                } else if (name.isEmpty()) {
+                    Toast.makeText(requireContext(), "제목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                }
+            } else {
+                if(newImageUri!=null) {//새로운 이미지 있으면 그걸로 저장
+                    if(imageUri!=null)//기존 이미지 있으면 저장소에서 삭제
+                        deleteImage()
+                    imageUri = saveImageToInternalStorage(newImageUri)
+                }
+                val alarm = Alarm(
+                    title = name,
+                    context = context,
+                    location = location,
+                    whenArrival = whenArrival,
+                    radius = radius,
+                    isRepeat = repeatToggle.isChecked,
+                    repeatDay = repeatDay,
+                    hasBanner = hasBanner,
+                    tagColor = selectedTagColor,
+                    lastNoti = lastNoti,
+                    interval = interval,
+                    image = imageUri
+                )
+                if (alarmId != null) {
+                    alarm.alarmId = alarmId as Long
+                }
+                val list: List<Long> = listOf() // TODO: 태그 구현
 
-            CoroutineScope(Dispatchers.IO).launch {
-                alarmRepository.createAlarmAndTag(alarm, tagIds = list)
+                CoroutineScope(Dispatchers.IO).launch {
+                    alarmRepository.createAlarmAndTag(alarm, tagIds = list)
+                }
+                parentFragmentManager.beginTransaction().remove(this).commit()
             }
-            parentFragmentManager.beginTransaction().remove(this).commit()
         }
         binding.alarmTypeLinearLayout.setOnClickListener {
             val intent = Intent(requireContext(), alarmCategory::class.java)
@@ -464,9 +381,33 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         binding.addMemoToggle1Sc.isChecked = fetchedAlarm.isRepeat
                         repeatChecked = fetchedAlarm.isRepeat
 
+                        isRepeat = fetchedAlarm.isRepeat
+                        repeatDay = fetchedAlarm.repeatDay
+
                         if (fetchedAlarm.isRepeat) {
                             binding.addMemoRepeatDayLl.visibility = View.VISIBLE
                             binding.repeatDetailTextView.visibility = View.VISIBLE
+
+                            val selectColor = ContextCompat.getColor(requireContext(), R.color.mt_main)
+
+                            val dayToViewsMap = mapOf(
+                                Week.SUN to Pair(binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv),
+                                Week.MON to Pair(binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv),
+                                Week.TUE to Pair(binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv),
+                                Week.WED to Pair(binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv),
+                                Week.THU to Pair(binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv),
+                                Week.FRI to Pair(binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv),
+                                Week.SAT to Pair(binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
+                            )
+
+                            // alarmList에서 해당 position의 알람의 반복 요일들을 가져옴
+                            fetchedAlarm.repeatDay?.forEach { week ->
+                                dayToViewsMap[week]?.let { (textView, imageView) ->
+                                    textView.setTextColor(selectColor)
+                                    imageView.setColorFilter(selectColor)
+                                }
+                            }
+                            repeatDayCheck()
                         }
 
                         if (!fetchedAlarm.whenArrival) {
@@ -474,10 +415,21 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.outRadioBtn.isChecked = true
                             whenArrival = false
                         }
-//                        if (!fetchedAlarm.isRepeat) {
-//                            isRepeat = false
-//                            binding.repeatSwitch.isChecked = false
-//                        }
+
+                        selectedTagColor = fetchedAlarm.tagColor
+
+                        if (fetchedAlarm.tagColor != null) {
+                            binding.addMemoToggle2Sc.isChecked = true
+                            tagChecked = true
+                            binding.addMemoTagLl.visibility = View.VISIBLE
+                            tagColorSelect(fetchedAlarm.tagColor)
+                            tagColorClick()
+                        } else {
+                            binding.addMemoToggle2Sc.isChecked = false
+                            tagChecked = false
+                            binding.addMemoTagLl.visibility = View.GONE
+                        }
+
                         if (!fetchedAlarm.hasBanner) {
                             hasBanner = false
                             binding.alarmTypeDetailTextView.text = "배너"
@@ -544,32 +496,154 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     // 현재 선택된 태그의 ImageView 참조를 저장하기 위한 변수
     private var selectedImageView: ImageView? = null
 
-    private fun toggleTagSize(imageView: ImageView, tagColor: TagColor): Boolean {
-        val scale = imageView.context.resources.displayMetrics.density
+    private fun toggleTagSize(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor): Boolean {
+        val scale = tagOnImageView.context.resources.displayMetrics.density
         val newSize = (16 * scale + 0.5f).toInt() // Convert dp to pixels
+        tagOffImageView.visibility = View.GONE
+        tagOnImageView.visibility = View.VISIBLE
 
-        if (selectedImageView != null && selectedImageView != imageView) {
+        if (selectedImageView != null && selectedImageView != tagOnImageView) {
             val layoutParams = selectedImageView!!.layoutParams
             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             selectedImageView!!.layoutParams = layoutParams
         }
 
-        if (selectedImageView == imageView) {
-            val layoutParams = imageView.layoutParams
+        if (selectedImageView == tagOnImageView) {
+            val layoutParams = tagOnImageView.layoutParams
             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            imageView.layoutParams = layoutParams
+            tagOnImageView.layoutParams = layoutParams
             selectedImageView = null
+            tagOffImageView.visibility = View.VISIBLE
+            tagOnImageView.visibility = View.GONE
             return true // 선택된 태그가 취소되었음을 의미
         } else {
-            val layoutParams = imageView.layoutParams
+            val layoutParams = tagOnImageView.layoutParams
             layoutParams.width = newSize
             layoutParams.height = newSize
-            imageView.layoutParams = layoutParams
-            selectedImageView = imageView
+            tagOnImageView.layoutParams = layoutParams
+            selectedImageView = tagOnImageView
             selectedTagColor = tagColor
+            tagOffImageView.visibility = View.GONE
+            tagOnImageView.visibility = View.VISIBLE
             return false // 새로운 태그가 선택되었음을 의미
+        }
+    }
+
+    // 반복 요일 선택 함수
+    private fun repeatDayCheck() {
+        binding.addMemoRepeatSunLl.setOnClickListener {
+            repeatDaySelect(Week.SUN)
+            updateUIForDay(Week.SUN, binding.addMemoRepeatSunTv, binding.addMemoRepeatDot1Iv)
+        }
+
+        binding.addMemoRepeatMonLl.setOnClickListener {
+            repeatDaySelect(Week.MON)
+            updateUIForDay(Week.MON, binding.addMemoRepeatMonTv, binding.addMemoRepeatDot2Iv)
+        }
+
+        binding.addMemoRepeatTueLl.setOnClickListener {
+            repeatDaySelect(Week.TUE)
+            updateUIForDay(Week.TUE, binding.addMemoRepeatTueTv, binding.addMemoRepeatDot3Iv)
+        }
+
+        binding.addMemoRepeatWedLl.setOnClickListener {
+            repeatDaySelect(Week.WED)
+            updateUIForDay(Week.WED, binding.addMemoRepeatWedTv, binding.addMemoRepeatDot4Iv)
+        }
+
+        binding.addMemoRepeatThuLl.setOnClickListener {
+            repeatDaySelect(Week.THU)
+            updateUIForDay(Week.THU, binding.addMemoRepeatThuTv, binding.addMemoRepeatDot5Iv)
+        }
+
+        binding.addMemoRepeatFriLl.setOnClickListener {
+            repeatDaySelect(Week.FRI)
+            updateUIForDay(Week.FRI, binding.addMemoRepeatFriTv, binding.addMemoRepeatDot6Iv)
+        }
+
+        binding.addMemoRepeatSatLl.setOnClickListener {
+            repeatDaySelect(Week.SAT)
+            updateUIForDay(Week.SAT, binding.addMemoRepeatSatTv, binding.addMemoRepeatDot7Iv)
+        }
+    }
+
+    private fun tagColorClick() {
+        binding.addMemoTagRedLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnRedIv, binding.addMemoTagOffRedIv, TagColor.RD, "빨간색")
+        }
+
+        binding.addMemoTagOrangeLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnOrangeIv, binding.addMemoTagOffOrangeIv, TagColor.OG, "주황색")
+        }
+
+        binding.addMemoTagYellowLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnYellowIv, binding.addMemoTagOffYellowIv, TagColor.YE, "노란색")
+        }
+
+        binding.addMemoTagGreenLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnGreenIv, binding.addMemoTagOffGreenIv, TagColor.GN, "초록색")
+        }
+
+        binding.addMemoTagBlueLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnBlueIv, binding.addMemoTagOffBlueIv, TagColor.BU, "파랑색")
+        }
+
+        binding.addMemoTagPurpleLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnPurpleIv, binding.addMemoTagOffPurpleIv, TagColor.PU, "보라색")
+        }
+
+        binding.addMemoTagGrayLl.setOnClickListener {
+            handleTagClick(binding.addMemoTagOnGrayIv, binding.addMemoTagOffGrayIv, TagColor.BK, "회색")
+        }
+    }
+
+    // 태그 색상을 선택하는 함수
+    private fun tagColorSelect(tagColor: TagColor?) {
+        when (tagColor) {
+            TagColor.RD -> {
+                toggleTagSize(binding.addMemoTagOnRedIv, binding.addMemoTagOffRedIv, TagColor.RD)
+                binding.tagDetailTextView.text = "빨간색"
+            }
+            TagColor.OG -> {
+                toggleTagSize(binding.addMemoTagOnOrangeIv, binding.addMemoTagOffOrangeIv, TagColor.OG)
+                binding.tagDetailTextView.text = "주황색"
+            }
+            TagColor.YE -> {
+                toggleTagSize(binding.addMemoTagOnYellowIv, binding.addMemoTagOffYellowIv, TagColor.YE)
+                binding.tagDetailTextView.text = "노란색"
+            }
+            TagColor.GN -> {
+                toggleTagSize(binding.addMemoTagOnGreenIv, binding.addMemoTagOffGreenIv, TagColor.GN)
+                binding.tagDetailTextView.text = "초록색"
+            }
+            TagColor.BU -> {
+                toggleTagSize(binding.addMemoTagOnBlueIv, binding.addMemoTagOffBlueIv, TagColor.BU)
+                binding.tagDetailTextView.text = "파랑색"
+            }
+            TagColor.PU -> {
+                toggleTagSize(binding.addMemoTagOnPurpleIv, binding.addMemoTagOffPurpleIv, TagColor.PU)
+                binding.tagDetailTextView.text = "보라색"
+            }
+            TagColor.BK -> {
+                toggleTagSize(binding.addMemoTagOnGrayIv, binding.addMemoTagOffGrayIv, TagColor.BK)
+                binding.tagDetailTextView.text = "회색"
+            }
+            else -> {
+                binding.tagDetailTextView.text = "없음"
+            }
+        }
+    }
+
+
+    // 태그 클릭 시 텍스트, 사이즈 변경
+    private fun handleTagClick(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor, tagText: String) {
+        val isTagDeselected = toggleTagSize(tagOnImageView, tagOffImageView, tagColor)
+        if (isTagDeselected) {
+            binding.tagDetailTextView.text = "없음"
+        } else {
+            binding.tagDetailTextView.text = tagText
         }
     }
     override fun onResume() {
