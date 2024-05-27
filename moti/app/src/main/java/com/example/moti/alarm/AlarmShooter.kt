@@ -16,6 +16,7 @@ import androidx.core.app.NotificationCompat
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
+import com.example.moti.data.entity.Week
 import com.example.moti.data.ringtoneManagerUri
 import com.example.moti.ui.alarm.FullScreenAlarmActivity
 import com.example.moti.ui.main.MainActivity
@@ -42,6 +43,13 @@ class AlarmShooter(private val context: Context) {
                     }
 
                     val distance = currentLocation.distanceTo(alarmLocation)
+                    val now = LocalDateTime.now()
+                    val today = Week.values()[now.dayOfWeek.ordinal]
+
+                    if (alarm.isRepeat && alarm.repeatDay != null && !alarm.repeatDay!!.contains(today)) {
+                        //반복인데 repeatDay에 오늘이 포함되어 있지 않다면 패스!!
+                        continue
+                    }
                     if (distance <= alarm.radius && alarm.whenArrival || distance >= alarm.radius && !alarm.whenArrival) {
                         val now = LocalDateTime.now()
                         val lastNoti = alarm.lastNoti
