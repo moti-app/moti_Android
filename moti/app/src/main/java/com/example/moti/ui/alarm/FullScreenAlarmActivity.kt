@@ -33,7 +33,7 @@ class FullScreenAlarmActivity : AppCompatActivity() {
         alarmId = intent.getLongExtra("AlarmID", 0)
 
         // Find the button by its ID
-        val endBtn: Button = findViewById(R.id.endBtn)
+        val endBtn: TextView = findViewById(R.id.endBtn)
         // Set an onClickListener for the button
         endBtn.setOnClickListener {
             stopAlarmService()
