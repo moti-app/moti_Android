@@ -27,7 +27,7 @@ data class Alarm (
     var interval : Int?,
     var image : Uri?,
     @TypeConverters(AlarmtoneConverter::class)
-    var alarmtone: Alarmtone,
+    var alarmtone: Alarmtone?,
     var useVibration : Boolean
 ) {
     constructor(
@@ -43,7 +43,7 @@ data class Alarm (
         lastNoti : LocalDateTime?,
         interval : Int? = 1440,
         image : Uri?,
-        alarmtone: Alarmtone,
+        alarmtone: Alarmtone?,
         useVibration : Boolean
     ) : this(
         0,

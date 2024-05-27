@@ -93,7 +93,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
 
-    private var alarmtone : Alarmtone = Alarmtone.Default;
+    private var alarmtone : Alarmtone? = Alarmtone.Default;
     private var useVibration : Boolean = true;
 
     private var repeatChecked = false
@@ -328,7 +328,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         binding.alarmTypeLinearLayout.setOnClickListener {
             val intent = Intent(requireContext(), alarmCategory::class.java).apply {
                 putExtra("hasBanner", hasBanner)
-                putExtra("alarmtone", alarmtone.asString())
+                putExtra("alarmtone", alarmtone?.asString())
                 putExtra("useVibration", useVibration)
             }
             startActivityForResult(intent, REQUEST_CODE_ALARM_CATEGORY)

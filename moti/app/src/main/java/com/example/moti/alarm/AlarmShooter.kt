@@ -140,7 +140,7 @@ class AlarmShooter(private val context: Context) {
 
     private fun startAlarmService(context: Context, alarm: Alarm) {
         var intent = Intent();
-        if (alarm.alarmtone.ringtoneManagerUri() == null){
+        if (alarm.alarmtone?.ringtoneManagerUri() == null){
             //무음일 경우
             var defaultAlarmTone = Alarmtone.SystemDefault;
             intent = Intent(context, FullScreenAlarmService::class.java).apply {
@@ -154,7 +154,7 @@ class AlarmShooter(private val context: Context) {
             //소리가 있는 경우
             intent = Intent(context, FullScreenAlarmService::class.java).apply {
                 action = FullScreenAlarmService.ACTION_ALARM_ON
-                putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, alarm.alarmtone.ringtoneManagerUri())
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, alarm.alarmtone!!.ringtoneManagerUri())
                 putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100) // 필요시 알람 볼륨 설정
                 putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, alarm.useVibration)
             }
