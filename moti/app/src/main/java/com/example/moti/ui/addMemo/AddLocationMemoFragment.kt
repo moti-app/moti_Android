@@ -1,5 +1,6 @@
 package com.example.moti.ui.addMemo
 
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.ClipData
@@ -31,6 +32,7 @@ import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.example.moti.R
+import com.example.moti.data.Alarmtone
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Location
@@ -91,6 +93,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var interval : Int = 1; //테스트로 1분 설정, 실제로는 1440(24시간)이 기본값
     private var alarmId: Long? = null
 
+    private var alarmtone : Alarmtone? = Alarmtone.Default;
+    private var useVibration : Boolean = true;
+
     private var repeatChecked = false
     private var tagChecked = false
 
@@ -106,7 +111,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         private const val ARG_LAT = "lat"
         private const val ARG_LNG = "lng"
         private const val ARG_id = "id"
-
+        private const val REQUEST_CODE_ALARM_CATEGORY = 1
+        private const val ALARM_CATEGORY_REQUEST_CODE = 1001
         fun newInstance(name: String, lat: Double, lng: Double,id:Long?): AddLocationMemoFragment {
             val fragment = AddLocationMemoFragment()
             val args = Bundle().apply {
@@ -128,6 +134,31 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private val reverseGeocoding = ReverseGeocoding(this)
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_CODE_ALARM_CATEGORY && resultCode == Activity.RESULT_OK) {
+
+            //배너? 전체화면?
+            val resultHasBanner = data?.getBooleanExtra("hasBanner", true)
+            if (resultHasBanner != null){
+                hasBanner = resultHasBanner
+                binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+            }
+
+            //알림음
+            val selectedAlarmtoneString = data?.getStringExtra("selectedAlarmtone")
+            if (selectedAlarmtoneString != null) {
+                alarmtone = Alarmtone.fromString(selectedAlarmtoneString)
+            }
+
+            val resultUseVibration = data?.getBooleanExtra("useVibration", true)
+            if(resultUseVibration != null){
+                useVibration = resultUseVibration
+            }
+        }
+    }
+
+    //갤러리에서 이미지 받아오기
     val startActivityResult = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ){result: ActivityResult ->
@@ -220,6 +251,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
         }
 
+        //알림 유형 구현
+        binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+
         // 반복 요일 구현 (repeatDay)
         val tagToggle = binding.addMemoToggle2Sc
 
@@ -238,9 +272,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.tagDetailTextView.visibility = View.GONE
             }
         }
-        binding.alarmTypeLinearLayout.setOnClickListener {
-            // TODO: 알림 유형 구현
-        }
 
         // TODO: 반경 구현
 
@@ -251,6 +282,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             )
             name = binding.locationTitleEditText.text.toString()
             context = binding.memoEditText.text.toString()
+
             if (context.isEmpty() || name.isEmpty()) {
                 if (context.isEmpty() && name.isEmpty()) {
                     Toast.makeText(requireContext(), "제목과 메모를 입력해주세요.", Toast.LENGTH_SHORT).show()
@@ -277,7 +309,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     tagColor = selectedTagColor,
                     lastNoti = lastNoti,
                     interval = interval,
-                    image = imageUri
+                    image = imageUri,
+                    alarmtone = alarmtone,
+                    useVibration = useVibration
                 )
                 if (alarmId != null) {
                     alarm.alarmId = alarmId as Long
@@ -290,10 +324,18 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 parentFragmentManager.beginTransaction().remove(this).commit()
             }
         }
+        // 알림 유형 설정 버튼 클릭 시 인텐트로 hasBanner 값 전달
         binding.alarmTypeLinearLayout.setOnClickListener {
-            val intent = Intent(requireContext(), alarmCategory::class.java)
-            startActivity(intent)
+            val intent = Intent(requireContext(), alarmCategory::class.java).apply {
+                putExtra("hasBanner", hasBanner)
+                putExtra("alarmtone", alarmtone?.asString())
+                putExtra("useVibration", useVibration)
+            }
+            startActivityForResult(intent, REQUEST_CODE_ALARM_CATEGORY)
         }
+
+
+
         // SeekBar 리스너 설정
         binding.radiusSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -416,6 +458,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             whenArrival = false
                         }
 
+//                        if (!fetchedAlarm.isRepeat) {
+//                            isRepeat = false
+//                            binding.repeatSwitch.isChecked = false
+//                        }
+
                         selectedTagColor = fetchedAlarm.tagColor
 
                         if (fetchedAlarm.tagColor != null) {
@@ -430,10 +477,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                             binding.addMemoTagLl.visibility = View.GONE
                         }
 
-                        if (!fetchedAlarm.hasBanner) {
-                            hasBanner = false
-                            binding.alarmTypeDetailTextView.text = "배너"
+                        if (fetchedAlarm.hasBanner != null) {
+                            hasBanner = fetchedAlarm.hasBanner
                         }
+                        binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
+
+                        alarmtone = fetchedAlarm.alarmtone
+                        useVibration = fetchedAlarm.useVibration
+
                         if(fetchedAlarm.image!=null){
                             imageUri = fetchedAlarm.image
                             binding.memoImg.visibility = View.VISIBLE
