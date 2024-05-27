@@ -216,9 +216,9 @@
                 android:textSize="12sp"
                 android:textColor="#007AFF" />
         </LinearLayout>
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/useVibSwitch"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
             style="@style/category_toggle"

@@ -15,6 +15,7 @@ import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import com.example.moti.R
 import com.example.moti.data.Alarmtone
 import com.better.alarm.ui.ringtonepicker.getPickedRingtone
@@ -29,7 +30,7 @@ class alarmCategory : AppCompatActivity() {
     private lateinit var selectedAlarmtone: Alarmtone
     private var useVibration : Boolean = true
     private var hasBanner : Boolean = true
-    private lateinit var useVibSwitch : Switch
+    private lateinit var useVibSwitch : SwitchCompat
     private lateinit var useVibSubTextView: TextView
     companion object {
         private const val RINGTONE_PICKER_REQUEST_CODE = 999
