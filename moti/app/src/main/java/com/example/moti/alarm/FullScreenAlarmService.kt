@@ -44,19 +44,23 @@ class FullScreenAlarmService : Service() {
 
     private fun startAlarm(alarmUri: Uri, volume: Int, vibrate: Boolean) {
         Log.e("aa", "startAlarmService")
+        //Log.e("volume", volume.toString())
         stopAlarm()
 
-        savedVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
-        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
-        val setVolume = (maxVolume * (volume / 100.0)).toInt()
-        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, setVolume, 0)
+        if(volume > 0) {
+            //무음설정이 안 된 경우에만
+            savedVolume = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+            val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            val setVolume = (maxVolume * (volume / 100.0)).toInt()
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, setVolume, 0)
 
-        mediaPlayer = MediaPlayer().apply {
-            setDataSource(applicationContext, alarmUri)
-            setAudioStreamType(AudioManager.STREAM_ALARM)
-            isLooping = true
-            prepare()
-            start()
+            mediaPlayer = MediaPlayer().apply {
+                setDataSource(applicationContext, alarmUri)
+                setAudioStreamType(AudioManager.STREAM_ALARM)
+                isLooping = true
+                prepare()
+                start()
+            }
         }
 
         if (vibrate) {

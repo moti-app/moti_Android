@@ -14,6 +14,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.example.moti.R
+import com.example.moti.data.Alarmtone
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Week
@@ -138,12 +139,27 @@ class AlarmShooter(private val context: Context) {
     }
 
     private fun startAlarmService(context: Context, alarm: Alarm) {
-        val intent = Intent(context, FullScreenAlarmService::class.java).apply {
-            action = FullScreenAlarmService.ACTION_ALARM_ON
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, alarm.alarmtone.ringtoneManagerUri())
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100) // 필요시 알람 볼륨 설정
-            putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, alarm.useVibration)
+        var intent = Intent();
+        if (alarm.alarmtone.ringtoneManagerUri() == null){
+            //무음일 경우
+            var defaultAlarmTone = Alarmtone.SystemDefault;
+            intent = Intent(context, FullScreenAlarmService::class.java).apply {
+                action = FullScreenAlarmService.ACTION_ALARM_ON
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, defaultAlarmTone.ringtoneManagerUri())
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 0) //무음이기 때문에 0
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, alarm.useVibration)
+            }
         }
+        else{
+            //소리가 있는 경우
+            intent = Intent(context, FullScreenAlarmService::class.java).apply {
+                action = FullScreenAlarmService.ACTION_ALARM_ON
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_URI, alarm.alarmtone.ringtoneManagerUri())
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_VOLUME, 100) // 필요시 알람 볼륨 설정
+                putExtra(FullScreenAlarmService.EXTRA_ALARM_VIBRATE, alarm.useVibration)
+            }
+        }
+
         context.startService(intent)
         Log.e("aa", "full startAlarmService")
     }
