@@ -251,6 +251,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             } else {
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
+
+                repeatDay = emptyList()
             }
 
             // repeatDay 상태에 따라 isRepeat 업데이트
@@ -276,6 +278,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             } else {
                 binding.addMemoTagLl.visibility = View.GONE
                 binding.tagDetailTextView.visibility = View.GONE
+
+                selectedTagColor = null
             }
         }
 
@@ -582,6 +586,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             tagOnImageView.layoutParams = layoutParams
             selectedImageView = null
+            selectedTagColor = null
             tagOffImageView.visibility = View.VISIBLE
             tagOnImageView.visibility = View.GONE
             return true // 선택된 태그가 취소되었음을 의미
