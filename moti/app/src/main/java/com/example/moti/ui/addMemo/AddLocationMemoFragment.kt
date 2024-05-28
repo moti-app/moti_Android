@@ -25,9 +25,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -739,7 +739,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 val acceleration = sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
 
                 if (acceleration > shakeThreshold) {
-                    val uri = generateMotiUri(name, context, lat, lng, radius.toInt())
+                    val sName = binding.locationTitleEditText.text.toString()
+                    val sContext = binding.locationDetailTextView.text.toString()
+                    val uri = generateMotiUri(sName, sContext, lat, lng, radius.toInt(), address)
                     val bitmap = generateQRCode(uri)
                     bitmap?.let { copyImageToClipboard(requireContext(), it) }
                     lastShakeTime = currentTime
@@ -764,14 +766,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
         }
     }
-    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
+    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int, param6:String): String {
         val encodedParam1 = URLEncoder.encode(param1, StandardCharsets.UTF_8.toString())
         val encodedParam2 = URLEncoder.encode(param2, StandardCharsets.UTF_8.toString())
         val encodedParam3 = param3.toString()
         val encodedParam4 = param4.toString()
         val encodedParam5 = param5.toString()
+        val encodedParam6 = URLEncoder.encode(param6, StandardCharsets.UTF_8.toString())
 
-        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5"
+        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5&param6=$encodedParam6"
     }
     private fun generateQRCode(text: String): Bitmap? {
         return try {
