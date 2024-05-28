@@ -151,7 +151,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 2 -> {
                     // 새로운 원을 추가
                     addCircle(Color.GRAY)
-                }}}
+                }
+                else -> {
+                    currentCircle?.remove()
+                }
+            }}
 
         // 카메라 이동 완료 리스너 설정
         googleMap.setOnCameraMoveListener {
