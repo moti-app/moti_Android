@@ -820,13 +820,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 return null
             }
 
-            // Read EXIF orientation data
+            // EXIF orientation data 읽기
             val exifInputStream: InputStream? = requireActivity().contentResolver.openInputStream(uri)
             val exif = exifInputStream?.let { ExifInterface(it) }
             val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
             exifInputStream?.close()
 
-            // Rotate bitmap if needed
+            // 비트맵 회전
             val rotatedBitmap = when (orientation) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(originalBitmap, 90f)
                 ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(originalBitmap, 180f)
@@ -834,12 +834,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 else -> originalBitmap
             }
 
-
             var bitmap = rotatedBitmap
             while(bitmap.height*bitmap.width > 5000000) {//너무 큰 이미지 scaling
                 bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt(), false)
             }
             Log.d("hjk", "density"+bitmap.height*bitmap.width)
+
+            //앱 내부 저장소에 저장
             val filename = "IMG_${System.currentTimeMillis()}.png"
             val file = File(requireActivity().cacheDir, filename)
             val outputStream = FileOutputStream(file)
@@ -853,6 +854,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         return null
     }
 
+    //비트맵 회전
     private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
