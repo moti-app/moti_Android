@@ -11,7 +11,6 @@ import android.os.CombinedVibration
 import android.os.VibrationEffect
 import android.os.VibratorManager
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -23,8 +22,6 @@ import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Location
 import com.example.moti.data.repository.AlarmRepository
-import com.example.moti.data.viewModel.RadioButtonViewModel
-import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.ActivityMainBinding
 import com.example.moti.ui.map.MapFragment
 import com.example.moti.ui.memo.MemoFragment
@@ -37,11 +34,10 @@ import java.time.LocalDateTime
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val radiusViewModel: RadiusViewModel by viewModels()
-    private val radioButtonViewModel: RadioButtonViewModel by viewModels()
     private lateinit var vibrator: VibratorManager
     private lateinit var vibrationEffect: VibrationEffect
     private lateinit var combinedVibration: CombinedVibration
+    private var currentFragmentTag: String? = null
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 321
@@ -55,6 +51,12 @@ class MainActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        if (savedInstanceState != null) {
+            currentFragmentTag = savedInstanceState.getString("currentFragmentTag")
+        } else {
+            currentFragmentTag = MapFragment::class.java.simpleName
+        }
 
         initBottomNavigation()
 
@@ -101,6 +103,11 @@ class MainActivity : AppCompatActivity() {
         vibrator = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
         vibrationEffect = VibrationEffect.createOneShot(5L, VibrationEffect.DEFAULT_AMPLITUDE)
         combinedVibration = CombinedVibration.createParallel(vibrationEffect)
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        // 현재 표시된 프래그먼트의 태그를 저장
+        outState.putString("currentFragmentTag", currentFragmentTag)
     }
 
     private fun checkPermissions() {
@@ -195,14 +202,28 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private fun initBottomNavigation() {
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.main_frm, MapFragment())
-            .commitAllowingStateLoss()
-
+        when (currentFragmentTag) {
+            MapFragment::class.java.simpleName -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_frm, MapFragment())
+                    .commitAllowingStateLoss()
+            }
+            MemoFragment::class.java.simpleName -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_frm, MemoFragment())
+                    .commitAllowingStateLoss()
+            }
+            else -> {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.main_frm, MapFragment())
+                    .commitAllowingStateLoss()
+            }
+        }
         binding.mainBnv.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.homeFragment -> {
                     vibrator.vibrate(combinedVibration)
+                    currentFragmentTag = MapFragment::class.java.simpleName // 프래그먼트 전환 시 현재 표시된 프래그먼트 태그 업데이트
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MapFragment())
                         .commitAllowingStateLoss()
@@ -210,17 +231,14 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.memoFragment -> {
                     vibrator.vibrate(combinedVibration)
+                    currentFragmentTag = MemoFragment::class.java.simpleName // 프래그먼트 전환 시 현재 표시된 프래그먼트 태그 업데이트
                     supportFragmentManager.beginTransaction()
                         .replace(R.id.main_frm, MemoFragment())
                         .commitAllowingStateLoss()
                     return@setOnItemSelectedListener true
                 }
-
             }
             false
         }
-
-
-
     }
 }

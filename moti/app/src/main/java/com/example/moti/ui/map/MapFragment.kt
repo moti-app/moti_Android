@@ -13,7 +13,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -231,7 +230,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         touchMarker = googleMap.addMarker(
             MarkerOptions()
                 .position(LatLng(lat, lng))
-                .icon(bitmapDescriptorFromVector(requireContext(), R.drawable.blue_pin_marker))
+                .icon(context?.let { bitmapDescriptorFromVector(it, R.drawable.blue_pin_marker) })
         )!!
     }
     private fun addMarkers(googleMap: GoogleMap) {
@@ -242,7 +241,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     .title(place.title)
                     .position(LatLng(place.location.x, place.location.y))
                     .snippet(place.alarmId.toString())
-                    .icon(bitmapDescriptorFromVector(requireContext(), R.drawable.blue_pin_marker))
+                    .icon(context?.let { bitmapDescriptorFromVector(it, R.drawable.blue_pin_marker) })
             )
             marker?.let {
                 markers.add(it) // 마커를 리스트에 추가
@@ -264,7 +263,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 override fun onAnimationEnd(animation: Animator) {
                     val place = places.find { it.alarmId.toString() == marker.snippet }
                     val icon = if (googleMap.cameraPosition.zoom >= 15) {
-                        place?.let { createCustomMarker(requireContext(), it) }
+                        place?.let { context?.let { it1 -> createCustomMarker(it1, it) } }
                     } else {
                         BitmapDescriptorFactory.fromResource(iconResId)
                     }

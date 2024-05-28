@@ -63,7 +63,7 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
     private fun initRecyclerView() {
         getAlarm { alarmList ->
             memoAlarmAdapter = MemoAlarmRVAdapter(alarmList)
-            val memoAlarmManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            val memoAlarmManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
             binding.memoAlarmRv.apply {
                 adapter = memoAlarmAdapter
