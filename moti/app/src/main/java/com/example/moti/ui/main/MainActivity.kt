@@ -86,7 +86,8 @@ class MainActivity : AppCompatActivity() {
                     interval = 1440,
                     image = null,
                     alarmtone= null,
-                    useVibration =false
+                    useVibration =false,
+                    isSleep = false
                 )
                 val list: List<Long> = listOf()
                 CoroutineScope(Dispatchers.IO).launch {

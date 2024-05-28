@@ -314,7 +314,8 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     interval = interval,
                     image = imageUri,
                     alarmtone = alarmtone,
-                    useVibration = useVibration
+                    useVibration = useVibration,
+                    isSleep = false
                 )
                 if (alarmId != null) {
                     alarm.alarmId = alarmId as Long

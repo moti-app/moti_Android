@@ -38,6 +38,10 @@ class AlarmShooter(private val context: Context) {
             if (allAlarms != null) {
                 for (alarm in allAlarms) {
                     // 반복 구분 및 요일 확인 로직 추가 가능
+                    Log.e("SLEEP", alarm.isSleep.toString())
+                    if(alarm.isSleep){
+                        continue
+                    }
                     val alarmLocation = Location("").apply {
                         latitude = alarm.location.x
                         longitude = alarm.location.y
@@ -47,7 +51,12 @@ class AlarmShooter(private val context: Context) {
                     val now = LocalDateTime.now()
                     val today = Week.values()[now.dayOfWeek.ordinal]
 
-                    if (alarm.isRepeat && alarm.repeatDay != null && !alarm.repeatDay!!.contains(today)) {
+                    Log.e("REPEAT", alarm.isRepeat.toString())
+                    if(!alarm.isRepeat){
+                        //반복 기능이 없다면 앞으로 울리지 않는다!
+                        alarm.isSleep = true
+                    }
+                    else if (alarm.repeatDay != null && !alarm.repeatDay!!.contains(today)) {
                         //반복인데 repeatDay에 오늘이 포함되어 있지 않다면 패스!!
                         continue
                     }
