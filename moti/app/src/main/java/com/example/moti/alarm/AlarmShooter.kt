@@ -121,7 +121,7 @@ class AlarmShooter(private val context: Context) {
         val fullscreenPendingIntent = PendingIntent.getActivity(context, 0, fullscreenIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         val builder = NotificationCompat.Builder(context, context.getString(R.string.high_noti_channel_id)).apply {
-            setSmallIcon(R.drawable.ic_launcher_foreground)
+            setSmallIcon(R.drawable.main_icon)
             setContentTitle("fullscreen intent notification")
             setContentText("fullscreen intent notification!")
             setAutoCancel(true)
@@ -214,7 +214,7 @@ class AlarmShooter(private val context: Context) {
         }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.main_icon)
             .setContentTitle(alarm.title)
             .setContentText(alarm.context)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -246,7 +246,7 @@ class AlarmShooter(private val context: Context) {
         }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_background)
+            .setSmallIcon(R.drawable.main_icon)
             .setContentTitle(alarm.title)
             .setContentText(alarm.context)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
