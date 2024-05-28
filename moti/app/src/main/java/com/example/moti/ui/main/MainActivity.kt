@@ -69,35 +69,9 @@ class MainActivity : AppCompatActivity() {
             val lat: String = data.getQueryParameter("param3") ?:""
             val lng: String = data.getQueryParameter("param4") ?:""
             val radius: String = data.getQueryParameter("param5") ?:""
+            val address: String = data.getQueryParameter("param6") ?: "address"
             if (lat!=""&&lng!="") {
-                val db = MotiDatabase.getInstance(this.applicationContext)!!
-                val alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
-
-                //Toast.makeText(this, "param1: $param1, param2: $param2", Toast.LENGTH_SHORT).show()
-                val alarm = Alarm(
-                    title = name,
-                    context = context,
-                    location = Location(lat.toDouble(),lng.toDouble(),"address",name),
-                    whenArrival = true,
-                    radius = radius.toDouble(),
-                    isRepeat = true,
-                    repeatDay = null,
-                    hasBanner = true,
-                    tagColor = null,
-                    lastNoti = LocalDateTime.now().minusDays(1),
-                    interval = 1440,
-                    image = null,
-                    alarmtone= null,
-                    useVibration =false,
-                    isSleep = false
-                )
-                val list: List<Long> = listOf()
-                CoroutineScope(Dispatchers.IO).launch {
-                    alarmRepository.createAlarmAndTag(alarm, tagIds = list)
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(applicationContext, "알람이 성공적으로 생성되었습니다.", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                saveData(name,context,lat,lng,radius,address)
             }
         }
         vibrator = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
@@ -239,6 +213,38 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             false
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun saveData(name:String, context:String, lat:String, lng:String, radius:String, address: String) {
+        val db = MotiDatabase.getInstance(this.applicationContext)!!
+        val alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
+
+        //Toast.makeText(this, "param1: $param1, param2: $param2", Toast.LENGTH_SHORT).show()
+        val alarm = Alarm(
+            title = name,
+            context = context,
+            location = Location(lat.toDouble(),lng.toDouble(),address,name),
+            whenArrival = true,
+            radius = radius.toDouble(),
+            isRepeat = true,
+            repeatDay = null,
+            hasBanner = true,
+            tagColor = null,
+            lastNoti = LocalDateTime.now().minusDays(1),
+            interval = 1440,
+            image = null,
+            alarmtone= null,
+            useVibration =false,
+            isSleep = false
+        )
+        val list: List<Long> = listOf()
+        CoroutineScope(Dispatchers.IO).launch {
+            alarmRepository.createAlarmAndTag(alarm, tagIds = list)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(applicationContext, "알람이 성공적으로 생성되었습니다.", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }
