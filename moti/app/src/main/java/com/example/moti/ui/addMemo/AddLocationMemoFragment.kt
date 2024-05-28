@@ -485,11 +485,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         alarmtone = fetchedAlarm.alarmtone
                         useVibration = fetchedAlarm.useVibration
 
-                        if(fetchedAlarm.image!=null){
+                        if(fetchedAlarm.image!=Uri.parse("null")){//이미지 있을때. DB에 들어갔다 나오면서 converter때문에 null이 Uri값으로 나타나짐
                             imageUri = fetchedAlarm.image
                             binding.memoImg.visibility = View.VISIBLE
                             val file = File(imageUri.toString())
                             Glide.with(this@AddLocationMemoFragment).load(file).into(binding.memoImg)
+                        }else{
+                            binding.memoImg.visibility = View.GONE
                         }
                         // TODO: 태그
                     }
