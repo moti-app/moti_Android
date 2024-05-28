@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var vibrationEffect: VibrationEffect
     private lateinit var combinedVibration: CombinedVibration
     private var currentFragmentTag: String? = null
+    private var dataSaved = false
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 321
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         if (savedInstanceState != null) {
             currentFragmentTag = savedInstanceState.getString("currentFragmentTag")
+            dataSaved = savedInstanceState.getBoolean("dataSavedTag")
         } else {
             currentFragmentTag = MapFragment::class.java.simpleName
         }
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         // 권한 요청
         checkPermissions()
         val data: Uri? = intent.data
-        if (data != null) {
+        if (data != null&&!dataSaved) {
             val name: String = data.getQueryParameter("param1") ?:""
             val context: String = data.getQueryParameter("param2") ?:""
             val lat: String = data.getQueryParameter("param3") ?:""
@@ -82,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         // 현재 표시된 프래그먼트의 태그를 저장
         outState.putString("currentFragmentTag", currentFragmentTag)
+        outState.putBoolean("dataSavedTag", dataSaved)
     }
 
     private fun checkPermissions() {
@@ -244,6 +247,7 @@ class MainActivity : AppCompatActivity() {
             alarmRepository.createAlarmAndTag(alarm, tagIds = list)
             withContext(Dispatchers.Main) {
                 Toast.makeText(applicationContext, "알람이 성공적으로 생성되었습니다.", Toast.LENGTH_SHORT).show()
+                dataSaved = true
             }
         }
     }
