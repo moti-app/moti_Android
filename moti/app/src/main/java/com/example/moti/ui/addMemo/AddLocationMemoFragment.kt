@@ -252,6 +252,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
             }
+
+            // repeatDay 상태에 따라 isRepeat 업데이트
+            updateIsRepeat()
         }
 
         //알림 유형 구현
@@ -306,7 +309,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     location = location,
                     whenArrival = whenArrival,
                     radius = radius,
-                    isRepeat = repeatToggle.isChecked,
+                    isRepeat = isRepeat,
                     repeatDay = repeatDay,
                     hasBanner = hasBanner,
                     tagColor = selectedTagColor,
@@ -534,6 +537,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 it + day
             }
         } ?: listOf(day) // repeatDay가 null인 경우, 선택된 day를 포함하는 리스트로 초기화
+
+        updateIsRepeat()
+    }
+
+    // repeatDay의 상태에 따라 isRepeat 값을 업데이트하는 함수
+    private fun updateIsRepeat() {
+        isRepeat = !repeatDay.isNullOrEmpty()
     }
 
     // UI 업데이트를 위한 함수
