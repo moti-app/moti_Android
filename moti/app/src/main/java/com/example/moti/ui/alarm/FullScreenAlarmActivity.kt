@@ -15,27 +15,29 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.moti.R
 import com.example.moti.alarm.FullScreenAlarmService
 import com.example.moti.data.MotiDatabase
+import com.example.moti.databinding.ActivityFullScreenAlarmBinding
+import com.example.moti.databinding.FragmentMapBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class FullScreenAlarmActivity : AppCompatActivity() {
+    private lateinit var binding : ActivityFullScreenAlarmBinding
 
     private var notificationId: Int = 0
     private var alarmId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_full_screen_alarm)
+        binding=ActivityFullScreenAlarmBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         Log.e("aa", "full onCreate")
 
         notificationId = intent.getIntExtra("NOTIFICATION_ID", 0)
         alarmId = intent.getLongExtra("AlarmID", 0)
 
-        // Find the button by its ID
-        val endBtn: TextView = findViewById(R.id.endBtn)
         // Set an onClickListener for the button
-        endBtn.setOnClickListener {
+        binding.endBtn.setOnClickListener {
             stopAlarmService()
             dismissNotification()
             finish() // Close the activity when the button is clicked
@@ -51,9 +53,12 @@ class FullScreenAlarmActivity : AppCompatActivity() {
             val alarm = database?.alarmDao()?.findAlarmById(alarmId)
             if (alarm != null) {
                 runOnUiThread {
-                    findViewById<TextView>(R.id.alarmTitleTv).text = alarm.title
-                    findViewById<TextView>(R.id.LocationTv).text = alarm.context
-                    findViewById<TextView>(R.id.whenTv).text = if (alarm.whenArrival) "도착할때" else "떠날때"
+                    binding.alarmTitleTv.text = alarm.title
+                    binding.LocationTv.text = alarm.context
+                    binding.whenTv.text = if (alarm.whenArrival) "도착할때" else "떠날때"
+                    if(alarm.image!=null){
+                        binding.alarmImg.setImageURI(alarm.image)
+                    }
                 }
             }
         }
