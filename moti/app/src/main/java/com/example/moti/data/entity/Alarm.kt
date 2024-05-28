@@ -28,7 +28,8 @@ data class Alarm (
     var image : Uri?,
     @TypeConverters(AlarmtoneConverter::class)
     var alarmtone: Alarmtone?,
-    var useVibration : Boolean
+    var useVibration : Boolean,
+    var isSleep : Boolean
 ) {
     constructor(
         title : String,
@@ -44,7 +45,8 @@ data class Alarm (
         interval : Int? = 1440,
         image : Uri?,
         alarmtone: Alarmtone?,
-        useVibration : Boolean
+        useVibration : Boolean,
+        isSleep: Boolean
     ) : this(
         0,
         title,
@@ -60,6 +62,7 @@ data class Alarm (
         interval,
         image,
         alarmtone,
-        useVibration
+        useVibration,
+        isSleep
     )
 }
