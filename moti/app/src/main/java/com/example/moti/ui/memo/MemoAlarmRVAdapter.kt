@@ -1,52 +1,58 @@
 package com.example.moti.ui.memo
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moti.R
+import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.Week
 import com.example.moti.databinding.ItemMemoAlarmBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
+class MemoAlarmRVAdapter(private val alarmList: List<Alarm> ) : RecyclerView.Adapter<MemoAlarmRVAdapter.ViewHolder>() {
 
     private var isShareVisible: Boolean = false
 
     interface MemoClickListener {
         fun memoClick(position: Int)
     }
+
     interface ShareClickListener {
         fun shareButtonClick(position: Int)
     }
 
     private lateinit var mMemoClickListener: MemoClickListener
-    private lateinit var mMemoShareClickListner: ShareClickListener
+    private lateinit var mMemoShareClickListener: ShareClickListener
 
     fun setMemoClick(memoClickListener: MemoClickListener) {
         mMemoClickListener = memoClickListener
     }
+
     fun setShareClick(shareClickListener: ShareClickListener) {
-        mMemoShareClickListner = shareClickListener
+        mMemoShareClickListener = shareClickListener
     }
 
-    inner class ViewHolder(val binding: ItemMemoAlarmBinding) : RecyclerView.ViewHolder(binding.root) {
-
-    }
+    inner class ViewHolder(val binding: ItemMemoAlarmBinding, val context: Context) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(viewgroup: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemMemoAlarmBinding.inflate(LayoutInflater.from(viewgroup.context), viewgroup, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding, viewgroup.context)
     }
 
     override fun getItemCount(): Int = alarmList.size
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val alarm = alarmList[position]
 
-        holder.binding.itemMemoInfoTv.text = alarmList[position].context
-        holder.binding.itemMemoPlaceTv.text = alarmList[position].title
-        holder.binding.itemMemoAddressTv.text = alarmList[position].location.address
+        holder.binding.itemMemoInfoTv.text = alarm.context
+        holder.binding.itemMemoPlaceTv.text = alarm.title
+        holder.binding.itemMemoAddressTv.text = alarm.location.address
 
         val selectColor = ContextCompat.getColor(holder.itemView.context, R.color.mt_main)
 
@@ -60,8 +66,7 @@ class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapt
             Week.SAT to Pair(holder.binding.itemMemoSatTv, holder.binding.itemMemoDot7Iv)
         )
 
-        // alarmList에서 해당 position의 알람의 반복 요일들을 가져옴
-        alarmList[position].repeatDay?.forEach { week ->
+        alarm.repeatDay?.forEach { week ->
             dayToViewsMap[week]?.let { (textView, imageView) ->
                 textView.setTextColor(selectColor)
                 imageView.setColorFilter(selectColor)
@@ -69,14 +74,11 @@ class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapt
         }
 
         val toggle = holder.binding.itemMemoToggleSc
-
-        var checked = false
-
-        toggle.isChecked = checked
+        toggle.isChecked = !alarm.isSleep
 
         toggle.setOnClickListener {
-            toggle.isChecked = !checked
-            checked = !checked
+            alarm.isSleep = !toggle.isChecked
+            updateAlarm(alarm, holder.context)
         }
 
         holder.binding.itemMemoCl.setOnClickListener {
@@ -89,9 +91,8 @@ class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapt
         holder.binding.itemMemoAlarmShareIv.isEnabled = isShareVisible
 
         holder.binding.itemMemoAlarmShareIv.setOnClickListener {
-            mMemoShareClickListner.shareButtonClick(position)
+            mMemoShareClickListener.shareButtonClick(position)
         }
-
     }
 
     fun shareClick(visible: Boolean) {
@@ -99,5 +100,10 @@ class MemoAlarmRVAdapter(private val alarmList: List<Alarm>): RecyclerView.Adapt
         notifyDataSetChanged()
     }
 
-
+    private fun updateAlarm(alarm: Alarm, context: Context) {
+        val alarmDao = MotiDatabase.getInstance(context)?.alarmDao()
+        CoroutineScope(Dispatchers.IO).launch {
+            alarmDao?.update(alarm)
+        }
+    }
 }
