@@ -123,6 +123,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
 
+        val initialLatLng = LatLng(37.5665, 126.9780) // 서울의 위도와 경도
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialLatLng, defaultMapZoomLevel))
+
         googleMap.setOnMapClickListener { latLng ->
             lat = latLng.latitude
             lng = latLng.longitude
