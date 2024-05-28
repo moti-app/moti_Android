@@ -393,6 +393,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
+        radioButtonViewModel.setSelectedOption(3) // 예외 처리
     }
 
     override fun onReverseGeocodeSuccess(address: String) {
