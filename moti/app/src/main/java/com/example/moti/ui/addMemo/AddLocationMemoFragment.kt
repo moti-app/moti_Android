@@ -71,6 +71,8 @@ import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import kotlin.math.sqrt
 import android.Manifest
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
 import androidx.databinding.DataBindingUtil.setContentView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -438,6 +440,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
     }
 
+
     private fun getInstalledApps(): List<AppInfo> {
         val pm = requireActivity().packageManager
         val intent = Intent(Intent.ACTION_MAIN, null)
@@ -450,8 +453,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             )
         }.filter { it.packageName != requireContext().packageName } // 현재 앱 제외
     }
-
-
 
     private fun showAppChooser() {
         val apps = getInstalledApps()
