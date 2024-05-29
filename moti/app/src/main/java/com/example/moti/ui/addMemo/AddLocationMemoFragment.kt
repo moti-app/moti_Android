@@ -1,20 +1,26 @@
 package com.example.moti.ui.addMemo
 
+import android.app.Activity
 import android.app.Activity.RESULT_OK
 import android.app.Dialog
+import android.app.NotificationManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.ContactsContract
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,10 +30,12 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SwitchCompat
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.activityViewModels
@@ -62,6 +70,11 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
 import kotlin.math.sqrt
+import android.Manifest
+import androidx.databinding.DataBindingUtil.setContentView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.moti.databinding.ActivityMainBinding
 
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
@@ -105,7 +118,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private val shakeTimeLapse = 1000
     private var lastShakeTime: Long = 0
     private lateinit var afterDetailTextView: TextView
-    private val REQUEST_SELECT_CONTACT = 1
+    private val PERMISSION_REQUEST_READ_CONTACTS = 100
+    private lateinit var requestLauncher: ActivityResultLauncher<Intent>
+    data class AppInfo(val name: String, val packageName: String)
+
+
+
 
     companion object {
         private const val ARG_NAME = "name"
@@ -156,6 +174,16 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             lng = it.getDouble(ARG_LNG, 0.0)
             alarmId= it.getLong(ARG_id)
         }
+
+        val status = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS)
+        if (status == PackageManager.PERMISSION_GRANTED) {
+            Log.d("test", "permission granted")
+
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_CONTACTS), PERMISSION_REQUEST_READ_CONTACTS)
+            Log.d("test", "permission denied")
+        }
+
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
         alarmRepository = AlarmRepository(db.alarmDao(),db.tagDao(),db.alarmAndTagDao())
         if (alarmId?.toInt() ==0) {
@@ -167,8 +195,29 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
         sensorManager = requireActivity().getSystemService(Context.SENSOR_SERVICE) as SensorManager
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)!!
-        
 
+        // ActivityResultLauncher 초기화
+        requestLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val contactUri: Uri? = result.data?.data
+                contactUri?.let {
+                    val cursor = requireActivity().contentResolver.query(it, null, null, null, null)
+                    cursor?.use {
+                        if (it.moveToFirst()) {
+                            val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+                            val phoneIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+
+                            val name = if (nameIndex != -1) it.getString(nameIndex) else null
+                            val phoneNumber = if (phoneIndex != -1) it.getString(phoneIndex) else null
+
+                            if (name != null && phoneNumber != null) {
+                                Toast.makeText(requireContext(), "Name: $name, Phone: $phoneNumber", Toast.LENGTH_LONG).show()
+                            } else {
+                                Toast.makeText(requireContext(), "Failed to retrieve contact details", Toast.LENGTH_LONG).show()
+                            }
+                        }
+                    }
+                }}}
     }
 
     override fun onCreateView(
@@ -335,7 +384,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     }
 
     private fun showActionDialog() {
-        val options = arrayOf("문자", "전화", "무음모드", "앱 열기")
+        val options = arrayOf("문자", "무음모드", "앱 열기")
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("선택하세요")
             .setItems(options) { dialog, which ->
@@ -343,38 +392,134 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 afterDetailTextView.text = selectedOption
                 when (which) {
                     0 -> sendSMS()
-                    1 -> makeCall()
-                    2 -> setSilentMode()
-                    3 -> openApp()
+                    1 -> setSilentMode()
+                    2 -> showAppChooser()
                 }
             }
         builder.create().show()
     }
-    private fun sendSMS1() {
-        // 연락처 선택 인텐트 작성
 
-    }
     private fun sendSMS() {
-
+        val status = ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_CONTACTS)
+        if (status == PackageManager.PERMISSION_GRANTED) {
+            Log.d("test", "permission granted")
+            val intent = Intent(Intent.ACTION_PICK, ContactsContract.CommonDataKinds.Phone.CONTENT_URI)
+            requestLauncher.launch(intent)
+        } else {
+            ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.READ_CONTACTS), PERMISSION_REQUEST_READ_CONTACTS)
+            Log.d("test", "permission denied")
+        }
     }
-
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-
-
-    private fun makeCall() {
-        // 전화 걸기 로직
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_READ_CONTACTS) {
+            if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                sendSMS()
+            } else {
+                Toast.makeText(requireContext(), "Permission denied to read contacts", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     private fun setSilentMode() {
+        val notificationManager = requireContext().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val audioManager = requireContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!notificationManager.isNotificationPolicyAccessGranted) {
+                startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS))
+            }
+        }
+        try {
+            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            Log.d("setSilentMode", "Phone set to silent mode")
+        } catch (e: SecurityException) {
+            Log.e("setSilentMode", "Could not change ringer mode", e)
+        }
     }
 
-    private fun openApp() {
-        // 앱 열기 로직
+    private fun getInstalledApps(): List<AppInfo> {
+        val pm = requireActivity().packageManager
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val apps = pm.queryIntentActivities(intent, 0)
+        return apps.map {
+            AppInfo(
+                it.loadLabel(pm).toString(),
+                it.activityInfo.packageName
+            )
+        }.filter { it.packageName != requireContext().packageName } // 현재 앱 제외
     }
+
+
+
+    private fun showAppChooser() {
+        val apps = getInstalledApps()
+
+        val dialogView = layoutInflater.inflate(R.layout.dialog_app_chooser, null)
+        val recyclerView: RecyclerView = dialogView.findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = AppAdapter(requireContext(), apps) { packageName ->
+            openApp(packageName)
+        }
+
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Choose an app to open")
+            .setView(dialogView)
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    class AppAdapter(
+        private val context: Context,
+        private val apps: List<AppInfo>,
+        private val onAppClicked: (String) -> Unit
+    ) : RecyclerView.Adapter<AppAdapter.AppViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
+            val view = LayoutInflater.from(parent.context).inflate(R.layout.item_app, parent, false)
+            return AppViewHolder(view)
+        }
+
+        override fun onBindViewHolder(holder: AppViewHolder, position: Int) {
+            val app = apps[position]
+            holder.bind(app)
+            holder.itemView.setOnClickListener {
+                onAppClicked(app.packageName)
+            }
+        }
+
+        override fun getItemCount(): Int = apps.size
+
+        inner class AppViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            private val appName: TextView = view.findViewById(R.id.appName)
+            private val appIcon: ImageView = view.findViewById(R.id.appIcon)
+
+            fun bind(app: AppInfo) {
+                appName.text = app.name
+                val appIconDrawable = context.packageManager.getApplicationIcon(app.packageName)
+                appIcon.setImageDrawable(appIconDrawable)
+            }
+        }
+    }
+
+
+
+
+
+    private fun openApp(packageName: String) {
+        val intent = requireActivity().packageManager.getLaunchIntentForPackage(packageName)
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), "App not found", Toast.LENGTH_LONG).show()
+        }
+    }
+
+
+
     private fun initUi() {
         radioButtonViewModel.setSelectedOption(1)
         binding.locationTitleEditText.setText(name)
