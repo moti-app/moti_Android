@@ -26,6 +26,7 @@ import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
+import com.example.moti.data.entity.Tag
 import com.example.moti.data.entity.TagColor
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.viewModel.RadioButtonViewModel
@@ -69,7 +70,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private var lat: Double = 0.0
     private var lng: Double = 0.0
     private var previousZoomLevel: Float = -1f // 이전 줌 레벨을 저장하기 위한 변수
-    private lateinit var touchMarker: Marker
+    private var touchMarker: Marker? = null
 
     private lateinit var db: MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
@@ -81,6 +82,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private val markers = mutableListOf<Marker>() // 마커 목록을 저장하기 위한 리스트 추가
 
     private val bitmapDescriptorCache = mutableMapOf<Int, BitmapDescriptor>()
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         db = MotiDatabase.getInstance(requireActivity().applicationContext)!!
@@ -95,6 +97,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(this)
+
 
         view.findViewById<ImageButton>(R.id.btnMyLocation).setOnClickListener {
             if (ActivityCompat.checkSelfPermission(requireContext(),
@@ -130,7 +133,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private fun updateMarkerColor(tagColor: TagColor) {
         // 터치 마커의 색상을 업데이트하는 코드
         val iconResId = tagColorToIconMap[tagColor] ?: R.drawable.default_pin_marker
-        touchMarker.setIcon(bitmapDescriptorFromVector(requireContext(), iconResId))
+        touchMarker?.setIcon(bitmapDescriptorFromVector(requireContext(), iconResId))
     }
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
@@ -197,7 +200,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         addMemoBottomSheet.onDismissListener = {
             bottomSheetVisible = false
             googleMap.setPadding(0, 0, 0, 0)
-            touchMarker.remove()
+            touchMarker?.remove()
             googleMap.clear()
             getAlarm()
         }
