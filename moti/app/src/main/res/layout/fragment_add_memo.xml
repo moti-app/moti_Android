@@ -548,14 +548,14 @@
                             android:textColor="@color/mt_main" />
                     </LinearLayout>
 
-                    <androidx.appcompat.widget.SwitchCompat
-                        android:id="@+id/add_memo_toggle2_sc"
-                        android:layout_width="50dp"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        style="@style/category_toggle"/>
+<!--                    <androidx.appcompat.widget.SwitchCompat-->
+<!--                        android:id="@+id/add_memo_toggle2_sc"-->
+<!--                        android:layout_width="50dp"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        app:layout_constraintTop_toTopOf="parent"-->
+<!--                        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        style="@style/category_toggle"/>-->
 
                 </LinearLayout>
 
