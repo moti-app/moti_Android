@@ -65,6 +65,9 @@ import kotlin.math.sqrt
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener,SensorEventListener {
+
+    private val tagColorViewModel: TagColorViewModel by activityViewModels()
+
     private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
     private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
@@ -694,8 +697,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         val isTagDeselected = toggleTagSize(tagOnImageView, tagOffImageView, tagColor)
         if (isTagDeselected) {
             binding.tagDetailTextView.text = "없음"
-        } else {
+        }
+        else {
             binding.tagDetailTextView.text = tagText
+            tagColorViewModel.setSelectedTagColor(tagColor)  // 변경 사항 알림
         }
     }
     override fun onResume() {

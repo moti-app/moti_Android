@@ -27,11 +27,13 @@ import androidx.fragment.app.activityViewModels
 import com.example.moti.R
 import com.example.moti.data.MotiDatabase
 import com.example.moti.data.entity.Alarm
+import com.example.moti.data.entity.TagColor
 import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentMapBinding
 import com.example.moti.ui.addMemo.AddLocationMemoFragment
+import com.example.moti.ui.addMemo.TagColorViewModel
 import com.example.moti.ui.search.SearchActivity
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -62,6 +64,8 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     private var currentCircle: Circle? = null // 현재 원을 저장할 변수 추가
     private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var currentRadius: Double? = null // 현재 지름 저장할 변수 추가
+
+    private val tagColorViewModel: TagColorViewModel by activityViewModels()
 
     private var lat: Double = 0.0
     private var lng: Double = 0.0
@@ -111,15 +115,24 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 lat = result.data?.getStringExtra("lat")!!.toDouble()
                 lng = myData?.getStringExtra("lng")!!.toDouble()
 
-                showAddMemoBottomSheet(name!!, lat, lng, null)
+                showAddMemoBottomSheet(name!!, lat, lng, null, TagColor.BU)
             }
         }
         binding.btnSearch.setOnClickListener() {
             val intent = Intent(activity, SearchActivity::class.java)
             resultLauncher.launch(intent)
         }
+
+        tagColorViewModel.selectedTagColor.observe(viewLifecycleOwner) { tagColor ->
+            updateMarkerColor(tagColor)
+        }
     }
 
+    private fun updateMarkerColor(tagColor: TagColor) {
+        // 터치 마커의 색상을 업데이트하는 코드
+        val iconResId = tagColorToIconMap[tagColor] ?: R.drawable.default_pin_marker
+        touchMarker.setIcon(bitmapDescriptorFromVector(requireContext(), iconResId))
+    }
     override fun onMapReady(googleMap: GoogleMap) {
         this.googleMap = googleMap
 
@@ -129,7 +142,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         googleMap.setOnMapClickListener { latLng ->
             lat = latLng.latitude
             lng = latLng.longitude
-            showAddMemoBottomSheet("Enter title", lat, lng, null)
+            showAddMemoBottomSheet("Enter title", lat, lng, null, TagColor.BU)
         }
         getAlarm()
         googleMap.setOnMarkerClickListener(this)
@@ -140,7 +153,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         val alarmId = arguments?.getLong("alarmId")
 
         if (alarmTitle != null && alarmXLocation != null && alarmYLocation != null && alarmId != null) {
-            showAddMemoBottomSheet(alarmTitle, alarmXLocation, alarmYLocation, alarmId)
+            showAddMemoBottomSheet(alarmTitle, alarmXLocation, alarmYLocation, alarmId, TagColor.BU)
         } else {
             enableMyLocationIfPermitted()
         }
@@ -162,7 +175,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             val zoomLevel = googleMap.cameraPosition.zoom
             if (previousZoomLevel != -1f && ((previousZoomLevel < 15 && zoomLevel >= 15) || (previousZoomLevel >= 15 && zoomLevel < 15))) {
                 // 경계값이 전환될 때만 updateMarkers 실행
-                updateMarkers(if (zoomLevel >= 15) R.drawable.ic_launcher_background else R.drawable.blue_pin_marker)
+                updateMarkers()
             }
             previousZoomLevel = zoomLevel
         }
@@ -173,7 +186,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), zoomLevel))
     }
 
-    private fun showAddMemoBottomSheet(name: String, lat: Double, lng: Double, id: Long?) {
+    private fun showAddMemoBottomSheet(name: String, lat: Double, lng: Double, id: Long?, tagColor: TagColor) {
         this.lat = lat
         this.lng = lng
         val addMemoBottomSheet = AddLocationMemoFragment.newInstance(name, lat, lng, id)
@@ -188,7 +201,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         bottomSheetVisible = true
         googleMap.setPadding(0, 0, 0, 1260)
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(lat, lng), defaultMapZoomLevel))
-        addTouchMarker(googleMap)
+        addTouchMarker(googleMap, tagColor)
     }
 
     private fun enableMyLocationIfPermitted() {
@@ -230,30 +243,41 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             }
         }
     }
-    private fun addTouchMarker(googleMap: GoogleMap) {
+    private fun addTouchMarker(googleMap: GoogleMap, tagColor: TagColor) {
+        val iconResId = tagColorToIconMap[tagColor] ?: R.drawable.default_pin_marker
         touchMarker = googleMap.addMarker(
             MarkerOptions()
                 .position(LatLng(lat, lng))
-                .icon(bitmapDescriptorFromVector(requireContext(), R.drawable.blue_pin_marker))
+                .icon(bitmapDescriptorFromVector(requireContext(), iconResId))
         )!!
     }
     private fun addMarkers(googleMap: GoogleMap) {
         markers.clear() // 마커 리스트 초기화
         places.forEach { place ->
+            val iconResId = tagColorToIconMap[place.tagColor] ?: R.drawable.default_pin_marker // 기본 아이콘 설정
             val marker = googleMap.addMarker(
                 MarkerOptions()
                     .title(place.title)
                     .position(LatLng(place.location.x, place.location.y))
                     .snippet(place.alarmId.toString())
-                    .icon(bitmapDescriptorFromVector(requireContext(), R.drawable.blue_pin_marker))
+                    .icon(bitmapDescriptorFromVector(requireContext(), iconResId))
             )
             marker?.let {
                 markers.add(it) // 마커를 리스트에 추가
             }
         }
     }
+    private val tagColorToIconMap = mapOf(
+        TagColor.RD to R.drawable.red_pin_marker,
+        TagColor.OG to R.drawable.orange_pin_marker,
+        TagColor.YE to R.drawable.yellow_pin_marker,
+        TagColor.GN to R.drawable.green_pin_marker,
+        TagColor.BU to R.drawable.blue_pin_marker,
+        TagColor.PU to R.drawable.purple_pin_marker,
+        TagColor.BK to R.drawable.black_pin_marker
+    )
 
-    private fun updateMarkers(iconResId: Int) {
+    private fun updateMarkers() {
         markers.forEach { marker ->
             // 마커 아이콘을 변경하는 애니메이션
             val fadeOut = ValueAnimator.ofFloat(1f, 0f)
@@ -269,7 +293,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     val icon = if (googleMap.cameraPosition.zoom >= 15) {
                         place?.let { createCustomMarker(requireContext(), it) }
                     } else {
-                        BitmapDescriptorFactory.fromResource(iconResId)
+                        place?.let { tagColorToIconMap[it.tagColor] }?.let { bitmapDescriptorFromVector(requireContext(), it) }
                     }
                     icon?.let { marker.setIcon(it) }
 
@@ -336,7 +360,9 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
     override fun onMarkerClick(p0: Marker): Boolean {
         lat = p0.position.latitude
         lng = p0.position.longitude
-        showAddMemoBottomSheet(p0.title.toString(), lat, lng, p0.snippet?.toLong())
+        val place = places.find { it.alarmId.toString() == p0.snippet }
+        val tagColor = place?.tagColor ?: TagColor.BU // 기본값은 BLUE
+        showAddMemoBottomSheet(p0.title.toString(), lat, lng, p0.snippet?.toLong(), tagColor)
         return true
     }
 
