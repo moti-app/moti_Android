@@ -13,7 +13,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -168,7 +167,11 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 2 -> {
                     // 새로운 원을 추가
                     addCircle(Color.GRAY)
-                }}}
+                }
+                else -> {
+                    currentCircle?.remove()
+                }
+            }}
 
         // 카메라 이동 완료 리스너 설정
         googleMap.setOnCameraMoveListener {
@@ -291,7 +294,7 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                 override fun onAnimationEnd(animation: Animator) {
                     val place = places.find { it.alarmId.toString() == marker.snippet }
                     val icon = if (googleMap.cameraPosition.zoom >= 15) {
-                        place?.let { createCustomMarker(requireContext(), it) }
+                        place?.let { context?.let { it1 -> createCustomMarker(it1, it) } }
                     } else {
                         place?.let { tagColorToIconMap[it.tagColor] }?.let { bitmapDescriptorFromVector(requireContext(), it) }
                     }

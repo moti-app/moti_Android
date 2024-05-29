@@ -63,7 +63,7 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
     private fun initRecyclerView() {
         getAlarm { alarmList ->
             memoAlarmAdapter = MemoAlarmRVAdapter(alarmList)
-            val memoAlarmManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+            val memoAlarmManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
             binding.memoAlarmRv.apply {
                 adapter = memoAlarmAdapter
@@ -118,7 +118,8 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
                     val sLng = alarmList[position].location.y
                     val sContents = alarmList[position].context
                     val sRadius = alarmList[position].radius
-                    val uri = generateMotiUri(sTitle, sContents, sLat, sLng, sRadius.toInt())
+                    val sAddress = alarmList[position].location.address
+                    val uri = generateMotiUri(sTitle, sContents, sLat, sLng, sRadius.toInt(), sAddress)
                     val bitmap = generateQRCode(uri)
                     bitmap?.let { share(requireContext(), it) }
                 }
@@ -152,14 +153,15 @@ class MemoFragment : Fragment(), BottomSheetCancelShareInterface {
             }
         }
     }
-    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
+    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int, param6:String): String {
         val encodedParam1 = URLEncoder.encode(param1, StandardCharsets.UTF_8.toString())
         val encodedParam2 = URLEncoder.encode(param2, StandardCharsets.UTF_8.toString())
         val encodedParam3 = param3.toString()
         val encodedParam4 = param4.toString()
         val encodedParam5 = param5.toString()
+        val encodedParam6 = URLEncoder.encode(param6, StandardCharsets.UTF_8.toString())
 
-        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5"
+        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5&param6=$encodedParam6"
     }
     private fun generateQRCode(text: String): Bitmap? {
         return try {

@@ -9,10 +9,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -23,9 +25,9 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -58,6 +60,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
@@ -251,7 +254,12 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             } else {
                 binding.addMemoRepeatDayLl.visibility = View.GONE
                 binding.repeatDetailTextView.visibility = View.GONE
+
+                repeatDay = emptyList()
             }
+
+            // repeatDay 상태에 따라 isRepeat 업데이트
+            updateIsRepeat()
         }
 
         //알림 유형 구현
@@ -291,7 +299,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     location = location,
                     whenArrival = whenArrival,
                     radius = radius,
-                    isRepeat = repeatToggle.isChecked,
+                    isRepeat = isRepeat,
                     repeatDay = repeatDay,
                     hasBanner = hasBanner,
                     tagColor = selectedTagColor,
@@ -371,6 +379,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         onDismissListener?.invoke()  // Notify when the bottom sheet is dismissed
+        radioButtonViewModel.setSelectedOption(3) // 예외 처리
     }
 
     override fun onReverseGeocodeSuccess(address: String) {
@@ -470,11 +479,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                         alarmtone = fetchedAlarm.alarmtone
                         useVibration = fetchedAlarm.useVibration
 
-                        if(fetchedAlarm.image!=null){
+                        if(fetchedAlarm.image!=Uri.parse("null")){//이미지 있을때. DB에 들어갔다 나오면서 converter때문에 null이 Uri값으로 나타나짐
                             imageUri = fetchedAlarm.image
                             binding.memoImg.visibility = View.VISIBLE
                             val file = File(imageUri.toString())
                             Glide.with(this@AddLocationMemoFragment).load(file).into(binding.memoImg)
+                        }else{
+                            binding.memoImg.visibility = View.GONE
                         }
                         // TODO: 태그
                     }
@@ -513,6 +524,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 it + day
             }
         } ?: listOf(day) // repeatDay가 null인 경우, 선택된 day를 포함하는 리스트로 초기화
+
+        updateIsRepeat()
+    }
+
+    // repeatDay의 상태에 따라 isRepeat 값을 업데이트하는 함수
+    private fun updateIsRepeat() {
+        isRepeat = !repeatDay.isNullOrEmpty()
     }
 
     // UI 업데이트를 위한 함수
@@ -553,6 +571,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         selectedTagColor = tagColor
         tagOffImageView.visibility = View.GONE
         tagOnImageView.visibility = View.VISIBLE
+
     }
 
     // 반복 요일 선택 함수
@@ -689,7 +708,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 val acceleration = sqrt((x * x + y * y + z * z).toDouble()) - SensorManager.GRAVITY_EARTH
 
                 if (acceleration > shakeThreshold) {
-                    val uri = generateMotiUri(name, context, lat, lng, radius.toInt())
+                    val sName = binding.locationTitleEditText.text.toString()
+                    val sContext = binding.locationDetailTextView.text.toString()
+                    val uri = generateMotiUri(sName, sContext, lat, lng, radius.toInt(), address)
                     val bitmap = generateQRCode(uri)
                     bitmap?.let { copyImageToClipboard(requireContext(), it) }
                     lastShakeTime = currentTime
@@ -714,14 +735,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
         }
     }
-    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int): String {
+    private fun generateMotiUri(param1: String, param2: String, param3: Double, param4: Double, param5: Int, param6:String): String {
         val encodedParam1 = URLEncoder.encode(param1, StandardCharsets.UTF_8.toString())
         val encodedParam2 = URLEncoder.encode(param2, StandardCharsets.UTF_8.toString())
         val encodedParam3 = param3.toString()
         val encodedParam4 = param4.toString()
         val encodedParam5 = param5.toString()
+        val encodedParam6 = URLEncoder.encode(param6, StandardCharsets.UTF_8.toString())
 
-        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5"
+        return "moti://add?param1=$encodedParam1&param2=$encodedParam2&param3=$encodedParam3&param4=$encodedParam4&param5=$encodedParam5&param6=$encodedParam6"
     }
     private fun generateQRCode(text: String): Bitmap? {
         return try {
@@ -773,20 +795,43 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     //이미지를 앱 내부 저장소로 복사 한뒤 Uri반환
     private fun saveImageToInternalStorage(uri : Uri?):Uri?{
         if(uri!=null) {
-            //영구적인 uri권한 부여
+            // 영구적인 uri권한 부여
             val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
             requireActivity().contentResolver.takePersistableUriPermission(uri, flag)
 
             val inputStream = requireActivity().contentResolver.openInputStream(uri)
-            var bitmap = BitmapFactory.decodeStream(inputStream)
+            var originalBitmap = BitmapFactory.decodeStream(inputStream)
             inputStream?.close()
-            val filename = "IMG_${System.currentTimeMillis()}.png"
-            val file = File(requireActivity().cacheDir, filename)
-            val outputStream = FileOutputStream(file)
+
+            if (originalBitmap == null) {
+                Log.d("hjk", "Failed to decode bitmap")
+                return null
+            }
+
+            // EXIF orientation data 읽기
+            val exifInputStream: InputStream? = requireActivity().contentResolver.openInputStream(uri)
+            val exif = exifInputStream?.let { ExifInterface(it) }
+            val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+            exifInputStream?.close()
+
+            // 비트맵 회전
+            val rotatedBitmap = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(originalBitmap, 90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(originalBitmap, 180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(originalBitmap, 270f)
+                else -> originalBitmap
+            }
+
+            var bitmap = rotatedBitmap
             while(bitmap.height*bitmap.width > 5000000) {//너무 큰 이미지 scaling
                 bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt(), false)
             }
             Log.d("hjk", "density"+bitmap.height*bitmap.width)
+
+            //앱 내부 저장소에 저장
+            val filename = "IMG_${System.currentTimeMillis()}.png"
+            val file = File(requireActivity().cacheDir, filename)
+            val outputStream = FileOutputStream(file)
             bitmap.compress(Bitmap.CompressFormat.PNG, 80, outputStream)
 
             outputStream.close()
@@ -797,4 +842,9 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         return null
     }
 
+    //비트맵 회전
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix().apply { postRotate(degrees) }
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
 }
