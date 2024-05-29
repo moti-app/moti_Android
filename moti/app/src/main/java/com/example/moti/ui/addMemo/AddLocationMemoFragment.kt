@@ -68,6 +68,9 @@ import kotlin.math.sqrt
 
 class AddLocationMemoFragment : BottomSheetDialogFragment(),
     ReverseGeocoding.ReverseGeocodingListener,SensorEventListener {
+
+    private val tagColorViewModel: TagColorViewModel by activityViewModels()
+
     private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
     private val radiusViewModel: RadiusViewModel by activityViewModels()
     private var name: String = "noname"
@@ -81,11 +84,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var location : Location = Location(lat,lng,address,name)
 
     private var radius : Double = 1000.0
-    private var isRepeat : Boolean = true
+    private var isRepeat : Boolean = false
     private var repeatDay : List<Week>? = null
     private var hasBanner : Boolean = true
     private var tagColor : TagColor = TagColor.RD
-    private var selectedTagColor: TagColor? = null
+    private var selectedTagColor: TagColor = TagColor.BU
     private var imageUri : Uri? = null
     private var newImageUri : Uri? = null
 
@@ -100,7 +103,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     private var useVibration : Boolean = true;
 
     private var repeatChecked = false
-    private var tagChecked = false
+    private var tagChecked = true
 
     private lateinit var db:MotiDatabase
     private lateinit var alarmRepository: AlarmRepository
@@ -260,28 +263,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         }
 
         //알림 유형 구현
+
         binding.alarmTypeDetailTextView.text = if (hasBanner) "배너" else "전체 화면"
-
-        // 반복 요일 구현 (repeatDay)
-        val tagToggle = binding.addMemoToggle2Sc
-
-        tagToggle.isChecked = repeatChecked
-
-        tagToggle.setOnClickListener {
-            tagToggle.isChecked = !tagChecked
-            tagChecked = !tagChecked
-
-            if (tagToggle.isChecked) {
-                binding.addMemoTagLl.visibility = View.VISIBLE
-
-                tagColorClick()
-            } else {
-                binding.addMemoTagLl.visibility = View.GONE
-                binding.tagDetailTextView.visibility = View.GONE
-
-                selectedTagColor = null
-            }
-        }
+        binding.addMemoTagLl.visibility = View.VISIBLE
+        tagColorSelect(selectedTagColor)
+        tagColorClick()
 
         // TODO: 반경 구현
 
@@ -475,19 +461,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 //                            binding.repeatSwitch.isChecked = false
 //                        }
 
-                        selectedTagColor = fetchedAlarm.tagColor
+                        //binding.addMemoToggle2Sc.isChecked = true
+                        //색상 토글 없앰요
 
-                        if (fetchedAlarm.tagColor != null) {
-                            binding.addMemoToggle2Sc.isChecked = true
-                            tagChecked = true
-                            binding.addMemoTagLl.visibility = View.VISIBLE
-                            tagColorSelect(fetchedAlarm.tagColor)
-                            tagColorClick()
-                        } else {
-                            binding.addMemoToggle2Sc.isChecked = false
-                            tagChecked = false
-                            binding.addMemoTagLl.visibility = View.GONE
-                        }
+                        selectedTagColor = fetchedAlarm.tagColor!!
+                        tagChecked = true
+                        binding.addMemoTagLl.visibility = View.VISIBLE
+                        tagColorClick()
+                        tagColorSelect(selectedTagColor)
+
 
                         if (fetchedAlarm.hasBanner != null) {
                             hasBanner = fetchedAlarm.hasBanner
@@ -568,7 +550,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     // 현재 선택된 태그의 ImageView 참조를 저장하기 위한 변수
     private var selectedImageView: ImageView? = null
 
-    private fun toggleTagSize(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor): Boolean {
+    private fun toggleTagSize(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor) {
         val scale = tagOnImageView.context.resources.displayMetrics.density
         val newSize = (16 * scale + 0.5f).toInt() // Convert dp to pixels
         tagOffImageView.visibility = View.GONE
@@ -581,27 +563,15 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             selectedImageView!!.layoutParams = layoutParams
         }
 
-        if (selectedImageView == tagOnImageView) {
-            val layoutParams = tagOnImageView.layoutParams
-            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
-            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
-            tagOnImageView.layoutParams = layoutParams
-            selectedImageView = null
-            selectedTagColor = null
-            tagOffImageView.visibility = View.VISIBLE
-            tagOnImageView.visibility = View.GONE
-            return true // 선택된 태그가 취소되었음을 의미
-        } else {
-            val layoutParams = tagOnImageView.layoutParams
-            layoutParams.width = newSize
-            layoutParams.height = newSize
-            tagOnImageView.layoutParams = layoutParams
-            selectedImageView = tagOnImageView
-            selectedTagColor = tagColor
-            tagOffImageView.visibility = View.GONE
-            tagOnImageView.visibility = View.VISIBLE
-            return false // 새로운 태그가 선택되었음을 의미
-        }
+        val layoutParams = tagOnImageView.layoutParams
+        layoutParams.width = newSize
+        layoutParams.height = newSize
+        tagOnImageView.layoutParams = layoutParams
+        selectedImageView = tagOnImageView
+        selectedTagColor = tagColor
+        tagOffImageView.visibility = View.GONE
+        tagOnImageView.visibility = View.VISIBLE
+
     }
 
     // 반복 요일 선택 함수
@@ -712,13 +682,11 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     // 태그 클릭 시 텍스트, 사이즈 변경
     private fun handleTagClick(tagOnImageView: ImageView, tagOffImageView: ImageView, tagColor: TagColor, tagText: String) {
-        val isTagDeselected = toggleTagSize(tagOnImageView, tagOffImageView, tagColor)
-        if (isTagDeselected) {
-            binding.tagDetailTextView.text = "없음"
-        } else {
-            binding.tagDetailTextView.text = tagText
-        }
+        toggleTagSize(tagOnImageView, tagOffImageView, tagColor)
+        binding.tagDetailTextView.text = tagText
+        tagColorViewModel.setSelectedTagColor(tagColor)  // 변경 사항 알림
     }
+
     override fun onResume() {
         sensorManager.registerListener(this,accelerometer,SensorManager.SENSOR_DELAY_NORMAL)
         super.onResume()
