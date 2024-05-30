@@ -823,10 +823,10 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
             }
 
             var bitmap = rotatedBitmap
-            while(bitmap.height*bitmap.width > 5000000) {//너무 큰 이미지 scaling
+            while(bitmap.allocationByteCount > 5000000) {//너무 큰 이미지 scaling
                 bitmap = Bitmap.createScaledBitmap(bitmap, (bitmap.width*0.7).toInt(), (bitmap.height*0.7).toInt(), false)
             }
-            Log.d("hjk", "density"+bitmap.height*bitmap.width)
+            Log.d("hjk", "byte"+bitmap.allocationByteCount)
 
             //앱 내부 저장소에 저장
             val filename = "IMG_${System.currentTimeMillis()}.png"
