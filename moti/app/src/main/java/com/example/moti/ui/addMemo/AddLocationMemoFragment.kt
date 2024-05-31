@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -44,6 +45,7 @@ import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.ui.afterAction.AfterAction
 import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -353,7 +355,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 // 필요한 경우 사용
             }
         })
+        val afterActionLinearLayout: LinearLayout = view.findViewById(R.id.afterActionLinearLayout)
+        afterActionLinearLayout.setOnClickListener {
+            val intent = Intent(activity, AfterAction::class.java)
+            startActivity(intent)
+        }
+
     }
+
     private fun initUi() {
         radioButtonViewModel.setSelectedOption(1)
         binding.locationTitleEditText.setText(name)
