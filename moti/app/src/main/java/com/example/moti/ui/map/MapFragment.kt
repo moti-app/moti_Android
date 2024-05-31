@@ -141,8 +141,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
             R.array.tag_colors_array,
             android.R.layout.simple_spinner_item
         )
+
+        filteringMarkers()
+        
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         colorFilterSpinner.adapter = adapter
+
 
         colorFilterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -156,12 +160,12 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
                     7 -> TagColor.BK
                     else -> null
                 }
-                updateMarkers()
+                filteringMarkers()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {
                 selectedTagColor = null
-                updateMarkers()
+                filteringMarkers()
             }
         }
     }
@@ -318,6 +322,13 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         TagColor.PU to R.drawable.purple_pin_marker,
         TagColor.BK to R.drawable.black_pin_marker
     )
+
+    private fun filteringMarkers() {
+        markers.forEach { marker ->
+            val place = places.find { it.alarmId.toString() == marker.snippet }
+            marker.isVisible = selectedTagColor == null || place?.tagColor == selectedTagColor
+        }
+    }
 
     private fun updateMarkers() {
         markers.forEach { marker ->
