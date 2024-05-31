@@ -135,18 +135,16 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
         tagColorViewModel.selectedTagColor.observe(viewLifecycleOwner) { tagColor ->
             updateMarkerColor(tagColor)
         }
+
+
         colorFilterSpinner = view.findViewById(R.id.spinner_color_filter)
         val adapter = ArrayAdapter.createFromResource(
             requireContext(),
             R.array.tag_colors_array,
-            android.R.layout.simple_spinner_item
+            R.layout.custom_spinner_item
         )
-
-        filteringMarkers()
-        
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter.setDropDownViewResource(R.layout.custom_spinner_dropdown_item)
         colorFilterSpinner.adapter = adapter
-
 
         colorFilterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
