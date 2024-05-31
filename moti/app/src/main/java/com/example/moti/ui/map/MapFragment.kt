@@ -16,7 +16,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ImageButton
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
@@ -55,6 +58,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+
+    private lateinit var colorFilterSpinner: Spinner
+    private var selectedTagColor: TagColor? = null
+
     private val radioButtonViewModel: RadioButtonViewModel by activityViewModels()
     private lateinit var googleMap: GoogleMap
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -127,6 +134,35 @@ class MapFragment : Fragment(), OnMapReadyCallback, GoogleMap.OnMarkerClickListe
 
         tagColorViewModel.selectedTagColor.observe(viewLifecycleOwner) { tagColor ->
             updateMarkerColor(tagColor)
+        }
+        colorFilterSpinner = view.findViewById(R.id.spinner_color_filter)
+        val adapter = ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.tag_colors_array,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        colorFilterSpinner.adapter = adapter
+
+        colorFilterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedTagColor = when (position) {
+                    1 -> TagColor.RD
+                    2 -> TagColor.OG
+                    3 -> TagColor.YE
+                    4 -> TagColor.GN
+                    5 -> TagColor.BU
+                    6 -> TagColor.PU
+                    7 -> TagColor.BK
+                    else -> null
+                }
+                updateMarkers()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                selectedTagColor = null
+                updateMarkers()
+            }
         }
     }
 
