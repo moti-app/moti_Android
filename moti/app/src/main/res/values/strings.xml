@@ -16,4 +16,15 @@
     <string name="silent_alarm_summary">silent alarm</string>
     <string name="cancel_share">공유 취소</string>
     <string name="complete">완료</string>
+    <string-array name="tag_colors_array">
+        <item>모든 색상</item>
+        <item>빨강</item>
+        <item>주황</item>
+        <item>노랑</item>
+        <item>초록</item>
+        <item>파랑</item>
+        <item>보라</item>
+        <item>검정</item>
+    </string-array>
+
 </resources>
