@@ -1,6 +1,5 @@
 package com.example.moti.data.entity
 
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -29,7 +28,14 @@ data class Alarm (
     @TypeConverters(AlarmtoneConverter::class)
     var alarmtone: Alarmtone?,
     var useVibration : Boolean,
-    var isSleep : Boolean
+    var isSleep : Boolean,
+    var isOnAppMode: Boolean, //앱열기 상태 저장
+    var isMessageMode: Boolean, //메시지 상태 저장
+    var isSilentMode: Boolean, // 무음 모드 상태 저장
+    var phoneNumber: String?, // 전화번호 저장
+    var message: String?, // 문자 내역 저장
+    var appPackageName: String? // 앱 패키지명 저장
+
 ) {
     constructor(
         title : String,
@@ -46,7 +52,13 @@ data class Alarm (
         image : Uri?,
         alarmtone: Alarmtone?,
         useVibration : Boolean,
-        isSleep: Boolean
+        isSleep: Boolean,
+        isOnAppMode: Boolean,
+        isMesaageMode: Boolean,
+        isSilentMode: Boolean,
+        phoneNumber: String?,
+        message: String?,
+        appPackageName: String?
     ) : this(
         0,
         title,
@@ -63,6 +75,12 @@ data class Alarm (
         image,
         alarmtone,
         useVibration,
-        isSleep
+        isSleep,
+        isOnAppMode,
+        isMesaageMode,
+        isSilentMode,
+        phoneNumber,
+        message,
+        appPackageName
     )
 }

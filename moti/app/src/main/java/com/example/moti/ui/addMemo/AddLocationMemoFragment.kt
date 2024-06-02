@@ -23,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
@@ -44,6 +45,7 @@ import com.example.moti.data.repository.AlarmRepository
 import com.example.moti.data.viewModel.RadioButtonViewModel
 import com.example.moti.data.viewModel.RadiusViewModel
 import com.example.moti.databinding.FragmentAddMemoBinding
+import com.example.moti.ui.afterAction.AfterAction
 import com.example.moti.ui.alarm.alarmCategory
 import com.example.moti.ui.search.ReverseGeocoding
 import com.google.android.material.bottomsheet.BottomSheetDialog
@@ -101,6 +103,14 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
 
     private var alarmtone : Alarmtone? = Alarmtone.Default;
     private var useVibration : Boolean = true;
+    private var onAppMode : Boolean = false
+    private var messageMode : Boolean = false
+    private var silentMode : Boolean = false
+    private var phoneNum : String? = null
+    private var messageText : String? = null
+    private var appPackage : String? = null
+    private var contactName: String? = null
+    private var appName: String? = null
 
     private var repeatChecked = false
     private var tagChecked = true
@@ -118,7 +128,6 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
         private const val ARG_LNG = "lng"
         private const val ARG_id = "id"
         private const val REQUEST_CODE_ALARM_CATEGORY = 1
-        private const val ALARM_CATEGORY_REQUEST_CODE = 1001
         fun newInstance(name: String, lat: Double, lng: Double,id:Long?): AddLocationMemoFragment {
             val fragment = AddLocationMemoFragment()
             val args = Bundle().apply {
@@ -139,6 +148,24 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     var onDismissListener: (() -> Unit)? = null
 
     private val reverseGeocoding = ReverseGeocoding(this)
+
+    private val startForResult =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.let {
+                    phoneNum = it.getStringExtra("contactPhone")
+                    messageMode = it.getBooleanExtra("messageSwitchOn", false)
+                    messageText = it.getStringExtra("messageText")
+                    onAppMode = it.getBooleanExtra("onAppSwitchOn", false)
+                    appPackage = it.getStringExtra("selectedAppPackageName")
+                    silentMode = it.getBooleanExtra("silentSwitchOn", false)
+                    contactName = it.getStringExtra("contactName")
+                    appName = it.getStringExtra("appName")
+                }
+            }
+        }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -213,6 +240,7 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initUi()
+
         binding.inOrOutRadioGroup.setOnCheckedChangeListener { radioGroup, i ->
             when(i) {
                 binding.inRadioBtn.id -> {
@@ -308,7 +336,13 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                     image = imageUri,
                     alarmtone = alarmtone,
                     useVibration = useVibration,
-                    isSleep = false
+                    isSleep = false,
+                    isOnAppMode = onAppMode,
+                    isMesaageMode = messageMode,
+                    isSilentMode = silentMode,
+                    phoneNumber = phoneNum,
+                    message = messageText,
+                    appPackageName = appPackage
                 )
                 if (alarmId != null) {
                     alarm.alarmId = alarmId as Long
@@ -353,7 +387,25 @@ class AddLocationMemoFragment : BottomSheetDialogFragment(),
                 // 필요한 경우 사용
             }
         })
+        val afterActionLinearLayout: LinearLayout = view.findViewById(R.id.afterActionLinearLayout)
+        afterActionLinearLayout.setOnClickListener {
+            val intent = Intent(activity, AfterAction::class.java)
+            intent.putExtra("silentSwitchOn", silentMode)
+            intent.putExtra("contactPhone", phoneNum)
+            intent.putExtra("messageSwitchOn", messageMode)
+            intent.putExtra("messageText", messageText)
+            intent.putExtra("onAppSwitchOn", onAppMode)
+            intent.putExtra("selectedAppPackageName", appPackage)
+            intent.putExtra("contactName", contactName)
+            intent.putExtra("appName", appName)
+            startForResult.launch(intent)
+        }
+
+
+
+
     }
+
     private fun initUi() {
         radioButtonViewModel.setSelectedOption(1)
         binding.locationTitleEditText.setText(name)

@@ -11,12 +11,11 @@ import com.example.moti.data.dao.RecentLocationDao
 import com.example.moti.data.dao.TagDao
 import com.example.moti.data.entity.Alarm
 import com.example.moti.data.entity.AlarmAndTag
-import com.example.moti.data.entity.Location
 import com.example.moti.data.entity.RecentLocation
 import com.example.moti.data.entity.Tag
 
 @Database(entities = [Alarm::class, AlarmAndTag::class, RecentLocation::class, Tag::class],
-    version = 7)
+    version = 8)
 @TypeConverters(Converters::class)
 abstract class MotiDatabase :RoomDatabase(){
     abstract fun alarmDao():AlarmDao
