@@ -1,18 +1,23 @@
 package com.example.moti.alarm
 
+import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
-import android.media.RingtoneManager
+import android.media.AudioManager
 import android.os.Build
 import android.os.PowerManager
+import android.provider.Settings
+import android.telephony.SmsManager
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.moti.R
 import com.example.moti.data.Alarmtone
 import com.example.moti.data.MotiDatabase
@@ -37,11 +42,14 @@ class AlarmShooter(private val context: Context) {
 
             if (allAlarms != null) {
                 for (alarm in allAlarms) {
-                    // 반복 구분 및 요일 확인 로직 추가 가능
+
+
+                    // 반복 구분 및 요일 확인 로직
                     Log.e("SLEEP", alarm.isSleep.toString())
-                    if(alarm.isSleep){
+                    if (alarm.isSleep) {
                         continue
                     }
+
                     val alarmLocation = Location("").apply {
                         latitude = alarm.location.x
                         longitude = alarm.location.y
@@ -52,39 +60,51 @@ class AlarmShooter(private val context: Context) {
                     val today = Week.values()[now.dayOfWeek.ordinal]
 
                     Log.e("REPEAT", alarm.isRepeat.toString())
-                    if(!alarm.isRepeat){
-                        //반복 기능이 없다면 앞으로 울리지 않는다!
+                    if (!alarm.isRepeat) {
+                        // 반복 기능이 없다면 앞으로 울리지 않는다!
                         alarm.isSleep = true
-                    }
-                    else if (alarm.repeatDay != null && !alarm.repeatDay!!.contains(today)) {
-                        //반복인데 repeatDay에 오늘이 포함되어 있지 않다면 패스!!
+                    } else if (alarm.repeatDay != null && !alarm.repeatDay!!.contains(today)) {
+                        // 반복인데 repeatDay에 오늘이 포함되어 있지 않다면 패스!!
                         continue
                     }
+
                     if (distance <= alarm.radius && alarm.whenArrival || distance >= alarm.radius && !alarm.whenArrival) {
                         val now = LocalDateTime.now()
                         val lastNoti = alarm.lastNoti
                         val intervalMinutes = alarm.interval ?: 1440
 
                         if (lastNoti == null || ChronoUnit.MINUTES.between(lastNoti, now) >= intervalMinutes) {
-
-                            if(alarm.hasBanner){
-                                //배너 설정 on -> 배너 알림
+                            if (alarm.hasBanner) {
+                                // 배너 설정 on -> 배너 알림
                                 sendNotification(alarm)
-                            }
-                            else{
-                                //전체화면알림
+                            } else {
+                                // 전체화면알림
                                 sendFullScreenAlarm(context, alarm)
                             }
 
                             alarm.lastNoti = now
                             database?.alarmDao()?.update(alarm)
                         }
-                    }
+                        if (alarm.isSilentMode) {
+                            Log.d("AlarmShooter", "Silent mode is enabled. Performing silent mode action.")
+                            setSilentMode()
+                        }
 
+                        if (alarm.isOnAppMode) {
+                            Log.d("AlarmShooter", "App mode is enabled. Launching app.")
+                            openApp(alarm.appPackageName)
+                        }
+
+                        if (alarm.phoneNumber != null && alarm.message != null) {
+                            Log.d("AlarmShooter", "Sending SMS to ${alarm.phoneNumber}")
+                            sendSMS(alarm.phoneNumber!!, alarm.message!!)
+                        }
+                    }
                 }
             }
         }
     }
+
 
     private fun sendFullScreenAlarm(context: Context, alarm: Alarm) {
         Log.e("aa", "sendFullScreenAlarm22")
@@ -255,4 +275,58 @@ class AlarmShooter(private val context: Context) {
 
         notificationManager.notify(alarm.alarmId.toInt() + 1024, notification)
     }
+    fun setSilentMode() {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!notificationManager.isNotificationPolicyAccessGranted) {
+                // 권한이 없는 경우 권한 설정 화면으로 이동
+                val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent)
+                return
+            }
+        }
+
+        try {
+            audioManager.ringerMode = AudioManager.RINGER_MODE_SILENT
+            Log.d("AlarmShooter", "Phone set to silent mode")
+        } catch (e: SecurityException) {
+            Log.e("AlarmShooter", "Could not change ringer mode", e)
+        }
+    }
+
+    fun openApp(packageName: String?) {
+        if (packageName.isNullOrEmpty()) {
+            Log.e("AlarmShooter", "Package name is null or empty")
+            return
+        }
+
+        val packageManager = context.packageManager
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+
+        if (launchIntent != null) {
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(launchIntent)
+            Log.d("AlarmShooter", "Launched app: $packageName")
+        } else {
+            Log.e("AlarmShooter", "Cannot find app with package name: $packageName")
+        }
+    }
+
+    fun sendSMS(phoneNumber: String, message: String) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
+            try {
+                val smsManager = SmsManager.getDefault()
+                smsManager.sendTextMessage(phoneNumber, null, message, null, null)
+                Log.d("AlarmShooter", "SMS sent to $phoneNumber")
+            } catch (e: Exception) {
+                Log.e("AlarmShooter", "Failed to send SMS", e)
+            }
+        } else {
+            Log.e("AlarmShooter", "SMS permission not granted")
+        }
+    }
+
 }

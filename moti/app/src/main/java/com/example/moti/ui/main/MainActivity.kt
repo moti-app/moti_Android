@@ -1,6 +1,7 @@
 package com.example.moti.ui.main
 
 import android.Manifest
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -30,6 +31,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
+import android.provider.Settings
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var combinedVibration: CombinedVibration
     private var currentFragmentTag: String? = null
     private var dataSaved = false
+    private val PERMISSION_REQUEST_CODE = 1
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 321
@@ -79,7 +83,33 @@ class MainActivity : AppCompatActivity() {
         vibrator = getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
         vibrationEffect = VibrationEffect.createOneShot(5L, VibrationEffect.DEFAULT_AMPLITUDE)
         combinedVibration = CombinedVibration.createParallel(vibrationEffect)
+        checkAndRequestPermissions()
     }
+    private fun checkAndRequestPermissions() {
+        val requiredPermissions = arrayOf(
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.SEND_SMS
+        )
+
+        val permissionsToRequest = requiredPermissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), PERMISSION_REQUEST_CODE)
+        }
+
+        // Notification Policy Access 권한 확인
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!notificationManager.isNotificationPolicyAccessGranted) {
+                val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+            }
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         // 현재 표시된 프래그먼트의 태그를 저장
@@ -240,7 +270,13 @@ class MainActivity : AppCompatActivity() {
             image = null,
             alarmtone= null,
             useVibration =false,
-            isSleep = false
+            isSleep = false,
+            isOnAppMode = false,
+            isMesaageMode = false,
+            isSilentMode = false,
+            phoneNumber = null,
+            message = null,
+            appPackageName = null
         )
         val list: List<Long> = listOf()
         CoroutineScope(Dispatchers.IO).launch {

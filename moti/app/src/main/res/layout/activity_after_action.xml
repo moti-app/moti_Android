@@ -23,7 +23,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="알림 유형"
+            android:text="알람이 울린 뒤 할 일"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginLeft="8dp" />
@@ -205,6 +205,15 @@
                 style="@style/category_toggle"/>
 
         </LinearLayout>
+
+        <EditText
+            android:id="@+id/messageEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="메시지를 입력하세요"
+            android:visibility="gone"
+            android:padding="10dp"
+            android:background="@color/white" />
     </LinearLayout>
     <View
         android:layout_width="match_parent"
